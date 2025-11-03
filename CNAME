@@ -1,1 +1,3 @@
-www.aandm.hair.com
+| Type  | Name  | Value                |
+| ----- | ----- | -------------------- |
+| CNAME | `www` | `username.github.io` |

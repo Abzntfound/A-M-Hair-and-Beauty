@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>A&M Hair and Beauty - Home</title>
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="glass.css">
+    <link rel="stylesheet" href="products.css">
+    <link rel="stylesheet" href="animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="header" class="glass">
+        <div class="left" onclick="document.location='index.html'">
+          <h1>A&M Hair and Beauty</h1>
+        </div>
+  
+        <div class="right" onclick="document.location='basket.html'">
+          <img src="basket.png" alt="Basket">
+          <span>Basket</span>
+        </div>
+      </div>
+      <div class="slideshow">
+        <img src="oils1.jpg">
+        <img src="oils2.jpg">
+        <img src="oils3.jpg">
+        <div class="slide-content">
+          <h1><strong>Welcome to A&M Hair & Beauty</strong></h1>
+          <p>Reach your hairs maximum potential.</p>
+          <button type="shop" onclick="document.location='#products'">Shop Now</button>
+        </div>
+      </div>
+      <div id="about" class="scroll-text">
+        <h1>All about A&M</h1>
+        <hr>
+        <p>A&M is a hair brand; dedicated to make your hair reach its full potential! Our products increase hair follicle strength whilst it grows. Our different products allow you to make sure your hair is always clean and well oiled.</p>
+        <br>
+      </div>
+      <br>
+      <section id="products" class="scroll-text">
+        <section class="small">
+            <div id="product-1">
+              <br>
+              <img src="oils1.jpg" onclick="showProduct('product1'); document.location='#product1'" >
+              <p>£15.99</p>
+              <p><strong>Hair Serum</strong></p>
+              <ul>
+                <li>Maintain a healthy scalp/hair.</li>
+                <li>Keep your hair bright and bright natural colours.</li>
+              </ul>
+            </div>
+            <div id="product-2">
+              <br>
+              <img src="oils2.jpg" onclick="showProduct('product2'); document.location='#product2'">
+              <p>£3.99</p>
+              <p><strong>Satin Bonnets</strong></p>
+              <ul>
+                <li>To keep a nice controlled environment for oils.</li>
+                <li>For any body no matter what hair.</li>
+              </ul>
+            </div>
+            <div id="button">
+              <button class="button" type="more" onclick="showProducts()"><b>Show More</b></button>
+            </div>
+            <div id="more-products" style="display: none;">
+            <div id="product-3">
+              <br>
+              <img src="oils3.jpg" onclick="showProduct('product3'); ; document.location='#product3'">
+              <p>£12.99</p>
+              <p><strong>Hair Oil</strong></p>
+              <ul>
+                <li>For quicker growth for your hair.</li>
+                <li>Strengthen hair follicles to give long, strong hair.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </section>
+<div id="product1" class="product-detail">
+  <label><h1>Product - Hair Oils</h1></label>
+  <img src="oils1.jpg">
+  <br>
+  <p>Hair oils that satisfy your scalp and increase hair growth!</p>
+  <label>Price: £15.99</label><br>
+  <label>Quantity:</label>
+  <select id="quantity1">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
+  <br><br>
+  <button class="basket-button" onclick="addToBasket('Hair Serum', 15.99, 'oils1.jpg', document.getElementById('quantity1').value)">
+    <img src="basket.png"><p>Add to basket</p>
+  </button>
+</div>
+
+<div id="product2" class="product-detail">
+  <label><h1>Product - Satin Bonnet</h1></label>
+  <img src="oils2.jpg">
+  <br>
+  <p>A fresh satin bonnet to keep oils in your hair while you sleep!</p>
+  <label>Price: £3.99</label><br>
+  <label>Quantity:</label>
+  <select id="quantity2">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
+  <br><br>
+  <button class="basket-button" onclick="addToBasket('Satin Bonnet', 3.99, 'oils2.jpg', document.getElementById('quantity2').value)">
+    <img src="basket.png"><p>Add to basket</p>
+  </button>
+</div>
+
+<div id="product3" class="product-detail">
+  <label><h1>Product - Extra</h1></label>
+  <img src="oils3.jpg">
+  <br>
+  <p>Extra!</p>
+  <label>Price: £12.99</label><br>
+  <label>Quantity:</label>
+  <select id="quantity3">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
+  <br><br>
+  <button class="basket-button" onclick="addToBasket('Extra', 12.99, 'oils3.jpg', document.getElementById('quantity3').value)">
+    <img src="basket.png"><p>Add to basket</p>
+  </button>
+</div>
+    </div>
+  </div>
+  <script>
+  function showProduct(productId) {
+  // Hide all product details first
+  const products = document.querySelectorAll('.product-detail');
+  products.forEach(p => p.classList.remove('show'));
+
+  // Show the selected one
+  const product = document.getElementById(productId);
+  product.classList.add('show');
+  product.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function showProducts() {
+    document.getElementById('more-products').style.display = 'block';
+    document.getElementById('button').style.display = 'none'
+  }
+
+  const slides = document.querySelectorAll('.slideshow img');
+  let current = 0;
+
+  function showSlide(index) {
+    slides.forEach((img, i) => img.classList.remove('active'));
+    slides[index].classList.add('active');
+  }
+
+  function nextSlide() {
+    current = (current + 1) % slides.length;
+    showSlide(current);
+  }
+
+  showSlide(current);
+  setInterval(nextSlide, 4000); // change every 4 seconds
+
+  const scrollTexts = document.querySelectorAll('.scroll-text');
+
+  function revealOnScroll() {
+      const triggerBottom = window.innerHeight * 0.85;
+
+      scrollTexts.forEach(el => {
+          const top = el.getBoundingClientRect().top;
+          if (top < triggerBottom) {
+              el.classList.add('show');
+          } else {
+              el.classList.remove('show'); // optional, if you want it to hide when scrolling up
+          }
+      });
+  }
+
+  window.addEventListener('scroll', revealOnScroll);
+  revealOnScroll(); // trigger once on load
+
+
+function addToBasket(name, price, image, quantity) {
+  // Ensure quantity is a number and parse it correctly
+  quantity = parseInt(quantity);
+
+  // Validate if the quantity is a positive number
+  if (isNaN(quantity) || quantity <= 0) {
+    alert("Please select a valid quantity.");
+    return;
+  }
+
+  let basket = JSON.parse(localStorage.getItem('basket')) || [];
+
+  // Check if the item already exists in the basket
+  let existingItemIndex = basket.findIndex(item => item.name === name && item.price === price);
+  if (existingItemIndex !== -1) {
+    // If the item exists, increase the quantity
+    basket[existingItemIndex].quantity += quantity;
+  } else {
+    // If the item doesn't exist, add it with the specified quantity
+    basket.push({ name, price, image, quantity });
+  }
+
+  localStorage.setItem('basket', JSON.stringify(basket));
+  alert(`${quantity} ${name}(s) added to your basket!`);
+}
+  </script>
+  </body>
+</html>

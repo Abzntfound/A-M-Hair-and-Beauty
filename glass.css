@@ -75,3 +75,16 @@
     width: 60%;
     height: 15%;
 }
+
+#basketMessage {
+    padding: 0 20px;
+    background: rgba(255, 255, 255, 0.0.5); /* translucent glass */
+    backdrop-filter: blur(10px); /* blur background */
+    -webkit-backdrop-filter: blur(10px); /* Safari */
+    border: 2px solid rgba(255, 255, 255, 0.5); /* frosted stroke */
+    border-radius: 5px 5px 5px 5px; /* rounded bottom corners only */
+    color: black;
+    z-index: 1000;
+    box-sizing: border-box;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}

@@ -86,3 +86,30 @@ button:hover {
   opacity: 1;
   transform: translateY(0);
 }
+
+.basket-alert {
+    background-color: rgb(29, 29, 29);
+    color: white;
+    border: solid white;
+}
+
+.accept-btn {
+    -webkit-text-stroke: 0.2px black;
+    background: rgba(255, 255, 255, 0.0.5); /* translucent glass */
+    backdrop-filter: blur(10px); /* blur background */
+    -webkit-backdrop-filter: blur(10px); /* Safari */
+    border: 2px solid rgba(255, 255, 255, 0.005); /* frosted stroke */
+    border-radius: 15px 15px 15px 15px;
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+    font-size: 0.8rem;
+    justify-content: flex-end;
+    align-items: flex-end;
+    padding-bottom: 5px;
+    padding-right: 12px;
+}
+
+#space {
+    gap: 2rem;
+}

@@ -1,7 +1,1 @@
-| Type      | Name  | Value                  | Purpose                                              |
-| --------- | ----- | ---------------------- | ---------------------------------------------------- |
-| **A**     | `@`   | `185.199.108.153`      | GitHub IP                                            |
-| **A**     | `@`   | `185.199.109.153`      | GitHub IP                                            |
-| **A**     | `@`   | `185.199.110.153`      | GitHub IP                                            |
-| **A**     | `@`   | `185.199.111.153`      | GitHub IP                                            |
-| **CNAME** | `www` | `abzntfound.github.io` | Points `www.AMhairandbeauty.com` to your GitHub site |
+www.amhairandbeauty.com

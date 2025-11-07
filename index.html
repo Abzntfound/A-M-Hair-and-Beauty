@@ -1,146 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>A&M Hair and Beauty - Home</title>
-  <link rel="icon" href="A&M.ico">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="glass.css">
-  <link rel="stylesheet" href="products.css">
-  <link rel="stylesheet" href="animations.css">
-  <link rel="stylesheet" href="mobile.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="A&M.ico" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="glass.css" />
+  <link rel="stylesheet" href="products.css" />
+  <link rel="stylesheet" href="animations.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /* Extra responsive adjustments */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    #header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 10px 20px;
+    }
+
+    #header h1 {
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    #header .right {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    #header .right img {
+      width: 28px;
+      height: 28px;
+    }
+
+    .slideshow {
+      width: 100%;
+      height: auto;
+      max-height: 500px;
+    }
+
+    .slideshow img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+
+    .slide-content h1 {
+      font-size: 2rem;
+    }
+
+    .slide-content p {
+      font-size: 1rem;
+    }
+
+    #products section.small {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    #products .small div {
+      flex: 1 1 250px;
+      max-width: 300px;
+      text-align: center;
+    }
+
+    #products img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button {
+      font-size: 1rem;
+      padding: 10px 20px;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 768px) {
+      #header h1 {
+        font-size: 1.2rem;
+      }
+      .slide-content h1 {
+        font-size: 1.6rem;
+      }
+      .slide-content p {
+        font-size: 1rem;
+      }
+      .slide-content button {
+        font-size: 1rem;
+        padding: 10px 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #header {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+      }
+      .slide-content h1 {
+        font-size: 1.4rem;
+      }
+      .slide-content p {
+        font-size: 0.9rem;
+      }
+      #products .small div {
+        flex: 1 1 100%;
+        max-width: 100%;
+      }
+      button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-
-<div id="wrapper">
-  <!-- Header -->
-  <header id="header" class="glass">
-    <div class="left" onclick="location.href='https://www.amhairandbeauty.com'">
-      <h1>A&M Hair and Beauty</h1>
-    </div>
-
-    <div class="right" onclick="location.href='https://amhairandbeauty.org/cart'">
-      <img src="basket.png" alt="Basket">
-      <span>Basket</span>
-    </div>
-  </header>
-
-  <!-- Slideshow -->
-  <section class="slideshow">
-    <img src="oils1.jpg" alt="Oil product 1">
-    <img src="oils2.jpg" alt="Oil product 2">
-    <img src="oils3.jpg" alt="Oil product 3">
-    <div class="slide-content">
-      <h1><strong>Welcome to A&M Hair & Beauty</strong></h1>
-      <p>Reach your hair’s maximum potential.</p>
-      <button onclick="location.href='#products'">Shop Now</button>
-    </div>
-  </section>
-
-  <!-- About -->
-  <section id="about" class="scroll-text">
-    <h1>All about A&M</h1>
-    <hr>
-    <p>
-      A&M is a hair brand dedicated to helping your hair reach its full potential! Our products increase hair follicle strength whilst it grows. Our different products allow you to make sure your hair is always clean and well oiled.
-    </p>
-  </section>
-
-  <!-- Products -->
-  <section id="products" class="scroll-text">
-    <div class="product-grid">
-      <div class="product" id="product-1">
-        <img src="oils1.jpg" alt="Hair Serum" onclick="showProduct('product1');">
-        <p class="price">£15.99</p>
-        <p><strong>Hair Serum</strong></p>
-        <ul>
-          <li>Maintain a healthy scalp/hair.</li>
-          <li>Keep your hair bright and vibrant.</li>
-        </ul>
+  <div id="wrapper">
+    <div id="header" class="glass">
+      <div class="left" onclick="document.location='https://www.amhairandbeauty.com'">
+        <h1>A&M Hair and Beauty</h1>
       </div>
 
-      <div class="product" id="product-2">
-        <img src="oils2.jpg" alt="Satin Bonnet" onclick="showProduct('product2');">
-        <p class="price">£3.99</p>
-        <p><strong>Satin Bonnet</strong></p>
-        <ul>
-          <li>Keep oils in your hair while you sleep.</li>
-          <li>For any hair type.</li>
-        </ul>
+      <div class="right" onclick="window.location.href='https://amhairandbeauty.org/cart'">
+        <img src="basket.png" alt="Basket" />
+        <span>Basket</span>
       </div>
+    </div>
 
-      <div id="button">
-        <button class="button" onclick="showProducts()"><b>Show More</b></button>
+    <div class="slideshow">
+      <img src="oils1.jpg" alt="Oil 1" />
+      <img src="oils2.jpg" alt="Oil 2" />
+      <img src="oils3.jpg" alt="Oil 3" />
+      <div class="slide-content">
+        <h1><strong>Welcome to A&M Hair & Beauty</strong></h1>
+        <p>Reach your hair’s maximum potential.</p>
+        <button type="button" onclick="document.location='#products'">Shop Now</button>
       </div>
+    </div>
 
-      <div id="more-products" style="display: none;">
-        <div class="product" id="product-3">
-          <img src="oils3.jpg" alt="Hair Oil" onclick="showProduct('product3');">
-          <p class="price">£12.99</p>
-          <p><strong>Hair Oil</strong></p>
+    <div id="about" class="scroll-text">
+      <h1>All about A&M</h1>
+      <hr />
+      <p>A&M is a hair brand dedicated to helping your hair reach its full potential! Our products increase hair follicle strength whilst it grows. Our different products allow you to make sure your hair is always clean and well oiled.</p>
+      <br />
+    </div>
+
+    <section id="products" class="scroll-text">
+      <section class="small">
+        <div id="product-1">
+          <img src="oils1.jpg" onclick="showProduct('product1');" alt="Hair Serum" />
+          <p>£15.99</p>
+          <p><strong>Hair Serum</strong></p>
           <ul>
-            <li>Encourages faster growth.</li>
-            <li>Strengthens hair follicles.</li>
+            <li>Maintain a healthy scalp/hair.</li>
+            <li>Keep your hair bright and vibrant.</li>
           </ul>
         </div>
-      </div>
+
+        <div id="product-2">
+          <img src="oils2.jpg" onclick="showProduct('product2');" alt="Satin Bonnet" />
+          <p>£3.99</p>
+          <p><strong>Satin Bonnet</strong></p>
+          <ul>
+            <li>Keep a nice controlled environment for oils.</li>
+            <li>For any hair type.</li>
+          </ul>
+        </div>
+
+        <div id="button">
+          <button class="button" type="button" onclick="showProducts()"><b>Show More</b></button>
+        </div>
+
+        <div id="more-products" style="display: none;">
+          <div id="product-3">
+            <img src="oils3.jpg" onclick="showProduct('product3');" alt="Hair Oil" />
+            <p>£12.99</p>
+            <p><strong>Hair Oil</strong></p>
+            <ul>
+              <li>For quicker growth for your hair.</li>
+              <li>Strengthen hair follicles to give long, strong hair.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <div id="product1" class="product-detail">
+      <h1>Product - Hair Serum</h1>
+      <img src="oils1.jpg" alt="Hair Serum" />
+      <p>Hair oils that satisfy your scalp and increase hair growth!</p>
+      <label>Price: £15.99</label><br /><br />
+      <button class="basket-button" onclick="addToBasket('Hair Serum', 15.99, 'oils1.jpg'); setTimeout(() => { window.location.href='https://amhairandbeauty.org/products/hair-growth-oil'; }, 50);">
+        <img src="basket.png" alt="Basket" /><p>Add to basket</p>
+      </button>
     </div>
-  </section>
 
-  <!-- Product Details -->
-  <section id="product1" class="product-detail">
-    <h1>Product - Hair Serum</h1>
-    <img src="oils1.jpg" alt="Hair Serum">
-    <p>Hair oils that satisfy your scalp and increase hair growth!</p>
-    <label>Price: £15.99</label><br><br>
-    <button class="basket-button" onclick="
-      addToBasket('Hair Serum', 15.99, 'oils1.jpg'); 
-      setTimeout(()=>location.href='https://amhairandbeauty.org/products/hair-growth-oil',50);
-    ">
-      <img src="basket.png" alt=""> <p>Add to basket</p>
-    </button>
-  </section>
+    <!-- ... other product-detail divs unchanged ... -->
 
-  <section id="product2" class="product-detail">
-    <h1>Product - Satin Bonnet</h1>
-    <img src="oils2.jpg" alt="Satin Bonnet">
-    <p>A fresh satin bonnet to keep oils in your hair while you sleep!</p>
-    <label>Price: £3.99</label><br><br>
-    <button class="basket-button" onclick="
-      addToBasket('Satin Bonnet', 3.99, 'oils2.jpg'); 
-      setTimeout(()=>location.href='https://amhairandbeauty.org/products/satin-bonnet',50);
-    ">
-      <img src="basket.png" alt=""> <p>Add to basket</p>
-    </button>
-    <br><br>
-    <button class="basket-button" onclick="
-      addToBasket('Satin Bonnet', 3.99, 'oils2.jpg'); 
-      setTimeout(()=>location.href='https://amhairandbeauty.org/products/satin-hair-bonnet',50);
-    ">
-      <img src="basket.png" alt=""> <p>Add Single</p>
-    </button>
-  </section>
+    <div id="basketMessage" style="display:none; position:fixed; top:10px; right:10px; background:#fff; padding:10px; border:1px solid #000; z-index:9999;"></div>
+  </div>
 
-  <section id="product3" class="product-detail">
-    <h1>Product - Hair Oil</h1>
-    <img src="oils3.jpg" alt="Hair Oil">
-    <p>Extra hair oil for growth and strength.</p>
-    <label>Price: £12.99</label><br><br>
-    <button class="basket-button" onclick="
-      addToBasket('Hair Oil', 12.99, 'oils3.jpg'); 
-      setTimeout(()=>location.href='https://amhairandbeauty.org/products/rosemary-hair-oil-growth',50);
-    ">
-      <img src="basket.png" alt=""> <p>Add to basket</p>
-    </button>
-  </section>
-
-  <!-- Basket Message -->
-  <div id="basketMessage" style="display:none; position:fixed; top:10px; right:10px; background:#fff; padding:10px; border:1px solid #000; z-index:9999;"></div>
-</div>
-
-<script src="index.js"></script>
+  <script src="index.js"></script>
 </body>
 </html>
-

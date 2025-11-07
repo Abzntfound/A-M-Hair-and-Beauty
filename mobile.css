@@ -1,0 +1,71 @@
+/* ========== Mobile Fixes ========== */
+
+/* Prevent horizontal scroll */
+body {
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header responsiveness */
+#header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 10px 15px;
+  text-align: center;
+}
+#header h1 {
+  font-size: 1.4rem;
+}
+#header img {
+  width: 30px;
+  height: 30px;
+}
+
+/* Make slideshow flexible */
+.slideshow {
+  height: auto;
+}
+.slideshow img {
+  height: 60vh;
+  object-fit: cover;
+}
+.slide-content h1 {
+  font-size: 1.8rem;
+}
+.slide-content p {
+  font-size: 1rem;
+}
+.slide-content button {
+  font-size: 1rem;
+  padding: 10px 20px;
+}
+
+/* Products grid layout */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.product img {
+  width: 100%;
+  border-radius: 10px;
+  height: auto;
+}
+
+/* Product details mobile view */
+.product-detail img {
+  width: 90%;
+  max-width: 400px;
+  border-radius: 10px;
+}
+
+/* Buttons and spacing */
+button {
+  max-width: 100%;
+  white-space: normal;
+}

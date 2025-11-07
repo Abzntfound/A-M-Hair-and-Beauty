@@ -9,6 +9,122 @@
     <link rel="stylesheet" href="animations.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+    /* Extra responsive adjustments */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    #header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 10px 20px;
+    }
+
+    #header h1 {
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    #header .right {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    #header .right img {
+      width: 28px;
+      height: 28px;
+    }
+
+    .slideshow {
+      width: 100%;
+      height: auto;
+      max-height: 500px;
+    }
+
+    .slideshow img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+
+    .slide-content h1 {
+      font-size: 2rem;
+    }
+
+    .slide-content p {
+      font-size: 1rem;
+    }
+
+    #products section.small {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    #products .small div {
+      flex: 1 1 250px;
+      max-width: 300px;
+      text-align: center;
+    }
+
+    #products img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button {
+      font-size: 1rem;
+      padding: 10px 20px;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 768px) {
+      #header h1 {
+        font-size: 1.2rem;
+      }
+      .slide-content h1 {
+        font-size: 1.6rem;
+      }
+      .slide-content p {
+        font-size: 1rem;
+      }
+      .slide-content button {
+        font-size: 1rem;
+        padding: 10px 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #header {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+      }
+      .slide-content h1 {
+        font-size: 1.4rem;
+      }
+      .slide-content p {
+        font-size: 0.9rem;
+      }
+      #products .small div {
+        flex: 1 1 100%;
+        max-width: 100%;
+      }
+      button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -149,3 +265,4 @@
 
 </body>
 </html>
+

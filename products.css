@@ -33,7 +33,7 @@ section {
 #products .small p {
     align-content: center;
     text-align: center;
-    font-size: 38px;
+    font-size: 20px;
 }
 
 @media (max-width: 600px) {
@@ -49,3 +49,4 @@ section {
     font-size: 22px;
 
 }
+

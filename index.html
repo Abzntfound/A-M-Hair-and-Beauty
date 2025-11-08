@@ -76,36 +76,9 @@
     }
 
     @media (max-width: 768px) {
-      #header h1 {
-        font-size: 1rem;
-          padding-left: 5px;
-          padding-top: 6px;
-      }
-
-        span {
-            font-size: 0.9rem;
-            padding-right: 50px;
-        }
-
         .basket-button p {
         font-size: 0.8rem;
         }  
-
-    #header img {
-        width: 6px;
-        height: 6px;
-    }
-        
-      .slide-content h1 {
-        font-size: 1.6rem;
-      }
-      .slide-content p {
-        font-size: 1rem;
-      }
-      .slide-content button {
-        font-size: 1rem;
-        padding: 10px 20px;
-      }
     }
 
 #product-1, #product-2, #product-3 {
@@ -221,7 +194,11 @@
             addToBasket('Hair Serum', 15.99, 'oils1.jpg'); 
             setTimeout(() => { window.location.href='https://amhairandbeauty.org/products/hair-growth-oil'; }, 50);
         ">
-            <img src="basket.png"><p style="font-size: 22px;">Add to basket</p>
+            <img src="basket.png"><p style="font-size: 22px; @media (max-width: 768px) {
+        .basket-button p {
+        font-size: 0.8rem;
+        }  
+    };">Add to basket</p>
         </button>
     </div>
 
@@ -234,7 +211,11 @@
             addToBasket('Satin Bonnet', 3.99, 'oils2.jpg'); 
             setTimeout(() => { window.location.href='https://amhairandbeauty.org/products/satin-bonnet'; }, 50);
         ">
-            <img src="basket.png"><p style="font-size: 22px;">Add to basket</p>
+            <img src="basket.png"><p style="font-size: 22px; @media (max-width: 768px) {
+        .basket-button p {
+        font-size: 0.8rem;
+        }  
+    };">Add to basket</p>
         </button>
         <br>
         <br>  
@@ -242,7 +223,11 @@
             addToBasket('Satin Bonnet', 3.99, 'oils2.jpg'); 
             setTimeout(() => { window.location.href='https://amhairandbeauty.org/products/satin-hair-bonnet'; }, 50);
         ">
-          <img src="basket.png"><p style="font-size: 22px;">Add Single</p>
+          <img src="basket.png"><p style="font-size: 22px; @media (max-width: 768px) {
+        .basket-button p {
+        font-size: 0.8rem;
+        }  
+    };">Add Single</p>
         </button>
     </div>
 
@@ -255,7 +240,11 @@
             addToBasket('Hair Oil', 12.99, 'oils3.jpg'); 
             setTimeout(() => { window.location.href='https://amhairandbeauty.org/products/rosemary-hair-oil-growth'; }, 50);
         ">
-            <img src="basket.png"><p style="font-size: 22px;">Add to basket</p>
+            <img src="basket.png"><p style="font-size: 22px; @media (max-width: 768px) {
+        .basket-button p {
+        font-size: 0.8rem;
+        }  
+    };">Add to basket</p>
         </button>
     </div>
 
@@ -268,6 +257,7 @@
 
 </body>
 </html>
+
 
 
 

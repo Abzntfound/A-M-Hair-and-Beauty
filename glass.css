@@ -57,7 +57,7 @@
 
 .basket-button p {
     text-align: center;
-    font-size: 19px;
+    font-size: 22px;
 }
 
 .basket-button-2 {
@@ -87,4 +87,5 @@
     z-index: 1000;
     box-sizing: border-box;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+
 }

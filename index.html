@@ -92,14 +92,23 @@
 }
           
     #product-1:hover, #product-2:hover, #product-3:hover {
-        transform: scale(1.2);
+        transform: scale(0.5);
+    }
+
+          .left, .right {
+              transition: transform 0.3s ease;
+          }
+
+          .left:hover, .right:hover {
+              transform: scale(0.7);
+          }
   </style>
 </head>
 <body>
 
 <div id="wrapper">
     <div id="header" class="glass">
-        <div class="left" onclick="document.location='index.html'">
+        <div class="left" onclick="windows.location.href='www.amhairandbeauty.com'">
             <h1>A&M Hair and Beauty</h1>
         </div>
 
@@ -115,7 +124,7 @@
         <img src="oils3.jpg">
         <div class="slide-content">
             <h1><strong>Welcome to A&M Hair & Beauty</strong></h1>
-            <p>Reach your hairs maximum potential.</p>
+            <p>Reach your hair's maximum potential.</p>
             <button type="shop" onclick="document.location='#products'">Shop Now</button>
         </div>
     </div>
@@ -123,7 +132,7 @@
     <div id="about" class="scroll-text">
         <h1>All about A&M</h1>
         <hr>
-        <p>A&M is a hair brand dedicated to helping your hair reach its full potential! Our products increase hair follicle strength whilst it grows. Our different products allow you to make sure your hair is always clean and well oiled.</p>
+        <p>A&M is a hair brand dedicated to helping your hair reach its full potential! Our products increase hair follicle strength whilst it grows. Our different products allow you to make sure your hair is always clean and well oiled. Our 40 year old recipe is sure to rejuvenate your scalp and brighten your hair follicles!</p>
         <br>
     </div>
 
@@ -234,6 +243,7 @@
 
 </body>
 </html>
+
 
 
 

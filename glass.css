@@ -60,6 +60,12 @@
     font-size: 22px;
 }
 
+@media (max-width: 600px) {
+    .basket-button p {
+    font-size: 0.8rem;
+    }  
+}
+
 .basket-button-2 {
     padding: 0 20px;
     background: rgba(255, 255, 255, 0.0.5); /* translucent glass */
@@ -89,3 +95,4 @@
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 
 }
+

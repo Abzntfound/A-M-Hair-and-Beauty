@@ -33,7 +33,13 @@ section {
 #products .small p {
     align-content: center;
     text-align: center;
-    font-size: 18px;
+    font-size: 38px;
+}
+
+@media (max-width: 600px) {
+    #products .small p {
+        font-size: 18px;
+    }
 }
 
 #products .small strong {
@@ -41,4 +47,5 @@ section {
     font-size: large;
     text-align: center;
     font-size: 22px;
+
 }

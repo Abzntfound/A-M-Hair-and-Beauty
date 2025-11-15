@@ -75,6 +75,16 @@
       border-radius: 10px;
     }
 
+        #ok {
+            border: 1px 1px 1px 1px black;
+            background-color: green;
+        }
+
+          #important-message {
+              background: white;
+              border: 1px 1px 1px 1px black;
+          }
+
     @media (max-width: 768px) {
         .basket-button p {
         font-size: 0.8rem;
@@ -116,6 +126,8 @@
         </div>
     </div>
 
+    <div id="important-message">Once you have clicked basket or added a product to basket, click the arrow to go back. <button id="ok" onclick="document.getElementById('important-message').style.display='none'">OK</button></div>
+    
     <div class="slideshow">
         <img src="oils1.jpg">
         <img src="oils4.jpg">
@@ -258,6 +270,7 @@
 
 </body>
 </html>
+
 
 
 

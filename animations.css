@@ -59,11 +59,11 @@ span {
     background-color: transparent;
     color: white;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
 .slide-content button:hover {
-    background-color: pink;
+    transform: scale(1.15)
     border: none;
 }
 
@@ -96,4 +96,5 @@ span {
     transform: scale(1.1);    /* expand 20% on hover */
     cursor: pointer;          /* optional: indicate it's interactive */
     box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+
 }

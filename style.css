@@ -45,6 +45,10 @@ img {
         margin: 5px 0;
         margin-left: -50px;
     }
+
+    .right {
+        padding-right: 40px;
+    }
 }
 
 .button {
@@ -113,3 +117,4 @@ button:hover {
     gap: 2rem;
 
 }
+

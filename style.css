@@ -1,0 +1,244 @@
+/* ----------------------------------
+   GLOBAL
+----------------------------------*/
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+html, * {
+    box-sizing: border-box;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ----------------------------------
+   HEADER
+----------------------------------*/
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+}
+
+.left, .right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.right img {
+    width: 40px;
+    height: 40px;
+}
+
+#wrapper, #basket {
+    margin-top: 70px;
+    width: 100%;
+}
+
+/* Tablets + Laptops under 1200px */
+@media (max-width: 1200px) {
+    #header {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .left, .right {
+        justify-content: center;
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    #header span {
+        font-size: 21px;
+    }
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+    #header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    #header h1 {
+        font-size: 1.4rem;
+    }
+
+    #header .right img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .right {
+        left: 0; /* remove awkward shifting */
+    }
+}
+
+/* ----------------------------------
+   BUTTON BASE
+----------------------------------*/
+.button, button {
+    color: black;
+    background-color: white;
+    border: rgba(255, 255, 0, 0.15);
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    border-radius: 15px;
+    padding: 10px 20px;
+    font-size: 19px;
+    transition: transform 0.3s ease;
+}
+
+button:hover {
+    transform: scale(1.2);
+}
+
+/* Mobile: full width buttons */
+@media (max-width: 600px) {
+    button, .button {
+        width: 100%;
+        font-size: 1rem;
+    }
+}
+
+/* ----------------------------------
+   PRODUCT DETAIL
+----------------------------------*/
+.product-detail {
+    border-radius: 15px;
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    max-width: 550px;
+    margin: 30px auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.product-detail.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.product-detail img {
+    width: 300px;
+    height: 300px;
+    border-radius: 15px;
+}
+
+.product-detail h1 {
+    font-size: 1.8rem;
+}
+
+.product-detail p {
+    font-size: 1rem;
+}
+
+@media (max-width: 600px) {
+    .product-detail img {
+        width: 90%;
+        height: auto;
+    }
+
+    .product-detail h1 {
+        font-size: 1.4rem;
+    }
+}
+
+/* ----------------------------------
+   MORE PRODUCTS SCROLLER
+----------------------------------*/
+#more-products {
+  display: flex;
+  gap: 30px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scroll-behavior: smooth;
+  padding: 20px 10px;
+  margin-top: 20px;
+}
+
+#more-products > div {
+  flex: 0 0 auto;
+  width: 300px;
+  height: 420px;
+  text-align: center;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+  padding: 20px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+#more-products > div:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.20);
+}
+
+#more-products img {
+  height: 250px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+#more-products::-webkit-scrollbar {
+  height: 10px;
+}
+
+#more-products::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 5px;
+}
+
+/* Mobile: smaller cards */
+@media (max-width: 600px) {
+  #more-products > div {
+    width: 220px;
+    height: auto;
+  }
+}
+
+/* ----------------------------------
+   ACCEPT BUTTON
+----------------------------------*/
+.accept-btn {
+    -webkit-text-stroke: 0.2px black;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    color: white;
+    cursor: pointer;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+}
+
+/* ----------------------------------
+   IMPORTANT MESSAGE POPUP
+----------------------------------*/
+@media (max-width: 600px) {
+    #important-message {
+        width: 90%;
+        font-size: 13px;
+        padding: 12px 16px;
+    }
+
+    #important-message button#ok {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}

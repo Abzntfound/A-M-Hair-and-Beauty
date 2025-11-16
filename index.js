@@ -4,12 +4,13 @@
         products.forEach(p => p.classList.remove('show'));
         const product = document.getElementById(productId);
         product.classList.add('show');
+         document.title = product.querySelector('h1').textContent + " | A&M Hair & Beauty";
         product.scrollIntoView({ behavior: 'smooth' });
-    }
+    }   
 
     // Show more products
     function showProducts() {
-        document.getElementById('more-products').style.display = 'block';
+        document.getElementById('more-products').style.display = 'flex';
         document.getElementById('button').style.display = 'none';
     }
 
@@ -44,13 +45,13 @@
     revealOnScroll();
 
     // Basket functions
-    function addToBasket(name, price, image) {
+    function addToBasket(id, name, price, image) {
         let basket = JSON.parse(localStorage.getItem('basket')) || [];
-        let existingItemIndex = basket.findIndex(item => item.name === name && item.price === price);
+        let existingItemIndex = basket.findIndex(item => item.id === id && item.name === name && item.price === price);
         if (existingItemIndex !== -1) {
             basket[existingItemIndex].quantity += 1;
         } else {
-            basket.push({ name, price, image, quantity: 1 });
+            basket.push({ id, name, price, image, quantity: 1 });
         }
         localStorage.setItem('basket', JSON.stringify(basket));
         showBasketMessage(name);
@@ -65,3 +66,25 @@
             setTimeout(() => messageBox.style.display = 'none', 3000);
         }
     }
+
+    const slider = document.getElementById('more-products');
+let isDown = false;
+let startX;
+let scrollLeft;
+
+slider.addEventListener('mousedown', e => {
+  isDown = true;
+  slider.classList.add('active');
+  startX = e.pageX - slider.offsetLeft;
+  scrollLeft = slider.scrollLeft;
+});
+
+slider.addEventListener('mouseleave', () => isDown = false);
+slider.addEventListener('mouseup', () => isDown = false);
+slider.addEventListener('mousemove', e => {
+  if(!isDown) return;
+  e.preventDefault();
+  const x = e.pageX - slider.offsetLeft;
+  const walk = (x - startX) * 2; // scroll speed
+  slider.scrollLeft = scrollLeft - walk;
+});

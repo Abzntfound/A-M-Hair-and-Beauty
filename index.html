@@ -75,19 +75,6 @@
       border-radius: 10px;
     }
 
-        #ok {
-            border: 1px 1px 1px 1px black;
-            background-color: green;
-        }
-
-          #important-message {
-              margin-top: 3rem;
-              margin-left: 10rem;
-              background: white;
-              border: 1px 1px 1px 1px black;
-              width: 60%;
-          }
-
     @media (max-width: 768px) {
         .basket-button p {
         font-size: 0.8rem;
@@ -113,29 +100,108 @@
           .left:hover, .right:hover {
               transform: scale(1.184);
           }
-  </style>
+           /* New Carousel CSS */
+        #carousel-container {
+            display: none;
+            width: 100%;
+            margin-top: 20px;
+        }
+        #carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            gap: 25px;
+            padding: 20px;
+        }
+        #carousel::-webkit-scrollbar {
+            height: 8px;
+        }
+        #carousel::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 5px;
+        }
+        .product-card {
+            flex: 0 0 280px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .product-card:hover { transform: scale(1.05); }
+        .product-card img { width: 100%; border-radius: 8px; }
+
+        /* Notification bar container */
+#important-message {
+  position: fixed;
+  bottom: 20px;              /* fixed at bottom, adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 90%;
+  width: 400px;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.95);  /* soft white, slightly translucent */
+  color: #333;                /* dark text for readability */
+  border: 1px solid #ddd;     /* subtle border */
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1000;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Hide when dismissed */
+#important-message.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+  pointer-events: none;
+}
+
+/* Button styling */
+#important-message button#ok {
+  background-color: #dba9c8;   /* a soft pink/mauve — adjust to match your brand colours */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  margin-left: 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#important-message button#ok:hover {
+  background-color: #c692b0;  /* darker mauve on hover */
+}
+
+    </style>
 </head>
 <body>
 
 <div id="wrapper">
     <div id="header" class="glass">
-        <div class="left" onclick="windows.location.href='www.amhairandbeauty.com'">
+        <div class="left" onclick="window.location.href='https://www.amhairandbeauty.com'">
             <h1>A&M Hair and Beauty</h1>
         </div>
 
-        <div class="right" onclick="window.location.href='https://amhairandbeauty.org/cart'">
+        <div class="right" onclick="window.location.href='https://www.amhairandbeauty.org/cart/'">
             <img src="basket.png" alt="Basket">
             <span>Basket</span>
         </div>
     </div>
 
-    <div id="important-message">Once you have clicked basket or added a product to basket, click the arrow to go back. <button id="ok" onclick="document.getElementById('important-message').style.display='none'">OK</button></div>
-    
+     <div id="important-message">Once you have clicked basket or added a product to basket, click the arrow to go back. <button id="ok" onclick="document.getElementById('important-message').style.display='none'">OK</button></div>
+
     <div class="slideshow">
         <img src="oils1.jpg">
         <img src="oils4.jpg">
         <img src="oils5.jpg">
-        <img src="oils2.jpg">
         <div class="slide-content">
             <h1><strong>Welcome to A&M Hair & Beauty</strong></h1>
             <p>Reach your hair's maximum potential.</p>
@@ -146,19 +212,25 @@
     <div id="about" class="scroll-text">
         <h1>All about A&M</h1>
         <hr>
-        <p>A&M is a hair brand dedicated to helping your hair reach its full potential! Our products increase hair follicle strength whilst it grows. Our different products allow you to make sure your hair is always clean and well oiled. Our 40 year old recipe is sure to rejuvenate your scalp and brighten your hair follicles!</p>
+        <p>About Us - A&M Hair Beauty<br><br>
+
+At A&M Hair Beauty, our journey began from personal experience. My hair was breaking, dry, and seemed impossible to grow no matter what I tried. After countless failed attempts with different products, I decided to take a step of faith and create my own natural hair care formula.
+This is suitable for all types of hair.<br><br>
+
+Through dedication and belief, I developed a blend that transformed my hair—making it longer, stronger, and full of shine. Everywhere I went, people noticed the difference and began asking about my secret. That’s when I knew it was time to share it with others.
+<br><br>
+A&M Hair Beauty was born from a passion to help people regain confidence in their natural beauty. Our products are made with care, using quality, nourishing ingredients designed to promote healthy hair growth, strength, and shine.
+<br><br>
+We believe that when your hair is healthy, you feel empowered—and that's what A&M Hair Beauty stands for. 🌿✨</p>
         <br>
     </div>
 
-<br>
-
     <section id="products" class="scroll-text">
         <section class="small">
-
             <!-- Product 1 -->
             <div id="product-1" onclick="showProduct('product1');">
                 <br>
-                <img src="oils5.jpg" onclick="showProduct('product1');">
+                <img src="oils4.jpg">
                 <p>£15.99</p>
                 <p><strong>Hair Serum</strong></p>
                 <ul>
@@ -170,7 +242,7 @@
             <!-- Product 2 -->
             <div id="product-2" onclick="showProduct('product2');">
                 <br>
-                <img src="oils6.jpg" onclick="showProduct('product2');">
+                <img src="oils6.jpg">
                 <p>£3.99</p>
                 <p><strong>Satin Bonnet</strong></p>
                 <ul>
@@ -180,121 +252,99 @@
             </div>
 
             <div id="button">
-                <button class="button" type="more" onclick="showProducts()"><b>Show More</b></button>
+                <button class="button" onclick="activateCarousel()"><b>Show More</b></button>
             </div>
-
-            <!-- More Products -->
-            <div id="more-products" style="display: none;">
-                <div id="product-3" onclick="showProduct('product3');">
-                    <br>
-                    <img src="oils3.jpg" onclick="showProduct('product3');">
-                    <p>£12.99</p>
-                    <p><strong>Hair Oil</strong></p>
-                    <ul>
-                        <li>For quicker growth for your hair.</li>
-                        <li>Strengthen hair follicles to give long, strong hair.</li>
-                    </ul>
-                </div>
-            </div>
-
         </section>
+
+        <!-- Carousel Container -->
+        <div id="carousel-container">
+            <div id="carousel"></div>
+        </div>
     </section>
 
-    <!-- Product Details -->
+    <!-- Product Details (keep exactly as you had) -->
     <div id="product1" class="product-detail">
         <h1>Product - Hair Serum</h1>
         <img src="oils4.jpg">
         <p>Hair oils that satisfy your scalp and increase hair growth!</p>
         <label>Price: £15.99</label><br><br>
-        <button class="basket-button" onclick="
-            addToBasket('Hair Serum', 15.99, 'oils1.jpg'); 
-            setTimeout(() => { window.location.href='https://amhairandbeauty.org/products/hair-growth-oil'; }, 50);
-        ">
-            <img src="basket.png"><p style="font-size: 22px; @media (max-width: 768px) {
-        .basket-button p {
-        font-size: 0.8rem;
-        }  
-    };">Add to basket</p>
+        <button class="basket-button" onclick="addToBasket('hairserum', 'Hair Serum', 15.99, 'oils1.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/hair-growth-oil';},50);">
+            <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
         </button>
     </div>
 
     <div id="product2" class="product-detail">
         <h1>Product - Satin Bonnet</h1>
-        <img src="oils2.jpg">
+        <img src="oils6.jpg">
         <p>A fresh satin bonnet to keep oils in your hair while you sleep!</p>
         <label>Price: £3.99</label><br><br>
-        <button class="basket-button" onclick="
-            addToBasket('Satin Bonnet', 3.99, 'oils2.jpg'); 
-            setTimeout(() => { window.location.href='https://amhairandbeauty.org/products/satin-bonnet'; }, 50);
-        ">
-            <img src="basket.png"><p style="font-size: 22px; @media (max-width: 768px) {
-        .basket-button p {
-        font-size: 0.8rem;
-        }  
-    };">Add to basket</p>
+        <button class="basket-button" onclick="addToBasket('satinbonnet', 'Satin Bonnet', 3.99, 'oils2.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/satin-bonnet';},50);">
+            <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
         </button>
-        <br>
-        <br>  
-        <button class="basket-button" onclick="
-            addToBasket('Satin Bonnet', 3.99, 'oils2.jpg'); 
-            setTimeout(() => { window.location.href='https://amhairandbeauty.org/products/satin-hair-bonnet'; }, 50);
-        ">
-          <img src="basket.png"><p style="font-size: 22px; @media (max-width: 768px) {
-        .basket-button p {
-        font-size: 0.8rem;
-        }  
-    };">Add Single</p>
+        <br><br>
+        <button class="basket-button" onclick="addToBasket('satinbonnet', 'Satin Bonnet', 3.99, 'oils2.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/satin-hair-bonnet';},50);">
+            <img src="basket.png"><p style="font-size: 21px;">Add Single</p>
         </button>
     </div>
 
     <div id="product3" class="product-detail">
         <h1>Product - Hair Oil</h1>
-        <img src="oil32.jpg">
+        <img src="oils3.jpg">
         <p>Extra hair oil for growth and strength.</p>
         <label>Price: £12.99</label><br><br>
-        <button class="basket-button" onclick="
-            addToBasket('Hair Oil', 12.99, 'oils3.jpg'); 
-            setTimeout(() => { window.location.href='https://amhairandbeauty.org/products/rosemary-hair-oil-growth'; }, 50);
-        ">
-            <img src="basket.png"><p style="font-size: 22px; @media (max-width: 768px) {
-        .basket-button p {
-        font-size: 0.8rem;
-        }  
-    };">Add to basket</p>
+        <button class="basket-button" onclick="addToBasket('hairoil', 'Hair Oil', 12.99, 'oils3.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/rosemary-hair-oil-growth';},50);">
+            <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
         </button>
     </div>
 
-    <!-- Basket Message -->
+    <div id="product4" class="product-detail">
+      <h1>Product - Tumeric</h1>
+      <img src="oils7.jpg">
+      <p>Tumeric for wrinkles.</p>
+      <label>Price: £20.99</label><br><br>
+      <button class="basket-button" onclick="addToBasket('tumeric', 'Tumeric', 20.99, 'oils7.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/rosemary-hair-oil-growth';},50);">
+        <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
+      </button>
+    </div>
+
     <div id="basketMessage" style="display:none; position:fixed; top:10px; right:10px; background:#fff; padding:10px; border:1px solid #000; z-index:9999;"></div>
 
 </div>
 
-<script src="index.js"></script>
+<script>
+    const allProducts = [
+        {id:'product1', name:'Hair Serum', price:15.99, image:'oils4.jpg'},
+        {id:'product2', name:'Satin Bonnet', price:3.99, image:'oils6.jpg'},
+        {id:'product3', name:'Hair Oil', price:12.99, image:'oils3.jpg'},
+        {id:'product4', name:'Tumeric', price:20.99, image:'oils7.jpg'},
+    ];
 
+    // Show product details
+    function showProduct(productId) {
+        document.querySelectorAll('.product-detail').forEach(p=>p.style.display='none');
+        const product = document.getElementById(productId);
+        if(product) product.style.display='block';
+        product?.scrollIntoView({behavior:'smooth'});
+    }
+
+    // Activate carousel and add all products
+    function activateCarousel() {
+        const carousel = document.getElementById('carousel');
+        carousel.innerHTML = '';
+        allProducts.forEach(p=>{
+            const card = document.createElement('div');
+            card.className='product-card';
+            card.dataset.id=p.id;
+            card.onclick = ()=>showProduct(p.id);
+            card.innerHTML = `<img src="${p.image}"><p>£${p.price}</p><p><strong>${p.name}</strong></p>`;
+            carousel.appendChild(card);
+        });
+        document.querySelector('#products .small').style.display='none';
+        document.getElementById('carousel-container').style.display='flex';
+        document.getElementById('carousel-container').scrollIntoView({behavior:'smooth'});
+    }
+</script>
+
+<script src="index.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

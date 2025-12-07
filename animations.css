@@ -94,6 +94,7 @@ span {
     }
     .slide-content button {
         padding: 10px 20px;
+        padding-bottom: 10px;
         font-size: 0.9rem;
     }
 }
@@ -107,4 +108,5 @@ span {
 .scroll-text.show {
     opacity: 1;                /* fade in */
     transform: translateY(0);  /* move to normal position */
+
 }

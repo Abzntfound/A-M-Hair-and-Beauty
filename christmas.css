@@ -1,0 +1,78 @@
+/* --- 🎄 CHRISTMAS THEME ADDITIONS 🎄 --- */
+
+/* Soft Christmas background gradient */
+body {
+    background: linear-gradient(to bottom, #ffffff, #f9f3f5, #fff0f5);
+}
+
+/* Header gets a soft Christmas glow */
+#header {
+    background: rgba(255, 255, 255, 0.75);
+    border-bottom: 2px solid rgba(220, 0, 0, 0.15);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+/* Logo + Title hover gets a warm glow */
+.left:hover h1, 
+.right:hover span {
+    color: #b30000;
+    text-shadow: 0 0 8px rgba(255, 140, 140, 0.7);
+}
+
+/* Slideshow button becomes Christmas-themed */
+.slide-content button {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 0, 0, 0.28);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(255,0,0,0.4);
+}
+
+.slide-content button:hover {
+    transform: scale(1.15);
+    background: rgba(255, 0, 0, 0.4);
+    box-shadow: 0 0 16px rgba(255,0,0,0.6);
+}
+
+/* Product cards get a festive outline */
+.product-card {
+    border: 2px solid rgba(0, 128, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 128, 0, 0.1);
+}
+
+.product-card:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 16px rgba(0,128,0,0.3);
+}
+
+/* Add tiny sparkles to scroll-text sections */
+.scroll-text h1 {
+    position: relative;
+}
+
+.scroll-text h1::after {
+    content: "🎁";
+    position: absolute;
+    right: 105px;
+    top: 40px;
+    font-size: 1.5rem;
+    animation: sparkle 1.5s infinite ease-in-out;
+}
+
+#important-message::after {
+    content: "🌲";
+    position: absolute;
+    font-size: 1.5rem;
+    right: 10px;
+    top: -30px;
+    animation: sparkle 1.5s infinite ease-in-out;
+}
+
+@keyframes sparkle {
+    0% { opacity: 0.4; transform: scale(1);}
+    50% { opacity: 1; transform: scale(1.25);}
+    100% { opacity: 0.4; transform: scale(1);}
+}
+

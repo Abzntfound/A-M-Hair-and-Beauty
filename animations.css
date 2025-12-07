@@ -87,7 +87,7 @@ span {
 /* Responsive */
 @media (max-width: 768px) {
     .slide-content h1 {
-        font-size: 2rem;
+        font-size: 1rem;
     }
     .slide-content p {
         font-size: 0.7rem;
@@ -110,4 +110,5 @@ span {
     transform: translateY(0);  /* move to normal position */
 
 }
+
 

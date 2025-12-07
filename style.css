@@ -45,7 +45,7 @@ img {
     cursor: pointer;
 }
 
-.right img {
+.right img, .logo img {
     width: 40px;
     height: 40px;
 }
@@ -59,6 +59,7 @@ img {
 @media (max-width: 1200px) {
     #header {
         flex-direction: column;
+        gap: 4rem;
         height: auto;
     }
 
@@ -90,11 +91,16 @@ img {
         height: 32px;
     }
 
-    .right {
+    .right, .logo {
         left: 0; /* remove awkward shifting */
     }
 }
 
+@media (max-width: 400px) {
+    #header h1 {
+        font-size: 1.3rem;
+    }
+}
 /* ----------------------------------
    BUTTON BASE
 ----------------------------------*/
@@ -242,7 +248,6 @@ button:hover {
 ----------------------------------*/
 @media (max-width: 600px) {
     #important-message {
-        position: relative;
         width: 90%;
         font-size: 13px;
         padding: 12px 16px;

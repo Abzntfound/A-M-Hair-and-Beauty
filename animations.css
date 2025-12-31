@@ -47,7 +47,7 @@ span {
 
 .slide-content h1 {
     -webkit-text-stroke: 0.5px black;
-    font-size: 3rem;
+    font-size: 5vh;
     margin-bottom: 20px;
     text-shadow: 0 2px 4px rgba(0,0,0,0.6);
 }
@@ -60,7 +60,7 @@ span {
 }
 
 .slide-content p {
-    font-size: 1.5rem;
+    font-size: 1.65vh;
     margin-bottom: 30px;
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
@@ -110,5 +110,6 @@ span {
     transform: translateY(0);  /* move to normal position */
 
 }
+
 
 

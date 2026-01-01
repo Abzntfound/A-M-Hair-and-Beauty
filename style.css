@@ -55,6 +55,16 @@ img {
     width: 100%;
 }
 
+#bottom-review-container h1 {
+   padding-left: 2vh;
+   padding-top: 3vh;
+}
+
+#bottom-review-container {
+   border-radius: 1vh 1vh 1vh 1vh;
+   border: 1vh solid black
+}
+
 /* Tablets + Laptops under 1200px */
 @media (max-width: 1200px) {
     #header {
@@ -258,4 +268,5 @@ button:hover {
         font-size: 12px;
     }
 }
+
 

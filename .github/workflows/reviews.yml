@@ -1,24 +1,15 @@
 name: Submit Review
-
 on:
   repository_dispatch:
     types: [submit-review]
 
 jobs:
-  add-review:
+  add-comment:
     runs-on: ubuntu-latest
     steps:
-      - name: Post review to issue
-        uses: actions/github-script@v7
+      - name: Create Issue Comment
+        uses: peter-evans/create-or-update-comment@v3
         with:
-          github-token: ${{ secrets.GH_REVIEW_TOKEN }}
-          script: |
-            const issueNumber = context.payload.issue;
-            const review = context.payload.review;
-
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: review
-            });
+          token: ${{ secrets.GH_REVIEW_TOKEN }}
+          issue-number: ${{ github.event.client_payload.issue }}
+          body: ${{ github.event.client_payload.review }}

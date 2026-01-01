@@ -187,7 +187,7 @@
   left: 50%;
   transform: translateX(600%);
   max-width: 100%;
-  width: 8vh;
+  width: 10vh;
   padding: 16px 24px;
   background: rgba(255, 255, 255, 0.95);  /* soft white, slightly translucent */
   color: #333;                /* dark text for readability */
@@ -211,6 +211,21 @@
 #review img {
     width: 8vh;
     height: 8vh;
+}
+
+#user-reviews {
+    background: rgba(255, 255, 255, 0.0.2); /* translucent glass */
+    backdrop-filter: blur(10px); /* blur background */
+    -webkit-backdrop-filter: blur(10px); /* Safari */
+    border: 2px solid rgba(255, 255, 255, 0.05); /* frosted stroke */
+}
+
+#review-form {
+    display: flex;
+    justify-content: center;
+    border-radius: 2vh;
+    background: white;
+    border: 0.3vh solid black;
 }
           
     </style>
@@ -429,6 +444,7 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
 </body>
 
 </html>
+
 
 
 

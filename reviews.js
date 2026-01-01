@@ -1,13 +1,8 @@
-// Select the review form
+// Select the review form and inputs
 const reviewForm = document.getElementById("review-form");
 const nameInput = document.getElementById("name");
 const ratingInput = document.getElementById("rating");
 const commentInput = document.getElementById("comment");
-
-// Utility: get currently visible product
-function getActiveProduct() {
-    return document.querySelector(".product[style*='display: block']");
-}
 
 // Show review overlay
 document.getElementById('review').addEventListener('click', () => {
@@ -20,6 +15,13 @@ function closeReviewForm() {
     document.getElementById('review-overlay').style.display = 'none';
 }
 
+// Get the currently visible product
+function getActiveProduct() {
+    return Array.from(document.querySelectorAll('.product-detail')).find(
+        el => el.style.display === 'block'
+    );
+}
+
 // Handle form submission
 reviewForm.addEventListener("submit", e => {
     e.preventDefault();
@@ -30,7 +32,7 @@ reviewForm.addEventListener("submit", e => {
         return;
     }
 
-    const ISSUE_NUMBER = activeProduct.dataset.issue;  // Issue number for GitHub dispatch
+    const ISSUE_NUMBER = activeProduct.dataset.issue;
     const productName = activeProduct.querySelector("h1").innerText;
 
     const reviewBody = `
@@ -41,7 +43,7 @@ reviewForm.addEventListener("submit", e => {
 ${commentInput.value}
     `;
 
-    // Append review to page immediately (optional)
+    // Append review to the reviews container
     const reviewsContainer = document.getElementById("reviews");
     const reviewEl = document.createElement("div");
     reviewEl.style.marginBottom = "1rem";
@@ -54,7 +56,7 @@ ${commentInput.value}
 
     alert("Review submitted for approval.");
 
-    // Optional: Send to GitHub (replace REPO with your own)
+    // Optional: send review to GitHub
     const REPO = "USERNAME/product-reviews"; 
     fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
         method: "POST",

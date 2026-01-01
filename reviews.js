@@ -1,4 +1,6 @@
-const ISSUE_NUMBER = 1; // product issue number
+const ISSUE_NUMBER = document
+  .getElementById("product")
+  .dataset.issue;
 const REPO = "USERNAME/product-reviews";
 
 document.getElementById("review-form").addEventListener("submit", e => {

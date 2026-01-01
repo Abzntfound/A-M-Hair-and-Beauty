@@ -1,4 +1,4 @@
-// Select the review form and inputs
+// Review form inputs
 const reviewForm = document.getElementById("review-form");
 const nameInput = document.getElementById("name");
 const ratingInput = document.getElementById("rating");
@@ -15,14 +15,12 @@ function closeReviewForm() {
     document.getElementById('review-overlay').style.display = 'none';
 }
 
-// Get the currently visible product
+// Get the currently visible product-detail using "show" class
 function getActiveProduct() {
-    return Array.from(document.querySelectorAll('.product-detail')).find(
-        el => el.style.display === 'block'
-    );
+    return document.querySelector('.product-detail.show');
 }
 
-// Handle form submission
+// Handle review submission
 reviewForm.addEventListener("submit", e => {
     e.preventDefault();
 
@@ -43,7 +41,7 @@ reviewForm.addEventListener("submit", e => {
 ${commentInput.value}
     `;
 
-    // Append review to the reviews container
+    // Add review to the reviews container
     const reviewsContainer = document.getElementById("reviews");
     const reviewEl = document.createElement("div");
     reviewEl.style.marginBottom = "1rem";
@@ -56,7 +54,7 @@ ${commentInput.value}
 
     alert("Review submitted for approval.");
 
-    // Optional: send review to GitHub
+    // Optional: send to GitHub
     const REPO = "USERNAME/product-reviews"; 
     fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
         method: "POST",

@@ -1,10 +1,16 @@
-const ISSUE_NUMBER = document
-  .getElementById("product")
-  .dataset.issue;
-const REPO = "USERNAME/product-reviews";
+const reviewForm = document.getElementById("review-form");
 
-document.getElementById("review-form").addEventListener("submit", e => {
+reviewForm.addEventListener("submit", async e => {
   e.preventDefault();
+
+  const activeProduct = document.querySelector(".product-detail[style*='display: block']");
+  if (!activeProduct) return alert("Select a product first!");
+
+  const ISSUE_NUMBER = activeProduct.dataset.issue;
+
+  const name = document.getElementById("name");
+  const rating = document.getElementById("rating");
+  const comment = document.getElementById("comment");
 
   const body = `
 **Name:** ${name.value}
@@ -13,19 +19,23 @@ document.getElementById("review-form").addEventListener("submit", e => {
 ${comment.value}
   `;
 
-  fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
-    method: "POST",
-    headers: {
-      "Accept": "application/vnd.github+json"
-    },
-    body: JSON.stringify({
-      event_type: "submit-review",
-      client_payload: {
+  // This is unsafe in the browser:
+  // You should call a backend endpoint instead of calling GitHub directly here
+  try {
+    await fetch("/submit-review", { // <-- your server endpoint
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         issue: ISSUE_NUMBER,
         review: body
-      }
-    })
-  });
+      })
+    });
 
-  alert("Review submitted for approval.");
+    alert("Review submitted for approval!");
+    reviewForm.reset();
+    closeReviewForm();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to submit review.");
+  }
 });

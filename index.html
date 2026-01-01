@@ -343,7 +343,7 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
     <section id="products" class="scroll-text">
         <section class="small">
             <!-- Product 1 -->
-            <div id="product-1" onclick="showProduct('product1');">
+            <div id="product" onclick="showProduct('product1');">
                 <br>
                 <img src="oils4.jpg">
                 <p>£10.99</p>
@@ -355,7 +355,7 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
             </div>
 
             <!-- Product 2 -->
-            <div id="product-2" onclick="showProduct('product2');">
+            <div id="product" onclick="showProduct('product2');">
                 <br>
                 <img src="oils6.jpg">
                 <p>£1.99</p>
@@ -454,12 +454,12 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
 
 <script>
     const allProducts = [
-        {id:'product1', name:'Hair Serum', price:12.99, image:'oils4.jpg'},
-        {id:'product2', name:'Satin Bonnet', price:1.99, image:'oils6.jpg'},
-        {id:'product3', name:'Hair Oil', price:12.99, image:'oils3.jpg'},
-        {id:'product4', name:'Shampoo', price:9.99, image:'oils1.jpg'},
-        {id:'product5', name:'Conditioner', price:12.99, image:'oils10.jpg'},
-        {id:'product6', name:'Pomade', price:6.99, image:'oils9.jpg'}
+        {id:'product', name:'Hair Serum', price:12.99, image:'oils4.jpg'},
+        {id:'product', name:'Satin Bonnet', price:1.99, image:'oils6.jpg'},
+        {id:'product', name:'Hair Oil', price:12.99, image:'oils3.jpg'},
+        {id:'product', name:'Shampoo', price:9.99, image:'oils1.jpg'},
+        {id:'product', name:'Conditioner', price:12.99, image:'oils10.jpg'},
+        {id:'product', name:'Pomade', price:6.99, image:'oils9.jpg'}
     ];
 
     // Show product details
@@ -501,6 +501,7 @@ function closeReviewForm() {
 </body>
 
 </html>
+
 
 
 

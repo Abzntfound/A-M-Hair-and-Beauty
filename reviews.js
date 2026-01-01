@@ -1,41 +1,70 @@
+// Select the review form
 const reviewForm = document.getElementById("review-form");
+const nameInput = document.getElementById("name");
+const ratingInput = document.getElementById("rating");
+const commentInput = document.getElementById("comment");
 
-reviewForm.addEventListener("submit", async e => {
-  e.preventDefault();
+// Utility: get currently visible product
+function getActiveProduct() {
+    return document.querySelector(".product[style*='display: block']");
+}
 
-  const activeProduct = document.querySelector(".product-detail[style*='display: block']");
-  if (!activeProduct) return alert("Select a product first!");
+// Show review overlay
+document.getElementById('review').addEventListener('click', () => {
+    reviewForm.reset();
+    document.getElementById('review-overlay').style.display = 'flex';
+});
 
-  const ISSUE_NUMBER = activeProduct.dataset.issue;
+// Close overlay
+function closeReviewForm() {
+    document.getElementById('review-overlay').style.display = 'none';
+}
 
-  const name = document.getElementById("name");
-  const rating = document.getElementById("rating");
-  const comment = document.getElementById("comment");
+// Handle form submission
+reviewForm.addEventListener("submit", e => {
+    e.preventDefault();
 
-  const body = `
-**Name:** ${name.value}
-**Rating:** ${rating.value}/5
+    const activeProduct = getActiveProduct();
+    if (!activeProduct) {
+        alert("Please open a product first!");
+        return;
+    }
 
-${comment.value}
-  `;
+    const ISSUE_NUMBER = activeProduct.dataset.issue;  // Issue number for GitHub dispatch
+    const productName = activeProduct.querySelector("h1").innerText;
 
-  // This is unsafe in the browser:
-  // You should call a backend endpoint instead of calling GitHub directly here
-  try {
-    await fetch("/submit-review", { // <-- your server endpoint
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        issue: ISSUE_NUMBER,
-        review: body
-      })
-    });
+    const reviewBody = `
+**Product:** ${productName}
+**Name:** ${nameInput.value}
+**Rating:** ${ratingInput.value}/5
 
-    alert("Review submitted for approval!");
+${commentInput.value}
+    `;
+
+    // Append review to page immediately (optional)
+    const reviewsContainer = document.getElementById("reviews");
+    const reviewEl = document.createElement("div");
+    reviewEl.style.marginBottom = "1rem";
+    reviewEl.innerHTML = `<strong>${nameInput.value}</strong> (${ratingInput.value}/5): <p>${commentInput.value}</p>`;
+    reviewsContainer.appendChild(reviewEl);
+
+    // Reset and close form
     reviewForm.reset();
     closeReviewForm();
-  } catch (err) {
-    console.error(err);
-    alert("Failed to submit review.");
-  }
+
+    alert("Review submitted for approval.");
+
+    // Optional: Send to GitHub (replace REPO with your own)
+    const REPO = "USERNAME/product-reviews"; 
+    fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
+        method: "POST",
+        headers: { "Accept": "application/vnd.github+json" },
+        body: JSON.stringify({
+            event_type: "submit-review",
+            client_payload: {
+                issue: ISSUE_NUMBER,
+                review: reviewBody
+            }
+        })
+    }).catch(err => console.log("GitHub dispatch failed:", err));
 });

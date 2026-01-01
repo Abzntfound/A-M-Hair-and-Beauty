@@ -1,0 +1,24 @@
+name: Submit Review
+
+on:
+  repository_dispatch:
+    types: [submit-review]
+
+jobs:
+  add-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post review to issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_REVIEW_TOKEN }}
+          script: |
+            const issueNumber = context.payload.issue;
+            const review = context.payload.review;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: review
+            });

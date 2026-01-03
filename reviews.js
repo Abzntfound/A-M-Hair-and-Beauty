@@ -1,47 +1,56 @@
-const REPO = "Abzntfound/A-M-Hair-and-Beauty";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Load reviews for the currently shown product
-async function loadReviews() {
-  const product = document.querySelector(".product-detail.show");
-  if (!product) return;
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
 
-  const issue = product.dataset.issue;
-  const reviewsDiv = document.getElementById("reviews");
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-  try {
-    const res = await fetch(
-      `https://api.github.com/repos/${REPO}/issues/${issue}/comments`
-    );
+  // Submit review
+  document.getElementById("reviewForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    if (!res.ok) throw new Error("Failed to fetch reviews");
+    const name = document.getElementById("name").value;
+    const rating = document.querySelector('input[name="rating"]:checked').value;
+    const review = document.getElementById("review").value;
 
-    const comments = await res.json();
+    await addDoc(collection(db, "reviews"), {
+      name,
+      rating: Number(rating),
+      review,
+      created: new Date()
+    });
 
-    if (comments.length === 0) {
-      reviewsDiv.innerHTML = "<p>No reviews yet. Be the first to submit one!</p>";
-      return;
-    }
-
-    reviewsDiv.innerHTML = comments
-      .map(c => `
-        <div class="review" style="margin-bottom:10px;">
-          <strong>${c.user.login}</strong> says:
-          <p>${c.body.replace(/\n/g, "<br>")}</p>
-          <hr>
-        </div>
-      `)
-      .join("");
-  } catch (err) {
-    reviewsDiv.innerHTML = `<p style="color:red;">Error loading reviews: ${err.message}</p>`;
-  }
-}
-
-// Call this on page load
-loadReviews();
-
-// Optional: Refresh reviews if the user navigates between products
-document.querySelectorAll(".product-detail").forEach(p => {
-  p.addEventListener("click", () => {
-    setTimeout(loadReviews, 300); // wait a little for show class to be applied
+    alert("Thank you for your review!");
+    e.target.reset();
+    loadReviews();
   });
-});
+
+  // Load reviews
+  async function loadReviews() {
+    const q = query(collection(db, "reviews"), orderBy("created", "desc"));
+    const snapshot = await getDocs(q);
+    const list = document.getElementById("reviewList");
+    list.innerHTML = "";
+
+    snapshot.forEach(doc => {
+      const r = doc.data();
+      list.innerHTML += `
+        <div class="review">
+          <strong>${r.name}</strong>
+          <div>⭐ ${r.rating}/5</div>
+          <p>${r.review}</p>
+        </div>
+      `;
+    });
+  }
+
+  loadReviews();

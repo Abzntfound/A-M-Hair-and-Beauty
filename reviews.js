@@ -3,12 +3,12 @@
   import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "XXXX",
-    appId: "XXXX"
+    apiKey: "AIzaSyDNMt0bgAbjFxjunAz_fP4LIi_g5N2QSuk",
+    authDomain: "am-hair-and-beauty.firebaseapp.com",
+    projectId: "am-hair-and-beauty",
+    storageBucket: "am-hair-and-beauty.firebasestorage.app",
+    messagingSenderId: "683802152688",
+    appId: "1:683802152688:web:94598e2a32e1b98a8fbc35"
   };
 
   const app = initializeApp(firebaseConfig);

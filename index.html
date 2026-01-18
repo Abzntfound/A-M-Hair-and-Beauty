@@ -347,7 +347,7 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
             <div id="product" onclick="showProduct('product1');">
                 <br>
                 <img src="oils4.jpg">
-                <p>£10.99</p>
+                <p>£4.99</p>
                 <p><strong>Hair Serum</strong></p>
                 <ul>
                     <li>Maintain a healthy scalp/hair.</li>
@@ -383,7 +383,7 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
         <h1>Product - Hair Serum</h1>
         <img src="oils4.jpg">
         <p>Hair oils that satisfy your scalp and increase hair growth!</p>
-        <label>Price: £10.99</label><br><br>
+        <label>Price: £4.99</label><br><br>
         <button class="basket-button" onclick="addToBasket('hairserum', 'Hair Serum', 15.99, 'oils1.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/hair-growth-oil';},50);">
             <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
         </button>
@@ -407,7 +407,7 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
         <h1>Product - Hair Oil</h1>
         <img src="oils3.jpg">
         <p>Extra hair oil for growth and strength.</p>
-        <label>Price: £10.99</label><br><br>
+        <label>Price: £9.99</label><br><br>
         <button class="basket-button" onclick="addToBasket('hairoil', 'Hair Oil', 12.99, 'oils3.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/rosemary-hair-oil-growth';},50);">
             <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
         </button>
@@ -427,7 +427,7 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
       <h1>Product - Conditioner</h1>
       <img src="oils10.jpg">
       <p>To keep your hair up to hip.</p>
-      <label>Price: £13.99</label><br><br>
+      <label>Price: £9.99</label><br><br>
       <button class="basket-button" onclick="addToBasket('conditioner', 'Conditioner', 14.99, 'oils10.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/conditioner';},50);">
         <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
       </button>
@@ -445,22 +445,16 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
 
     <div id="basketMessage" style="display:none; position:fixed; top:10px; right:10px; background:#fff; padding:10px; border:1px solid #000; z-index:9999;"></div>
 
-    <div id="bottom-review-container">
-        <h1>Reviews:</h1>
-        <br>
-        <div id="reviewList"></div>
-    </div>
-
 </div>
 
 <script>
     const allProducts = [
-        {id:'product1', name:'Hair Serum', price:12.99, image:'oils4.jpg'},
+        {id:'product1', name:'Hair Serum', price:4.99, image:'oils4.jpg'},
         {id:'product2', name:'Satin Bonnet', price:1.99, image:'oils6.jpg'},
-        {id:'product3', name:'Hair Oil', price:12.99, image:'oils3.jpg'},
-        {id:'product4', name:'Shampoo', price:9.99, image:'oils1.jpg'},
-        {id:'product5', name:'Conditioner', price:12.99, image:'oils10.jpg'},
-        {id:'product6', name:'Pomade', price:6.99, image:'oils9.jpg'}
+        {id:'product3', name:'Hair Oil', price:9.99, image:'oils3.jpg'},
+        {id:'product4', name:'Shampoo', price:12.99, image:'oils1.jpg'},
+        {id:'product5', name:'Conditioner', price:9.99, image:'oils10.jpg'},
+        {id:'product6', name:'Pomade', price:4.99, image:'oils9.jpg'}
     ];
 
     // Show product details
@@ -502,6 +496,7 @@ function closeReviewForm() {
 </body>
 
 </html>
+
 
 
 

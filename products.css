@@ -6,7 +6,7 @@ section {
     gap: 2rem;
 }
 
-#products img {
+#products img, #hampers img {
     border-radius: 5px;
     width: 150px;      /* adjust to desired size */
     height: auto;      /* keeps aspect ratio */
@@ -49,10 +49,10 @@ section {
     font-size: 22px;
 
 }
-#product-1, #product-2, #product-3, #product-4 {
+#product-1, #product-2, #product-3, #product-4, #product1, #product2 {
     transition: 0.2s ease;
 }
 
-#product-1:hover, #product-2:hover, #product-3:hover, #product-4:hover {
+#product-1:hover, #product-2:hover, #product-3:hover, #product-4:hover, #product1, #product2 {
     transform: scale(1.2)
 }

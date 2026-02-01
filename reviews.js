@@ -12,6 +12,30 @@ const SHEET_BEST_URL = 'https://api.sheetbest.com/sheets/de9f4919-1fda-4381-b13f
 // If you haven't set up Sheet.best yet, it will use localStorage as fallback
 const USE_GOOGLE_SHEETS = true; // Set to true after you get your Sheet.best URL
 
+// Profanity filter - add words you want to block (keep them lowercase)
+const PROFANITY_LIST = [
+    'damn', 'hell', 'crap', 'shit', 'fuck', 'ass', 'bitch', 
+    'bastard', 'dick', 'piss', 'cock', 'pussy', 'whore', 
+    'slut', 'fag', 'nigger', 'cunt', 'asshole', 'motherfucker', 'nigga', 'nga', 'dumbass'
+    // Add more words as needed
+];
+
+// Check if text contains profanity
+function containsProfanity(text) {
+    const lowerText = text.toLowerCase();
+    
+    // Check for exact matches and partial matches
+    for (let word of PROFANITY_LIST) {
+        // Use word boundaries to catch the word even with punctuation
+        const regex = new RegExp('\\b' + word + '\\b', 'i');
+        if (regex.test(lowerText)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
 // Generate star rating HTML
 function generateStars(rating) {
     let stars = '';
@@ -229,6 +253,12 @@ async function handleReviewSubmit(event) {
     
     if (!reviewTextarea.value.trim()) {
         alert('Please write a review');
+        return;
+    }
+    
+    // Check for profanity
+    if (containsProfanity(nameInput.value) || containsProfanity(reviewTextarea.value)) {
+        alert('⚠️ Your review contains inappropriate language. Please revise and resubmit.');
         return;
     }
     

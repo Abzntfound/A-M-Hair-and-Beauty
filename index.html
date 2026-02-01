@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
+    <style>
     #header {
       justify-content: space-between;
       align-items: center;
@@ -82,191 +82,398 @@
         }  
     }
 
-#product-1, #product-2, #product-3 {
-    transition: transform 0.3s ease;
-}
+    #product-1, #product-2, #product-3 {
+        transition: transform 0.3s ease;
+    }
           
     #product-1:hover, #product-2:hover, #product-3:hover {
         transform: scale(1.167);
     }
 
-          #product-1:hover, #product-3:hover {
-              z-index: 10000;
-          }
+    #product-1:hover, #product-3:hover {
+        z-index: 10000;
+    }
 
-          .left, .right {
-              transition: transform 0.3s ease;
-          }
+    .left, .right {
+        transition: transform 0.3s ease;
+    }
 
-          .left:hover, .right:hover {
-              transform: scale(1.184);
-          }
-           /* New Carousel CSS */
-        #carousel-container {
-            display: none;
-            width: 100%;
-            margin-top: 20px;
+    .left:hover, .right:hover {
+        transform: scale(1.184);
+    }
+
+    /* Carousel CSS */
+    #carousel-container {
+        display: none;
+        width: 100%;
+        margin-top: 20px;
+    }
+    
+    #carousel {
+        display: flex;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        gap: 25px;
+        padding: 20px;
+    }
+    
+    #carousel::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    #carousel::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 5px;
+    }
+    
+    .product-card {
+        flex: 0 0 280px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        padding: 15px;
+        text-align: center;
+        transition: transform 0.2s;
+        cursor: pointer;
+    }
+    
+    .product-card:hover { 
+        transform: scale(1.05); 
+    }
+    
+    .product-card img { 
+        width: 100%; 
+        border-radius: 8px; 
+    }
+
+    /* Notification bar */
+    #important-message {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 90%;
+        width: 400px;
+        padding: 16px 24px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 1000;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #important-message.hidden {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+        pointer-events: none;
+    }
+
+    #important-message button#ok {
+        background-color: #dba9c8;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        margin-left: 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    #important-message button#ok:hover {
+        background-color: #c692b0;
+    }
+
+    /* Review overlay */
+    #review-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.4);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 99999;
+    }
+
+    #review-form-container {
+        background: rgba(255,255,255,0.95);
+        border-radius: 1rem;
+        padding: 2rem;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        z-index: 100000;
+    }
+
+    #review-form-container input,
+    #review-form-container textarea,
+    #review-form-container select {
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+        border: 1px solid #ccc;
+        width: 100%;
+        font-size: 1rem;
+        font-family: "Poppins", sans-serif;
+    }
+
+    #review-form-container button {
+        background-color: #dba9c8;
+        color: white;
+        border: none;
+        padding: 0.8rem;
+        font-size: 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    #review-form-container button:hover {
+        background-color: #c692b0;
+    } 
+
+    #review {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        max-width: 100%;
+        width: 80px;
+        height: 80px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        transition: transform 0.2s ease-in;
+        cursor: pointer;
+    }
+
+    #review:hover {
+        transform: scale(1.2);
+    }
+
+    #review img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .valentine {
+        position: relative;
+        width: 100%;
+        height: 800px;
+        overflow: hidden;
+    }
+
+    .valentine::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            to bottom,
+            white 0%,
+            rgba(255, 255, 255, 0) 20%
+        );
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .valentine > * {
+        position: relative;
+        z-index: 20;
+    }
+
+    .valentine img {
+        border-top-left-radius: 5%;
+        border-top-right-radius: 5%;
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    #about {
+        justify-content: center;
+        width: 98%;
+        border: rgba(255, 255, 255, 0.205);
+    }
+
+    hr {
+        width: 95%;
+    }
+
+    /* Hamper1 overlay positioning */
+    #hamper1 {
+        display: block !important;
+        opacity: 1 !important;
+        position: absolute;
+        top: 50%;
+        left: 30%;
+        transform: translate(-50%, -50%) !important;
+        z-index: 200;
+        text-align: center;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        max-width: 300px;
+        width: 85%;
+    }
+
+    #hamper1 img {
+        width: 100%;
+        max-width: 200px;
+        height: auto;
+        border-radius: 12px;
+        margin: 0 auto 10px;
+        display: block;
+    }
+
+    #hamper1 ul {
+        list-style: none;
+        padding: 0;
+        text-align: center;
+        margin: 10px 0;
+        font-size: 0.9rem;
+    }
+
+    #hamper1 p, #hamper1 label {
+        color: #333;
+        margin: 8px 0;
+        font-size: 0.95rem;
+    }
+
+    #hamper1 label {
+        font-size: 1.3rem !important;
+    }
+
+    #hamper1 .basket-button {
+        width: 100%;
+        height: auto;
+        padding: 10px;
+    }
+
+    #hamper1 .basket-button img {
+        width: 40px;
+        height: 40px;
+    }
+
+    #hamper1 .basket-button p {
+        font-size: 16px !important;
+    }
+
+    /* Hamper2 overlay positioning */
+    #hamper2 {
+        display: block !important;
+        opacity: 1 !important;
+        position: absolute;
+        top: 50%;
+        left: 70%;
+        transform: translate(-50%, -50%) !important;
+        z-index: 250;
+        text-align: center;
+        padding: 15px;
+        background: rgba(255, 0, 0, 0.9);
+        border: 5px solid red;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        max-width: 300px;
+        width: 85%;
+    }
+
+    #hamper2 img {
+        width: 100%;
+        max-width: 200px;
+        height: auto;
+        border-radius: 12px;
+        margin: 0 auto 10px;
+        display: block;
+    }
+
+    #hamper2 ul {
+        list-style: none;
+        padding: 0;
+        text-align: center;
+        margin: 10px 0;
+        font-size: 0.9rem;
+    }
+
+    #hamper2 p, #hamper2 label {
+        color: #333;
+        margin: 8px 0;
+        font-size: 0.95rem;
+    }
+
+    #hamper2 label {
+        font-size: 1.3rem !important;
+    }
+
+    #hamper2 .basket-button {
+        width: 100%;
+        height: auto;
+        padding: 10px;
+    }
+
+    #hamper2 .basket-button img {
+        width: 40px;
+        height: 40px;
+    }
+
+    #hamper2 .basket-button p {
+        font-size: 16px !important;
+    }
+
+    @media (max-width: 768px) {
+        #hamper1, #hamper2 {
+            width: 80%;
+            padding: 12px;
+            max-width: 250px;
         }
-        #carousel {
-            display: flex;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            gap: 25px;
-            padding: 20px;
+        
+        #hamper1 img, #hamper2 img {
+            max-width: 150px;
         }
-        #carousel::-webkit-scrollbar {
-            height: 8px;
+
+        #hamper1 ul, #hamper2 ul {
+            font-size: 0.8rem;
         }
-        #carousel::-webkit-scrollbar-thumb {
-            background: #ccc;
-            border-radius: 5px;
+
+        #hamper1 label, #hamper2 label {
+            font-size: 1.1rem !important;
         }
-        .product-card {
-            flex: 0 0 280px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            padding: 15px;
-            text-align: center;
-            transition: transform 0.2s;
-            cursor: pointer;
+
+        /* Stack hampers vertically on mobile */
+        #hamper1 {
+            top: 30%;
+            left: 50%;
         }
-        .product-card:hover { transform: scale(1.05); }
-        .product-card img { width: 100%; border-radius: 8px; }
 
-        /* Notification bar container */
-#important-message {
-  position: fixed;
-  bottom: 20px;              /* fixed at bottom, adjust as needed */
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 90%;
-  width: 400px;
-  padding: 16px 24px;
-  background: rgba(255, 255, 255, 0.95);  /* soft white, slightly translucent */
-  color: #333;                /* dark text for readability */
-  border: 1px solid #ddd;     /* subtle border */
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 1000;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-/* Hide when dismissed */
-#important-message.hidden {
-  opacity: 0;
-  transform: translateX(-50%) translateY(20px);
-  pointer-events: none;
-}
-
-/* Button styling */
-#important-message button#ok {
-  background-color: #dba9c8;   /* a soft pink/mauve — adjust to match your brand colours */
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  margin-left: 16px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-#important-message button#ok:hover {
-  background-color: #c692b0;  /* darker mauve on hover */
-}
-
-/* Fullscreen overlay */
-#review-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.4);   /* dark translucent */
-    backdrop-filter: blur(5px);     /* blur background */
-    -webkit-backdrop-filter: blur(5px); /* Safari */
-    display: none;                  /* hidden by default */
-    justify-content: center;
-    align-items: center;
-    z-index: 99999;                 /* above everything */
-}
-
-#review-form-container {
-    background: rgba(255,255,255,0.95);  /* frosted white */
-    border-radius: 1rem;
-    padding: 2rem;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    z-index: 100000;
-}
-
-#review-form-container input,
-#review-form-container textarea,
-#review-form-container select {
-    padding: 0.8rem;
-    border-radius: 0.5rem;
-    border: 1px solid #ccc;
-    width: 100%;
-    font-size: 1rem;
-    font-family: "Poppins", sans-serif;
-}
-
-#review-form-container button {
-    background-color: #dba9c8;
-    color: white;
-    border: none;
-    padding: 0.8rem;
-    font-size: 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-#review-form-container button:hover {
-    background-color: #c692b0;
-} 
-
-#review {
-  position: fixed;
-  bottom: 20px;              /* fixed at bottom, adjust as needed */
-  left: 50%;
-  transform: translateX(600%);
-  max-width: 100%;
-  width: 12vh;
-  padding: 16px 24px;
-  background: rgba(255, 255, 255, 0.95);  /* soft white, slightly translucent */
-  color: #333;                /* dark text for readability */
-  border: 1px solid #ddd;     /* subtle border */
-  border-radius: 80px 80px 0px 80px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 1000;
-  transition: transform 0.2s ease-in;
-}
-
-#review:hover {
-    transform: scale(1.3) translateX(450%);
-    cursor: pointer;
-}
-
-#review img {
-    width: 8vh;
-    height: 8vh;
-}
+        #hamper2 {
+            top: 70%;
+            left: 50%;
+        }
+    }
     </style>
 </head>
 <body>
@@ -287,30 +494,34 @@
         </div>
     </div>
 
-     <div id="important-message">Once you have clicked basket or added a product to basket, click the arrow at the bottom to go back. <button id="ok" onclick="document.getElementById('important-message').style.display='none'">OK</button></div>
+    <div id="important-message">
+        Once you have clicked basket or added a product to basket, click the arrow at the bottom to go back. 
+        <button id="ok" onclick="document.getElementById('important-message').style.display='none'">OK</button>
+    </div>
 
-    <div id="review" class="reviews" onclick="getElementById('reviews').style.display = 'none', getElementById('user-reviews').style.display = 'block'"><img src="reviews.png" alt="reviews image"></div>
+    <div id="review" class="reviews">
+        <img src="reviews.png" alt="reviews image">
+    </div>
 
-<!-- Review overlay -->
-<div id="review-overlay">
-  <div id="review-form-container">
-    <h2>Submit Your Review</h2>
-    <form id="reviewForm">
-  <input id="name" required placeholder="Your name" />
-  <div>
-    Rating:
-    <label><input type="radio" name="rating" value="5" required>5</label>
-    <label><input type="radio" name="rating" value="4">4</label>
-    <label><input type="radio" name="rating" value="3">3</label>
-    <label><input type="radio" name="rating" value="2">2</label>
-    <label><input type="radio" name="rating" value="1">1</label>
-  </div>
-
-  <textarea id="review" required placeholder="Write your review"></textarea>
-  <button type="submit">Submit Review</button>
-</form>
-  </div>
-</div>
+    <!-- Review overlay -->
+    <div id="review-overlay" onclick="closeReviewForm()">
+        <div id="review-form-container" onclick="event.stopPropagation()">
+            <h2>Submit Your Review</h2>
+            <form id="reviewForm">
+                <input id="name" required placeholder="Your name" />
+                <div>
+                    Rating:
+                    <label><input type="radio" name="rating" value="5" required>5</label>
+                    <label><input type="radio" name="rating" value="4">4</label>
+                    <label><input type="radio" name="rating" value="3">3</label>
+                    <label><input type="radio" name="rating" value="2">2</label>
+                    <label><input type="radio" name="rating" value="1">1</label>
+                </div>
+                <textarea id="review-text" required placeholder="Write your review"></textarea>
+                <button type="submit">Submit Review</button>
+            </form>
+        </div>
+    </div>
     
     <div class="slideshow">
         <img src="small hair oil.jpg" alt="Product 1">
@@ -319,34 +530,77 @@
         <div class="slide-content">
             <h1><strong>Welcome to A&M Hair & Beauty</strong></h1>
             <p>Dive straight in to A&M's new selection of hair products. The new formula is sure to help your hair reach it's full potential!</p>
-            <button type="shop" onclick="document.location='#products'">Shop Now</button>
+            <button type="button" onclick="document.location='#products'">Shop Now</button>
         </div>
     </div>
 
-<br><br>
+    <br><br>
     
     <div id="about" class="scroll-text">
-        <h1>All about A&M</h1>
+        <h1 style="justify-content: center; text-align: center;">All about A&M</h1>
         <hr>
-        <p>About Us - A&M Hair Beauty<br><br>
-
-At A&M Hair Beauty, our journey began from personal experience. My hair was breaking, dry, and seemed impossible to grow no matter what I tried. After countless failed attempts with different products, I decided to take a step of faith and create my own natural hair care formula.
-This is suitable for all types of hair.<br><br>
-
-Through dedication and belief, I developed a blend that transformed my hair—making it longer, stronger, and full of shine. Everywhere I went, people noticed the difference and began asking about my secret. That’s when I knew it was time to share it with others.
-<br><br>
-A&M Hair Beauty was born from a passion to help people regain confidence in their natural beauty. Our products are made with care, using quality, nourishing ingredients designed to promote healthy hair growth, strength, and shine.
-<br><br>
-We believe that when your hair is healthy, you feel empowered—and that's what A&M Hair Beauty stands for. 🌿✨</p>
+        <p style="justify-content: center; text-align: center;">
+            About Us - A&M Hair Beauty<br><br>
+            At A&M Hair Beauty, our journey began from personal experience. My hair was breaking, dry, and seemed impossible to grow no matter what I tried. After countless failed attempts with different products, I decided to take a step of faith and create my own natural hair care formula.
+            This is suitable for all types of hair.<br><br>
+            Through dedication and belief, I developed a blend that transformed my hair—making it longer, stronger, and full of shine. Everywhere I went, people noticed the difference and began asking about my secret. That's when I knew it was time to share it with others.
+            <br><br>
+            A&M Hair Beauty was born from a passion to help people regain confidence in their natural beauty. Our products are made with care, using quality, nourishing ingredients designed to promote healthy hair growth, strength, and shine.
+            <br><br>
+            We believe that when your hair is healthy, you feel empowered—and that's what A&M Hair Beauty stands for. 🌿✨
+        </p>
         <br>
+    </div>
+
+    <!-- Customer Reviews Section -->
+    <div id="customer-reviews" class="scroll-text" style="padding: 40px 20px; background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); border-radius: 15px; margin: 20px auto; max-width: 1200px;">
+        <h1 style="text-align: center; margin-bottom: 30px;">Customer Reviews</h1>
+        <hr style="margin-bottom: 30px;">
+        
+        <div id="reviews-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <!-- Reviews will be displayed here -->
+            <div class="review-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong style="font-size: 1.1rem;">Sarah M.</strong>
+                    <span style="color: gold; font-size: 1.2rem;">⭐⭐⭐⭐⭐</span>
+                </div>
+                <p style="color: #666; font-style: italic; margin-bottom: 10px;">"Absolutely love this product! My hair has never felt better. The growth oil really works!"</p>
+                <p style="color: #999; font-size: 0.85rem;">2 days ago</p>
+            </div>
+
+            <div class="review-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong style="font-size: 1.1rem;">Jessica K.</strong>
+                    <span style="color: gold; font-size: 1.2rem;">⭐⭐⭐⭐⭐</span>
+                </div>
+                <p style="color: #666; font-style: italic; margin-bottom: 10px;">"The satin bonnet is so comfortable and my hair stays moisturized all night. Highly recommend!"</p>
+                <p style="color: #999; font-size: 0.85rem;">1 week ago</p>
+            </div>
+
+            <div class="review-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong style="font-size: 1.1rem;">Maya T.</strong>
+                    <span style="color: gold; font-size: 1.2rem;">⭐⭐⭐⭐</span>
+                </div>
+                <p style="color: #666; font-style: italic; margin-bottom: 10px;">"Great products! I've noticed a real difference in my hair's shine and strength. Will definitely buy again."</p>
+                <p style="color: #999; font-size: 0.85rem;">2 weeks ago</p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <p style="font-size: 1.1rem; color: #666;">Want to share your experience?</p>
+            <button onclick="document.getElementById('review-overlay').style.display='flex'" style="margin-top: 10px; background-color: #dba9c8; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; cursor: pointer;">
+                Write a Review
+            </button>
+        </div>
     </div>
 
     <section id="products" class="scroll-text">
         <section class="small">
             <!-- Product 1 -->
-            <div id="product" onclick="showProduct('product1');">
+            <div class="product" onclick="showProduct('product1');">
                 <br>
-                <img src="big hair oil.jpg">
+                <img src="big hair oil.jpg" alt="Hair Growth Oil">
                 <p>£9.99</p>
                 <p><strong>Hair Growth Oil</strong></p>
                 <ul>
@@ -357,9 +611,9 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
             </div>
 
             <!-- Product 2 -->
-            <div id="product" onclick="showProduct('product2');">
+            <div class="product" onclick="showProduct('product2');">
                 <br>
-                <img src="good bonnet.jpg">
+                <img src="good bonnet.jpg" alt="Satin Bonnet">
                 <p>£2.99</p>
                 <p><strong>Satin Bonnet</strong></p>
                 <ul>
@@ -379,81 +633,108 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
         </div>
     </section>
 
-    <!-- Product Details (keep exactly as you had) -->
+    <section class="valentine scroll-text small">   
+        <img src="valbg.jpg" alt="Valentine Background">
+        <div id="hamper1">
+            <img src="valentinehamper.png" alt="Valentine Hamper">
+            <p><strong>Valentine Hamper</strong></p>
+            <ul>
+                <li>Perfect gift set for hair care</li>
+                <li>Suitable for all hair types</li>
+            </ul>
+            <label style="font-size: 1.5rem; font-weight: bold;">£49.99</label><br><br>
+            <button class="basket-button" onclick="addToBasket('valentinehamper', 'Valentine Hamper', 49.99, 'valentinehamper.png'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/valentine-hamper';},50);">
+                <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
+            </button>
+        </div>
+        <div id="hamper2">
+            <img src="valhamper.png" alt="Valentine Hamper 2">
+            <p><strong>Valentine Hamper +</strong></p>
+            <ul>
+                <li>Premium hair care bundle</li>
+                <li>Perfect Valentine's gift</li>
+            </ul>
+            <label style="font-size: 1.5rem; font-weight: bold;">£39.99</label><br><br>
+            <button class="basket-button" onclick="addToBasket('valentinehamper2', 'Valentine Hamper 2', 59.99, 'valentinehamper.png'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/valentine-hamper-2';},50);">
+                <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
+            </button>
+        </div>
+    </section>
+
+    <!-- Product Details -->
     <div id="product1" class="product-detail" data-issue="7">
         <h1>Product - Hair Growth Oil</h1>
-        <img src="big hair oil.jpg">
+        <img src="big hair oil.jpg" alt="Hair Growth Oil">
         <p>Hair oils that satisfy your scalp and increase hair growth!</p>
         <label>Price: £9.99</label><br><br>
         <button class="basket-button" onclick="addToBasket('hairserum', 'Hair Serum', 15.99, 'oils1.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/hair-growth-oil';},50);">
-            <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
+            <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
         </button>
     </div>
 
     <div id="product2" class="product-detail" data-issue="8">
         <h1>Product - Satin Bonnet</h1>
-        <img src="good bonnet.jpg">
+        <img src="good bonnet.jpg" alt="Satin Bonnet">
         <p>A fresh satin bonnet to keep oils in your hair while you sleep!</p>
-    <label>Price: £2.99</label><br><br>
+        <label>Price: £2.99</label><br><br>
         <button class="basket-button" onclick="addToBasket('satinbonnet', 'Satin Bonnet', 3.99, 'oils2.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/satin-bonnet';},50);">
-            <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
+            <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
         </button>
         <br><br>
         <button class="basket-button" onclick="addToBasket('satinbonnet', 'Satin Bonnet', 3.99, 'oils2.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/satin-hair-bonnet';},50);">
-            <img src="basket.png"><p style="font-size: 21px;">Add Single</p>
+            <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add Single</p>
         </button>
     </div>
 
     <div id="product3" class="product-detail" data-issue="9">
         <h1>Product - Hair Oil</h1>
-        <img src="small hair oil.jpg">
+        <img src="small hair oil.jpg" alt="Hair Oil">
         <p>60ml</p>
         <p>Extra hair oil for growth and strength.</p>
         <label>Price: £4.99</label><br><br>
         <button class="basket-button" onclick="addToBasket('hairoil', 'Hair Oil', 12.99, 'oils3.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/rosemary-hair-oil-growth';},50);">
-            <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
+            <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
         </button>
     </div>
 
     <div id="product4" class="product-detail" data-issue="2">
-      <h1>Product - Shampoo</h1>
-      <img src="shampoo.jpg">
-      <p>For clean hair.</p>
-      <label>Price: £12.99</label><br><br>
-      <button class="basket-button" onclick="addToBasket('shampoo', 'Shampoo', 20.99, 'oils1.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/untitled-sep26_07-47';},50);">
-        <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
-      </button>
+        <h1>Product - Shampoo</h1>
+        <img src="shampoo.jpg" alt="Shampoo">
+        <p>For clean hair.</p>
+        <label>Price: £12.99</label><br><br>
+        <button class="basket-button" onclick="addToBasket('shampoo', 'Shampoo', 20.99, 'oils1.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/untitled-sep26_07-47';},50);">
+            <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
+        </button>
     </div>
-
     
     <div id="product5" class="product-detail" data-issue="5">
-      <h1>Product - Conditioner</h1>
-      <img src="conditioner.jpg">
-      <p>To keep your hair up to hip.</p>
-      <label>Price: £9.99</label><br><br>
-      <button class="basket-button" onclick="addToBasket('conditioner', 'Conditioner', 14.99, 'oils10.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/conditioner';},50);">
-        <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
-      </button>
+        <h1>Product - Conditioner</h1>
+        <img src="conditioner.jpg" alt="Conditioner">
+        <p>To keep your hair up to hip.</p>
+        <label>Price: £9.99</label><br><br>
+        <button class="basket-button" onclick="addToBasket('conditioner', 'Conditioner', 14.99, 'oils10.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/conditioner';},50);">
+            <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
+        </button>
     </div>
 
     <div id="product6" class="product-detail" data-issue="6">
-      <h1>Product - Pomade</h1>
-      <img src="Pomade.jpg">
-      <p>Promotes Healthy Hair</p>
-      <label>Price: £4.99</label><br><br>
-      <button class="basket-button" onclick="addToBasket('pomade', 'Pomade', 14.99, 'oils10.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/pomade';},50);">
-        <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
-      </button>
+        <h1>Product - Pomade</h1>
+        <img src="Pomade.jpg" alt="Pomade">
+        <p>Promotes Healthy Hair</p>
+        <label>Price: £4.99</label><br><br>
+        <button class="basket-button" onclick="addToBasket('pomade', 'Pomade', 14.99, 'oils10.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/pomade';},50);">
+            <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
+        </button>
     </div>
     
-     <div id="product7" class="product-detail" data-issue="7">
-      <h1>Product - Sisal Soap Bag</h1>
-      <img src="IMG_9162.PNG">
-      <p>Keep your body clean</p>
-      <label>Price: £2.60</label><br><br>
-      <button class="basket-button" onclick="addToBasket('Sisal Bag', 'Sisal Soap Bag', 2.60, 'oils1.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/untitled-sep26_07-47';},50);">
-        <img src="basket.png"><p style="font-size: 21px;">Add to basket</p>
-      </button>
+    <div id="product7" class="product-detail" data-issue="7">
+        <h1>Product - Sisal Soap Bag</h1>
+        <img src="IMG_9162.PNG" alt="Sisal Soap Bag">
+        <p>Keep your body clean</p>
+        <label>Price: £2.60</label><br><br>
+        <button class="basket-button" onclick="addToBasket('Sisal Bag', 'Sisal Soap Bag', 2.60, 'oils1.jpg'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/untitled-sep26_07-47';},50);">
+            <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
+        </button>
     </div>
 
     <div id="basketMessage" style="display:none; position:fixed; top:10px; right:10px; background:#fff; padding:10px; border:1px solid #000; z-index:9999;"></div>
@@ -472,62 +753,42 @@ We believe that when your hair is healthy, you feel empowered—and that's what 
 
     // Show product details
     function showProduct(productId) {
-        document.querySelectorAll('.product-detail').forEach(p=>p.style.display='none');
+        document.querySelectorAll('.product-detail').forEach(p => p.style.display = 'none');
         const product = document.getElementById(productId);
-        if(product) product.style.display='block';
-        product?.scrollIntoView({behavior:'smooth'});
+        if(product) {
+            product.style.display = 'block';
+            product.scrollIntoView({behavior:'smooth'});
+        }
     }
 
     // Activate carousel and add all products
     function activateCarousel() {
         const carousel = document.getElementById('carousel');
         carousel.innerHTML = '';
-        allProducts.forEach(p=>{
+        allProducts.forEach(p => {
             const card = document.createElement('div');
-            card.className='product-card';
-            card.dataset.id=p.id;
-            card.onclick = ()=>showProduct(p.id);
-            card.innerHTML = `<img src="${p.image}"><p>£${p.price}</p><p><strong>${p.name}</strong></p>`;
+            card.className = 'product-card';
+            card.dataset.id = p.id;
+            card.onclick = () => showProduct(p.id);
+            card.innerHTML = `<img src="${p.image}" alt="${p.name}"><p>£${p.price}</p><p><strong>${p.name}</strong></p>`;
             carousel.appendChild(card);
         });
-        document.querySelector('#products .small').style.display='none';
-        document.getElementById('carousel-container').style.display='flex';
+        document.querySelector('#products .small').style.display = 'none';
+        document.getElementById('carousel-container').style.display = 'flex';
         document.getElementById('carousel-container').scrollIntoView({behavior:'smooth'});
     }
 
+    // Open review form
     document.getElementById('review').addEventListener('click', () => {
-    document.getElementById('review-overlay').style.display = 'flex';
-});
+        document.getElementById('review-overlay').style.display = 'flex';
+    });
 
-// Close function
-function closeReviewForm() {
-    document.getElementById('review-overlay').style.display = 'none';
-}
+    // Close review form
+    function closeReviewForm() {
+        document.getElementById('review-overlay').style.display = 'none';
+    }
 </script>
 <script src="reviews.js"></script>
 <script src="index.js"></script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

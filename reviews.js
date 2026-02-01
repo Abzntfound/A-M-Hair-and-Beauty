@@ -16,7 +16,7 @@ const USE_GOOGLE_SHEETS = true; // Set to true after you get your Sheet.best URL
 const PROFANITY_LIST = [
     'damn', 'hell', 'crap', 'shit', 'fuck', 'ass', 'bitch', 
     'bastard', 'dick', 'piss', 'cock', 'pussy', 'whore', 
-    'slut', 'fag', 'nigger', 'cunt', 'asshole', 'motherfucker', 'nigga', 'nga', 'dumbass'
+    'slut', 'fag', 'nigger', 'cunt', 'asshole', 'motherfucker'
     // Add more words as needed
 ];
 
@@ -159,25 +159,31 @@ function sanitizeHTML(str) {
     return div.innerHTML;
 }
 
+// Track how many reviews are currently displayed
+let displayedReviewsCount = 0;
+const REVIEWS_PER_PAGE = 6;
+
 // Display all reviews
-async function displayReviews() {
+async function displayReviews(append = false) {
     const reviewsContainer = document.getElementById('reviews-container');
     if (!reviewsContainer) return;
     
-    // Show loading state
-    reviewsContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #dba9c8; border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 10px;">Loading reviews...</p></div>';
-    
-    // Add spinner animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+    if (!append) {
+        // Show loading state only on initial load
+        reviewsContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #dba9c8; border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 10px;">Loading reviews...</p></div>';
+        
+        // Add spinner animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        if (!document.getElementById('spinner-style')) {
+            style.id = 'spinner-style';
+            document.head.appendChild(style);
         }
-    `;
-    if (!document.getElementById('spinner-style')) {
-        style.id = 'spinner-style';
-        document.head.appendChild(style);
     }
     
     const reviews = await getReviews();
@@ -185,16 +191,25 @@ async function displayReviews() {
     // Sort reviews by date (newest first)
     reviews.sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    // Clear container
-    reviewsContainer.innerHTML = '';
+    if (!append) {
+        // Clear container for initial load
+        reviewsContainer.innerHTML = '';
+        displayedReviewsCount = 0;
+    }
     
     if (reviews.length === 0) {
         reviewsContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><p>No reviews yet. Be the first to leave a review!</p></div>';
+        document.getElementById('show-more-reviews-container').style.display = 'none';
         return;
     }
     
+    // Calculate which reviews to show
+    const startIndex = displayedReviewsCount;
+    const endIndex = Math.min(startIndex + REVIEWS_PER_PAGE, reviews.length);
+    const reviewsToShow = reviews.slice(startIndex, endIndex);
+    
     // Add each review
-    reviews.forEach(review => {
+    reviewsToShow.forEach(review => {
         const reviewCard = document.createElement('div');
         reviewCard.className = 'review-card';
         reviewCard.style.cssText = 'background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: transform 0.2s ease;';
@@ -220,6 +235,26 @@ async function displayReviews() {
         
         reviewsContainer.appendChild(reviewCard);
     });
+    
+    // Update the displayed count
+    displayedReviewsCount = endIndex;
+    
+    // Show or hide the "Show More" button
+    const showMoreContainer = document.getElementById('show-more-reviews-container');
+    const showMoreBtn = document.getElementById('show-more-reviews-btn');
+    
+    if (displayedReviewsCount < reviews.length) {
+        showMoreContainer.style.display = 'block';
+        const remaining = reviews.length - displayedReviewsCount;
+        showMoreBtn.textContent = `Show More Reviews (${remaining} remaining)`;
+    } else {
+        showMoreContainer.style.display = 'none';
+    }
+}
+
+// Show more reviews function
+function showMoreReviews() {
+    displayReviews(true);
 }
 
 // Handle form submission

@@ -55,16 +55,6 @@ img {
     width: 100%;
 }
 
-#bottom-review-container h1 {
-   padding-left: 2vh;
-   padding-top: 3vh;
-}
-
-#bottom-review-container {
-   border-radius: 1vh 1vh 1vh 1vh;
-   border: 1vh solid black
-}
-
 /* Tablets + Laptops under 1200px */
 @media (max-width: 1200px) {
     #header {
@@ -108,7 +98,7 @@ img {
 
 @media (max-width: 400px) {
     #header h1 {
-        font-size: 1.25rem;
+        font-size: 1.3rem;
     }
 }
 /* ----------------------------------
@@ -141,7 +131,7 @@ button:hover {
 /* ----------------------------------
    PRODUCT DETAIL
 ----------------------------------*/
-.product-detail {
+.product-detail, #hamper1 {
     border-radius: 15px;
     display: none;
     opacity: 0;
@@ -151,6 +141,7 @@ button:hover {
     margin: 30px auto;
     text-align: center;
     padding: 20px;
+    z-index: 100;
 }
 
 .product-detail.show {
@@ -268,5 +259,3 @@ button:hover {
         font-size: 12px;
     }
 }
-
-

@@ -463,14 +463,18 @@
             font-size: 1.1rem !important;
         }
 
-        /* Stack hampers vertically on mobile */
+        /* Stack hampers vertically on mobile with no overlap */
+        .valentine {
+            height: 1200px !important; /* More height for mobile */
+        }
+
         #hamper1 {
-            top: 30%;
+            top: 25%;
             left: 50%;
         }
 
         #hamper2 {
-            top: 70%;
+            top: 65%;
             left: 50%;
         }
     }
@@ -648,13 +652,13 @@
             </button>
         </div>
         <div id="hamper2">
-            <img src="valhamper.png" alt="Valentine Hamper 2">
-            <p><strong>Valentine Hamper +</strong></p>
+            <img src="valentinehamper.png" alt="Valentine Hamper 2">
+            <p><strong>Valentine Hamper 2</strong></p>
             <ul>
                 <li>Premium hair care bundle</li>
                 <li>Perfect Valentine's gift</li>
             </ul>
-            <label style="font-size: 1.5rem; font-weight: bold;">£39.99</label><br><br>
+            <label style="font-size: 1.5rem; font-weight: bold;">£59.99</label><br><br>
             <button class="basket-button" onclick="addToBasket('valentinehamper2', 'Valentine Hamper 2', 59.99, 'valentinehamper.png'); setTimeout(()=>{window.location.href='https://amhairandbeauty.org/products/valentine-hamper-2';},50);">
                 <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
             </button>

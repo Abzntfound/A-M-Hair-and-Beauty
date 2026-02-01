@@ -47,7 +47,7 @@ span {
 
 .slide-content h1 {
     -webkit-text-stroke: 0.5px black;
-    font-size: 5vh;
+    font-size: 3rem;
     margin-bottom: 20px;
     text-shadow: 0 2px 4px rgba(0,0,0,0.6);
 }
@@ -60,7 +60,7 @@ span {
 }
 
 .slide-content p {
-    font-size: 1.65vh;
+    font-size: 1.5rem;
     margin-bottom: 30px;
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
@@ -87,14 +87,13 @@ span {
 /* Responsive */
 @media (max-width: 768px) {
     .slide-content h1 {
-        font-size: 1rem;
+        font-size: 2rem;
     }
     .slide-content p {
-        font-size: 0.7rem;
+        font-size: 1rem;
     }
     .slide-content button {
         padding: 10px 20px;
-        padding-bottom: 10px;
         font-size: 0.9rem;
     }
 }
@@ -108,8 +107,4 @@ span {
 .scroll-text.show {
     opacity: 1;                /* fade in */
     transform: translateY(0);  /* move to normal position */
-
 }
-
-
-

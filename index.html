@@ -616,33 +616,13 @@
         <hr style="margin-bottom: 30px;">
         
         <div id="reviews-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-            <!-- Reviews will be displayed here -->
-            <div class="review-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <strong style="font-size: 1.1rem;">Sarah M.</strong>
-                    <span style="color: gold; font-size: 1.2rem;">⭐⭐⭐⭐⭐</span>
-                </div>
-                <p style="color: #666; font-style: italic; margin-bottom: 10px;">"Absolutely love this product! My hair has never felt better. The growth oil really works!"</p>
-                <p style="color: #999; font-size: 0.85rem;">2 days ago</p>
-            </div>
-
-            <div class="review-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <strong style="font-size: 1.1rem;">Jessica K.</strong>
-                    <span style="color: gold; font-size: 1.2rem;">⭐⭐⭐⭐⭐</span>
-                </div>
-                <p style="color: #666; font-style: italic; margin-bottom: 10px;">"The satin bonnet is so comfortable and my hair stays moisturized all night. Highly recommend!"</p>
-                <p style="color: #999; font-size: 0.85rem;">1 week ago</p>
-            </div>
-
-            <div class="review-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <strong style="font-size: 1.1rem;">Maya T.</strong>
-                    <span style="color: gold; font-size: 1.2rem;">⭐⭐⭐⭐</span>
-                </div>
-                <p style="color: #666; font-style: italic; margin-bottom: 10px;">"Great products! I've noticed a real difference in my hair's shine and strength. Will definitely buy again."</p>
-                <p style="color: #999; font-size: 0.85rem;">2 weeks ago</p>
-            </div>
+            <!-- Reviews will be displayed here dynamically -->
+        </div>
+        
+        <div id="show-more-reviews-container" style="text-align: center; margin-top: 20px; display: none;">
+            <button id="show-more-reviews-btn" onclick="showMoreReviews()" style="background-color: #dba9c8; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: background-color 0.2s;">
+                Show More Reviews
+            </button>
         </div>
         
         <div style="text-align: center; margin-top: 30px;">

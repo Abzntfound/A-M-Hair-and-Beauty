@@ -244,7 +244,56 @@
 
     #review-form-container button:hover {
         background-color: #c692b0;
-    } 
+    }
+
+    #review-form-container button.cancel-btn {
+        background-color: #6c757d;
+    }
+
+    #review-form-container button.cancel-btn:hover {
+        background-color: #5a6268;
+    }
+
+    .rating-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem 0;
+    }
+
+    .rating-group > span {
+        font-weight: 600;
+        min-width: 60px;
+    }
+
+    .rating-options {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .rating-options label {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        cursor: pointer;
+    }
+
+    .rating-options input[type="radio"] {
+        width: auto;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .form-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .form-buttons button {
+        flex: 1;
+    }
 
     #review {
         position: fixed;
@@ -513,16 +562,21 @@
             <h2>Submit Your Review</h2>
             <form id="reviewForm">
                 <input id="name" required placeholder="Your name" />
-                <div>
-                    Rating:
-                    <label><input type="radio" name="rating" value="5" required>5</label>
-                    <label><input type="radio" name="rating" value="4">4</label>
-                    <label><input type="radio" name="rating" value="3">3</label>
-                    <label><input type="radio" name="rating" value="2">2</label>
-                    <label><input type="radio" name="rating" value="1">1</label>
+                <div class="rating-group">
+                    <span>Rating:</span>
+                    <div class="rating-options">
+                        <label><input type="radio" name="rating" value="5" required> 5</label>
+                        <label><input type="radio" name="rating" value="4"> 4</label>
+                        <label><input type="radio" name="rating" value="3"> 3</label>
+                        <label><input type="radio" name="rating" value="2"> 2</label>
+                        <label><input type="radio" name="rating" value="1"> 1</label>
+                    </div>
                 </div>
                 <textarea id="review-text" required placeholder="Write your review"></textarea>
-                <button type="submit">Submit Review</button>
+                <div class="form-buttons">
+                    <button type="submit">Submit Review</button>
+                    <button type="button" class="cancel-btn" onclick="closeReviewForm()">Cancel</button>
+                </div>
             </form>
         </div>
     </div>
@@ -796,6 +850,3 @@
 <script src="index.js"></script>
 </body>
 </html>
-
-
-

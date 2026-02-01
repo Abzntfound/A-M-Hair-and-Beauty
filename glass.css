@@ -82,7 +82,7 @@
     height: 15%;
 }
 
-#basketMessage {
+#basketMessage, #about {
     padding: 0 20px;
     background: rgba(255, 255, 255, 0.0.5); /* translucent glass */
     backdrop-filter: blur(10px); /* blur background */
@@ -95,7 +95,6 @@
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 
 }
-
 
 
 

@@ -769,8 +769,18 @@
         <h1>Product - Sisal Soap Bag</h1>
         <img src="IMG_9162.PNG" alt="Sisal Soap Bag">
         <p>Keep your body clean</p>
+        <label>Price: £2.60</label><br><br>
+        <button class="basket-button" onclick="addToBasket('Sisal Bag', 'Sisal Soap Bag', 2.60, 'oils1.jpg'); setTimeout(()=>{window.location.href='https://shop.amhairandbeauty.com/products/valentine-hamper-1';},50);">
+            <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
+        </button>
+    </div>
+
+        <div id="product7" class="product-detail" data-issue="7">
+        <h1>Product - Tumeric</h1>
+        <img src="tumeric.jpg" alt="Tumeric">
+        <p>Keep your body clean</p>
         <label>Price: £1.99</label><br><br>
-        <button class="basket-button" onclick="addToBasket('Sisal Bag', 'Sisal Soap Bag', 2.60, 'oils1.jpg'); setTimeout(()=>{window.location.href='https://shop.amhairandbeauty.com/products/untitled-sep26_07-47';},50);">
+        <button class="basket-button" onclick="addToBasket('Tumeric', 'Tumeric', 3.50, 'oils1.jpg'); setTimeout(()=>{window.location.href='https://shop.amhairandbeauty.com/products/tumeric-soap';},50);">
             <img src="basket.png" alt="Basket"><p style="font-size: 21px;">Add to basket</p>
         </button>
     </div>
@@ -787,7 +797,8 @@
         {id:'product4', name:'Shampoo', price:12.99, image:'shampoo.jpg'},
         {id:'product5', name:'Conditioner', price:9.99, image:'conditioner.jpg'},
         {id:'product6', name:'Pomade', price:4.99, image:'Pomade.jpg'},
-        {id:'Sisal Soap', name:'Sisal Bag', price:1.99, image:'IMG_9162.PNG'}
+        {id:'Sisal Soap', name:'Sisal Bag', price:2.60, image:'IMG_9162.PNG'},
+        {id:'Tumeric', name:'Tumeric', price:3.50, image:'tumeric.jpg'},
     ];
 
     // Show product details
@@ -831,6 +842,7 @@
 <script src="index.js"></script>
 </body>
 </html>
+
 
 
 

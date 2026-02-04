@@ -2,7 +2,7 @@
 // home-auth.js - Place this in the same directory as index.html
 
 // YOUR GOOGLE SHEETS WEB APP URL (Same as auth.js)
-const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx527wq0vGwyr2mQ7mGy7LGGny7IamcZB6EOzA2aLeXG_3LW2vBoBXIF3fWX6x-z0QOTA/exec';
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz-CIirIsDp6uvL3Z2FTzsVYc3pHDyJW5-Ln2XSOKA8eEkiwCzM60uc20R53rJN41tO/exec';
 
 // Global user data
 let currentUser = null;

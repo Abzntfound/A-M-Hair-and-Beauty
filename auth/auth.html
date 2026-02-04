@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>A&M Hair and Beauty - Login</title>
+    <link rel="icon" href="A&M.ico">
+    <link rel="stylesheet" href="auth-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<div id="wrapper">
+    <!-- Header matching main site -->
+    <div id="header" class="glass">
+        <div class="left" onclick="window.location.href='https://www.amhairandbeauty.com'">
+            <h1>A&M Hair and Beauty</h1>
+        </div>
+
+        <div class="logo" onclick="window.location.href='https://www.amhairandbeauty.com'">
+            <img src="A&M.png" alt="A&M Logo">
+        </div>
+
+        <div class="right" onclick="window.location.href='https://shop.amhairandbeauty.com/cart/'">
+            <img src="basket.png" alt="Basket">
+            <span>Basket</span>
+        </div>
+    </div>
+
+    <!-- Auth Container -->
+    <div id="auth-container">
+        <div class="auth-box glass">
+            <h2 id="auth-title">Welcome Back!</h2>
+            <p id="auth-subtitle">Sign in to continue shopping</p>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form">
+                <div class="input-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required placeholder="your.email@example.com">
+                </div>
+
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required placeholder="Enter your password">
+                </div>
+
+                <button type="submit" class="auth-button">Sign In</button>
+
+                <p class="switch-form">
+                    Don't have an account? 
+                    <a href="#" onclick="switchToSignup(); return false;">Create one</a>
+                </p>
+            </form>
+
+            <!-- Signup Form (hidden initially) -->
+            <form id="signup-form" class="auth-form" style="display: none;">
+                <div class="input-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" required placeholder="John Doe">
+                </div>
+
+                <div class="input-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required placeholder="your.email@example.com">
+                </div>
+
+                <div class="input-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" required placeholder="Minimum 8 characters">
+                </div>
+
+                <div class="input-group">
+                    <label for="signup-confirm">Confirm Password</label>
+                    <input type="password" id="signup-confirm" required placeholder="Re-enter password">
+                </div>
+
+                <button type="submit" class="auth-button">Create Account</button>
+
+                <p class="switch-form">
+                    Already have an account? 
+                    <a href="#" onclick="switchToLogin(); return false;">Sign in</a>
+                </p>
+            </form>
+
+            <!-- Status Message -->
+            <div id="auth-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- User Profile Section (shown after login) -->
+    <div id="user-profile" style="display: none;">
+        <div class="profile-box glass">
+            <div class="profile-header">
+                <h2>Welcome, <span id="user-name-display"></span>!</h2>
+                <button id="settings-btn" onclick="toggleSettings()">⚙️ Settings</button>
+            </div>
+
+            <div class="profile-info">
+                <p><strong>Email:</strong> <span id="user-email-display"></span></p>
+                <p><strong>Member since:</strong> <span id="user-created-display"></span></p>
+                <p><strong>Last login:</strong> <span id="user-login-display"></span></p>
+            </div>
+
+            <div class="profile-actions">
+                <button class="action-btn" onclick="window.location.href='https://www.amhairandbeauty.com'">
+                    🛍️ Continue Shopping
+                </button>
+                <button class="action-btn logout-btn" onclick="logout()">
+                    🚪 Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="settings-box glass" style="display: none;">
+            <h3>Settings</h3>
+            
+            <div class="setting-item">
+                <label for="theme-toggle">Theme</label>
+                <div class="theme-switch">
+                    <button class="theme-btn" data-theme="light" onclick="setTheme('light')">
+                        ☀️ Light
+                    </button>
+                    <button class="theme-btn active" data-theme="dark" onclick="setTheme('dark')">
+                        🌙 Dark
+                    </button>
+                </div>
+            </div>
+
+            <button class="action-btn" onclick="saveSettings()">
+                💾 Save Settings
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="auth.js"></script>
+</body>
+</html>

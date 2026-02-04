@@ -1,49 +1,56 @@
-// A&M Hair and Beauty - Main Website User Authentication
-// home-auth.js - Place this in the same directory as index.html
+// A&M Hair and Beauty - Main Website User Authentication (DEBUG VERSION)
+// home-auth.js
 
-// YOUR GOOGLE SHEETS WEB APP URL (Same as auth.js)
 const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx527wq0vGwyr2mQ7mGy7LGGny7IamcZB6EOzA2aLeXG_3LW2vBoBXIF3fWX6x-z0QOTA/exec';
 
-// Global user data
 let currentUser = null;
 
 // ========================================
 // INITIALIZATION
 // ========================================
 
-// Initialize when DOM loads
+console.log('🔵 home-auth.js: Script loading...');
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeUserAuth);
 } else {
     initializeUserAuth();
 }
 
-// Main initialization function
 async function initializeUserAuth() {
+    console.log('🔵 home-auth.js: DOM loaded, initializing...');
+    
     try {
-        console.log('🚀 A&M Home - Auth system loading...');
-        
-        // First, check localStorage
         const storedUserData = localStorage.getItem('amUserData');
+        console.log('🔵 localStorage check:', storedUserData ? 'Found user data' : 'No user data');
         
         if (storedUserData) {
-            try {
-                const userData = JSON.parse(storedUserData);
-                console.log('📦 Found stored user data:', userData.email);
-                
-                // Verify with database and get fresh data
-                await verifyUserSession(userData.email);
-            } catch (e) {
-                console.error('❌ Error parsing stored user data:', e);
-                localStorage.removeItem('amUserData');
-                showLoggedOutState();
+            const userData = JSON.parse(storedUserData);
+            console.log('🔵 Parsed user data:', {
+                email: userData.email,
+                name: userData.name,
+                darkMode: userData.darkMode
+            });
+            
+            // IMMEDIATE: Apply cached theme while we verify
+            if (userData.darkMode !== undefined) {
+                const cachedTheme = userData.darkMode ? 'dark' : 'light';
+                console.log('🔵 Applying CACHED theme immediately:', cachedTheme);
+                applyTheme(cachedTheme);
             }
+            
+            // IMMEDIATE: Show user name from cache
+            showLoggedInState(userData);
+            
+            // THEN: Verify and update from database
+            console.log('🔵 Now verifying with database...');
+            await verifyUserSession(userData.email);
         } else {
-            console.log('ℹ️ No stored user data found');
+            console.log('🔵 No stored user data - showing logged out state');
             showLoggedOutState();
+            loadDefaultTheme();
         }
         
-        // Check and show important message after a delay
         setTimeout(() => {
             checkAndShowImportantMessage();
         }, 800);
@@ -51,6 +58,7 @@ async function initializeUserAuth() {
     } catch (error) {
         console.error('❌ Initialization error:', error);
         showLoggedOutState();
+        loadDefaultTheme();
     }
 }
 
@@ -58,68 +66,50 @@ async function initializeUserAuth() {
 // GOOGLE SHEETS INTEGRATION
 // ========================================
 
-// Verify user session with database
 async function verifyUserSession(email) {
-    console.log('🔍 Verifying user session for:', email);
+    console.log('🔵 Verifying user session for:', email);
     
     try {
         const result = await makeGoogleSheetsRequest('GET_USER', { email: email });
         
+        console.log('🔵 Database response:', result);
+        
         if (result.success && result.user) {
-            console.log('✅ User verified:', result.user.name);
-            console.log('🎨 User theme preference from DB:', result.user.darkMode);
+            console.log('✅ User verified from DB:', {
+                name: result.user.name,
+                email: result.user.email,
+                darkMode: result.user.darkMode
+            });
             
             currentUser = result.user;
             
-            // Update localStorage with fresh data from database
+            // Update localStorage with fresh data
             localStorage.setItem('amUserData', JSON.stringify(result.user));
+            console.log('✅ localStorage updated with fresh data');
             
-            // IMPORTANT: Apply theme BEFORE updating UI
+            // Apply theme from database
             if (result.user.darkMode !== undefined) {
-                const theme = result.user.darkMode ? 'dark' : 'light';
-                console.log('🎨 Applying user theme:', theme);
-                applyTheme(theme);
-                // Also update localStorage theme
-                localStorage.setItem('amTheme', theme);
+                const dbTheme = result.user.darkMode ? 'dark' : 'light';
+                console.log('🎨 Applying theme from DB:', dbTheme);
+                applyTheme(dbTheme);
             }
             
-            // Update UI
+            // Update UI with verified data
             showLoggedInState(result.user);
+            
         } else {
-            console.log('⚠️ User verification failed');
-            localStorage.removeItem('amUserData');
-            showLoggedOutState();
-            // Load default theme
-            loadDefaultTheme();
+            console.warn('⚠️ User verification failed:', result.message);
+            // Keep cached data if verification fails
+            console.log('📱 Keeping cached data since DB verification failed');
         }
     } catch (error) {
         console.error('❌ Error verifying user:', error);
-        
-        // Fall back to stored data if verification fails (network issue)
-        const storedData = localStorage.getItem('amUserData');
-        if (storedData) {
-            const user = JSON.parse(storedData);
-            console.log('📱 Using cached user data (offline mode)');
-            currentUser = user;
-            
-            // Apply cached theme
-            if (user.darkMode !== undefined) {
-                const theme = user.darkMode ? 'dark' : 'light';
-                console.log('🎨 Applying cached theme:', theme);
-                applyTheme(theme);
-            }
-            
-            showLoggedInState(user);
-        } else {
-            showLoggedOutState();
-            loadDefaultTheme();
-        }
+        console.log('📱 Network error - using cached data');
     }
 }
 
-// Make API call to Google Sheets
 async function makeGoogleSheetsRequest(action, data) {
-    console.log('📤 Making request:', action, data);
+    console.log('📤 API Request:', action, data);
     
     try {
         const params = new URLSearchParams({
@@ -128,24 +118,29 @@ async function makeGoogleSheetsRequest(action, data) {
         });
         
         const url = `${GOOGLE_SHEETS_URL}?${params.toString()}`;
+        console.log('🔵 Request URL:', url);
         
         const response = await fetch(url, {
             method: 'GET',
             redirect: 'follow'
         });
         
+        console.log('📥 Response status:', response.status);
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const text = await response.text();
-        const result = JSON.parse(text);
+        console.log('📄 Raw response:', text.substring(0, 200));
         
-        console.log('✅ Response received:', result);
+        const result = JSON.parse(text);
+        console.log('✅ Parsed result:', result);
+        
         return result;
         
     } catch (error) {
-        console.error('❌ Request failed:', error);
+        console.error('❌ API Request failed:', error);
         throw error;
     }
 }
@@ -154,47 +149,44 @@ async function makeGoogleSheetsRequest(action, data) {
 // UI UPDATE FUNCTIONS
 // ========================================
 
-// Show logged-in state
 function showLoggedInState(user) {
-    console.log('👤 Showing logged-in state for:', user.name);
+    console.log('🔵 Updating UI with user:', user.name);
     
-    // Update header
     const userDisplayName = document.getElementById('user-display-name');
+    console.log('🔵 user-display-name element:', userDisplayName);
+    
     if (userDisplayName) {
         const firstName = user.name.split(' ')[0];
         userDisplayName.innerHTML = `<span class="user-name">${firstName}</span>`;
-        console.log('✅ Header updated with name:', firstName);
+        console.log('✅ Header updated to show:', firstName);
+    } else {
+        console.error('❌ Could not find #user-display-name element!');
     }
     
-    // Pre-fill review form
     const nameInput = document.getElementById('name');
     if (nameInput && user.name) {
         nameInput.value = user.name;
         console.log('✅ Review form pre-filled');
     }
     
-    // Store current user globally
     currentUser = user;
+    console.log('✅ UI update complete');
 }
 
-// Show logged-out state
 function showLoggedOutState() {
-    console.log('👋 Showing logged-out state');
+    console.log('🔵 Showing logged-out state');
     
     const userDisplayName = document.getElementById('user-display-name');
     if (userDisplayName) {
         userDisplayName.textContent = 'Log In';
+        console.log('✅ Header set to "Log In"');
     }
     
     currentUser = null;
 }
 
-// Handle user header click
 function handleUserHeaderClick() {
-    console.log('🖱️ User header clicked');
-    console.log('Current user state:', currentUser ? 'logged in' : 'logged out');
-    
-    // Always redirect to auth page
+    console.log('🔵 User header clicked');
     window.location.href = 'https://auth.amhairandbeauty.com';
 }
 
@@ -202,12 +194,11 @@ function handleUserHeaderClick() {
 // IMPORTANT MESSAGE FUNCTIONS
 // ========================================
 
-// Check and show important message once for logged-in users
 function checkAndShowImportantMessage() {
     const userData = localStorage.getItem('amUserData');
     
     if (!userData) {
-        console.log('ℹ️ No user logged in - message hidden');
+        console.log('🔵 No user - message hidden');
         return;
     }
     
@@ -217,23 +208,19 @@ function checkAndShowImportantMessage() {
         const hasSeenMessage = localStorage.getItem(messageKey);
         
         if (!hasSeenMessage) {
-            // Show the message
             const messageEl = document.getElementById('important-message');
             if (messageEl) {
                 messageEl.classList.add('show');
-                console.log('📢 Showing important message for:', user.email);
-            } else {
-                console.warn('⚠️ Important message element not found');
+                console.log('✅ Important message shown');
             }
         } else {
-            console.log('ℹ️ User has already seen the important message');
+            console.log('🔵 User has seen message before');
         }
     } catch (e) {
-        console.error('❌ Error checking message status:', e);
+        console.error('❌ Error with message:', e);
     }
 }
 
-// Dismiss important message and remember it
 function dismissImportantMessage() {
     const userData = localStorage.getItem('amUserData');
     
@@ -241,25 +228,18 @@ function dismissImportantMessage() {
         try {
             const user = JSON.parse(userData);
             const messageKey = `amImportantMessageSeen_${user.email}`;
-            
-            // Mark as seen for this user
             localStorage.setItem(messageKey, 'true');
-            console.log('✅ Important message dismissed for:', user.email);
+            console.log('✅ Message dismissed');
         } catch (e) {
-            console.error('❌ Error saving message status:', e);
+            console.error('❌ Error dismissing:', e);
         }
     }
     
-    // Hide the message with animation
     const messageEl = document.getElementById('important-message');
     if (messageEl) {
         messageEl.classList.remove('show');
         messageEl.classList.add('hidden');
-        
-        // Remove from DOM after animation
-        setTimeout(() => {
-            messageEl.style.display = 'none';
-        }, 300);
+        setTimeout(() => messageEl.style.display = 'none', 300);
     }
 }
 
@@ -267,22 +247,25 @@ function dismissImportantMessage() {
 // THEME FUNCTIONS
 // ========================================
 
-// Apply theme to the page
 function applyTheme(theme) {
     const html = document.documentElement;
     
     console.log('🎨 Applying theme:', theme);
+    console.log('🎨 Current data-theme:', html.getAttribute('data-theme'));
     
     if (theme === 'dark') {
         html.setAttribute('data-theme', 'dark');
         localStorage.setItem('amTheme', 'dark');
+        console.log('✅ Dark theme applied');
     } else {
         html.removeAttribute('data-theme');
         localStorage.setItem('amTheme', 'light');
+        console.log('✅ Light theme applied');
     }
+    
+    console.log('🎨 New data-theme:', html.getAttribute('data-theme') || 'none (light)');
 }
 
-// Load default theme (when not logged in)
 function loadDefaultTheme() {
     const savedTheme = localStorage.getItem('amTheme') || 'light';
     console.log('🎨 Loading default theme:', savedTheme);
@@ -290,80 +273,67 @@ function loadDefaultTheme() {
 }
 
 // ========================================
-// LOGOUT FUNCTION
+// UTILITY FUNCTIONS
 // ========================================
 
-// Logout user
 function logoutUser() {
     if (confirm('Are you sure you want to logout?')) {
-        console.log('🚪 Logging out user...');
-        
-        // Clear user data
+        console.log('🔵 Logging out...');
         localStorage.removeItem('amUserData');
         currentUser = null;
-        
-        // Update UI
         showLoggedOutState();
-        
-        // Load default theme
         loadDefaultTheme();
-        
-        // Optionally redirect to home or auth
-        alert('✅ You have been logged out successfully.');
-        
-        // Reload page to reset state
+        alert('✅ Logged out successfully');
         window.location.reload();
     }
 }
 
-// ========================================
-// UTILITY FUNCTIONS
-// ========================================
-
-// Get current user
 function getCurrentUser() {
     return currentUser;
 }
 
-// Check if user is logged in
 function isUserLoggedIn() {
     return currentUser !== null;
 }
 
-// Force refresh user data from database
 async function refreshUserData() {
     if (currentUser && currentUser.email) {
-        console.log('🔄 Refreshing user data from database...');
+        console.log('🔄 Refreshing user data...');
         await verifyUserSession(currentUser.email);
     }
 }
 
-// Debug function - print current state
 function debugAuthState() {
-    console.log('=== AUTH DEBUG INFO ===');
-    console.log('Current User:', currentUser);
+    console.log('=== 🔍 AUTH DEBUG INFO ===');
+    console.log('Current User Object:', currentUser);
     console.log('LocalStorage amUserData:', localStorage.getItem('amUserData'));
     console.log('LocalStorage amTheme:', localStorage.getItem('amTheme'));
     console.log('Is Logged In:', isUserLoggedIn());
-    console.log('Current HTML theme attribute:', document.documentElement.getAttribute('data-theme'));
+    console.log('HTML data-theme:', document.documentElement.getAttribute('data-theme') || 'none');
     
-    // Parse and show user data details
     const userData = localStorage.getItem('amUserData');
     if (userData) {
         try {
             const user = JSON.parse(userData);
-            console.log('User Email:', user.email);
-            console.log('User Name:', user.name);
-            console.log('User darkMode setting:', user.darkMode);
+            console.log('Parsed User Data:');
+            console.log('  - Email:', user.email);
+            console.log('  - Name:', user.name);
+            console.log('  - darkMode:', user.darkMode);
+            console.log('  - createdAt:', user.createdAt);
+            console.log('  - lastLogin:', user.lastLogin);
         } catch (e) {
             console.error('Error parsing user data:', e);
         }
     }
     
-    console.log('======================');
+    const userDisplayName = document.getElementById('user-display-name');
+    console.log('user-display-name element:', userDisplayName);
+    console.log('user-display-name content:', userDisplayName ? userDisplayName.innerHTML : 'NOT FOUND');
+    
+    console.log('========================');
 }
 
-// Make functions available globally
+// Make functions globally available
 window.handleUserHeaderClick = handleUserHeaderClick;
 window.dismissImportantMessage = dismissImportantMessage;
 window.logoutUser = logoutUser;

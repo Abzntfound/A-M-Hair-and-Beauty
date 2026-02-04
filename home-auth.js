@@ -2,7 +2,7 @@
 // home-auth.js - Place this in the same directory as index.html
 
 // YOUR GOOGLE SHEETS WEB APP URL (Same as auth.js)
-const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz-CIirIsDp6uvL3Z2FTzsVYc3pHDyJW5-Ln2XSOKA8eEkiwCzM60uc20R53rJN41tO/exec';
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx527wq0vGwyr2mQ7mGy7LGGny7IamcZB6EOzA2aLeXG_3LW2vBoBXIF3fWX6x-z0QOTA/exec';
 
 // Global user data
 let currentUser = null;
@@ -31,7 +31,7 @@ async function initializeUserAuth() {
                 const userData = JSON.parse(storedUserData);
                 console.log('📦 Found stored user data:', userData.email);
                 
-                // Verify with database
+                // Verify with database and get fresh data
                 await verifyUserSession(userData.email);
             } catch (e) {
                 console.error('❌ Error parsing stored user data:', e);
@@ -42,9 +42,6 @@ async function initializeUserAuth() {
             console.log('ℹ️ No stored user data found');
             showLoggedOutState();
         }
-        
-        // Load theme
-        loadUserTheme();
         
         // Check and show important message after a delay
         setTimeout(() => {
@@ -70,10 +67,21 @@ async function verifyUserSession(email) {
         
         if (result.success && result.user) {
             console.log('✅ User verified:', result.user.name);
+            console.log('🎨 User theme preference from DB:', result.user.darkMode);
+            
             currentUser = result.user;
             
-            // Update localStorage with fresh data
+            // Update localStorage with fresh data from database
             localStorage.setItem('amUserData', JSON.stringify(result.user));
+            
+            // IMPORTANT: Apply theme BEFORE updating UI
+            if (result.user.darkMode !== undefined) {
+                const theme = result.user.darkMode ? 'dark' : 'light';
+                console.log('🎨 Applying user theme:', theme);
+                applyTheme(theme);
+                // Also update localStorage theme
+                localStorage.setItem('amTheme', theme);
+            }
             
             // Update UI
             showLoggedInState(result.user);
@@ -81,6 +89,8 @@ async function verifyUserSession(email) {
             console.log('⚠️ User verification failed');
             localStorage.removeItem('amUserData');
             showLoggedOutState();
+            // Load default theme
+            loadDefaultTheme();
         }
     } catch (error) {
         console.error('❌ Error verifying user:', error);
@@ -91,9 +101,18 @@ async function verifyUserSession(email) {
             const user = JSON.parse(storedData);
             console.log('📱 Using cached user data (offline mode)');
             currentUser = user;
+            
+            // Apply cached theme
+            if (user.darkMode !== undefined) {
+                const theme = user.darkMode ? 'dark' : 'light';
+                console.log('🎨 Applying cached theme:', theme);
+                applyTheme(theme);
+            }
+            
             showLoggedInState(user);
         } else {
             showLoggedOutState();
+            loadDefaultTheme();
         }
     }
 }
@@ -170,7 +189,7 @@ function showLoggedOutState() {
     currentUser = null;
 }
 
-// Handle user header click - FIXED VERSION
+// Handle user header click
 function handleUserHeaderClick() {
     console.log('🖱️ User header clicked');
     console.log('Current user state:', currentUser ? 'logged in' : 'logged out');
@@ -248,40 +267,26 @@ function dismissImportantMessage() {
 // THEME FUNCTIONS
 // ========================================
 
-// Load user's theme preference
-function loadUserTheme() {
-    const userData = localStorage.getItem('amUserData');
-    
-    if (userData) {
-        try {
-            const user = JSON.parse(userData);
-            if (user.darkMode !== undefined) {
-                applyTheme(user.darkMode ? 'dark' : 'light');
-                console.log('🎨 Applied user theme:', user.darkMode ? 'dark' : 'light');
-            }
-        } catch (e) {
-            console.error('❌ Error loading user theme:', e);
-            // Fallback to stored theme
-            const savedTheme = localStorage.getItem('amTheme') || 'light';
-            applyTheme(savedTheme);
-        }
-    } else {
-        // Load from localStorage if not logged in
-        const savedTheme = localStorage.getItem('amTheme') || 'light';
-        applyTheme(savedTheme);
-        console.log('🎨 Applied saved theme:', savedTheme);
-    }
-}
-
 // Apply theme to the page
 function applyTheme(theme) {
     const html = document.documentElement;
     
+    console.log('🎨 Applying theme:', theme);
+    
     if (theme === 'dark') {
         html.setAttribute('data-theme', 'dark');
+        localStorage.setItem('amTheme', 'dark');
     } else {
         html.removeAttribute('data-theme');
+        localStorage.setItem('amTheme', 'light');
     }
+}
+
+// Load default theme (when not logged in)
+function loadDefaultTheme() {
+    const savedTheme = localStorage.getItem('amTheme') || 'light';
+    console.log('🎨 Loading default theme:', savedTheme);
+    applyTheme(savedTheme);
 }
 
 // ========================================
@@ -299,6 +304,9 @@ function logoutUser() {
         
         // Update UI
         showLoggedOutState();
+        
+        // Load default theme
+        loadDefaultTheme();
         
         // Optionally redirect to home or auth
         alert('✅ You have been logged out successfully.');
@@ -325,7 +333,7 @@ function isUserLoggedIn() {
 // Force refresh user data from database
 async function refreshUserData() {
     if (currentUser && currentUser.email) {
-        console.log('🔄 Refreshing user data...');
+        console.log('🔄 Refreshing user data from database...');
         await verifyUserSession(currentUser.email);
     }
 }
@@ -337,6 +345,21 @@ function debugAuthState() {
     console.log('LocalStorage amUserData:', localStorage.getItem('amUserData'));
     console.log('LocalStorage amTheme:', localStorage.getItem('amTheme'));
     console.log('Is Logged In:', isUserLoggedIn());
+    console.log('Current HTML theme attribute:', document.documentElement.getAttribute('data-theme'));
+    
+    // Parse and show user data details
+    const userData = localStorage.getItem('amUserData');
+    if (userData) {
+        try {
+            const user = JSON.parse(userData);
+            console.log('User Email:', user.email);
+            console.log('User Name:', user.name);
+            console.log('User darkMode setting:', user.darkMode);
+        } catch (e) {
+            console.error('Error parsing user data:', e);
+        }
+    }
+    
     console.log('======================');
 }
 

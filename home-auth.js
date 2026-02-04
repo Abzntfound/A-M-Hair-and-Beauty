@@ -12,14 +12,17 @@ let currentUser = null;
 // ========================================
 
 // Initialize when DOM loads
-window.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 A&M Home - Auth system loading...');
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeUserAuth);
+} else {
     initializeUserAuth();
-});
+}
 
 // Main initialization function
 async function initializeUserAuth() {
     try {
+        console.log('🚀 A&M Home - Auth system loading...');
+        
         // First, check localStorage
         const storedUserData = localStorage.getItem('amUserData');
         

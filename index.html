@@ -31,11 +31,32 @@
       display: flex;
       align-items: center;
       cursor: pointer;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    #header .right:hover {
+        background: rgba(219, 169, 200, 0.2);
     }
 
     #header .right img {
       width: 40px;
       height: 40px;
+    }
+
+    /* User Info Display in Header */
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: #dba9c8;
     }
 
     .slide-content h1 {
@@ -79,7 +100,11 @@
     @media (max-width: 768px) {
         .basket-button p {
         font-size: 0.8rem;
-        }  
+        }
+        
+        .user-name {
+            display: none;
+        }
     }
 
     #product-1, #product-2, #product-3 {
@@ -98,7 +123,7 @@
         transition: transform 0.3s ease;
     }
 
-    .left:hover, .right:hover {
+    .left:hover {
         transform: scale(1.184);
     }
 
@@ -146,7 +171,7 @@
         border-radius: 8px; 
     }
 
-    /* Notification bar */
+    /* Notification bar - HIDDEN BY DEFAULT */
     #important-message {
         position: fixed;
         bottom: 20px;
@@ -162,11 +187,15 @@
         box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-size: 14px;
-        display: flex;
+        display: none; /* HIDDEN BY DEFAULT */
         align-items: center;
         justify-content: space-between;
         z-index: 1000;
         transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #important-message.show {
+        display: flex;
     }
 
     #important-message.hidden {
@@ -541,9 +570,12 @@
             <img src="A&M.png" alt="A&M Logo">
         </div>
 
-        <div class="right" onclick="window.location.href='https://auth.amhairandbeauty.com'">
-            <img src="user.png" alt="Log in">
-            <span>Log In</span>
+        <!-- Updated User/Login Button -->
+        <div class="right" id="user-header" onclick="handleUserHeaderClick()">
+            <img src="user.png" alt="User" id="user-icon">
+            <div class="user-info">
+                <span id="user-display-name">Log In</span>
+            </div>
         </div>
 
         <div class="right" onclick="window.location.href='https://shop.amhairandbeauty.com/cart/'">
@@ -552,9 +584,10 @@
         </div>
     </div>
 
+    <!-- Important Message - Hidden by default, shown once for logged-in users -->
     <div id="important-message">
         Once you have clicked basket or added a product to basket, click the arrow at the bottom to go back. 
-        <button id="ok" onclick="document.getElementById('important-message').style.display='none'">OK</button>
+        <button id="ok" onclick="dismissImportantMessage()">OK</button>
     </div>
 
     <div id="review" class="reviews">
@@ -795,6 +828,159 @@
 </div>
 
 <script>
+    // ========================================
+    // USER AUTHENTICATION & PREFERENCES
+    // ========================================
+    
+    // Check user login status on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        console.log('🚀 A&M Website loading...');
+        checkUserLoginStatus();
+        loadUserTheme();
+        
+        // Small delay to ensure DOM is ready
+        setTimeout(() => {
+            checkAndShowImportantMessage();
+        }, 500);
+    });
+
+    // Check if user is logged in and update header
+    function checkUserLoginStatus() {
+        const userData = localStorage.getItem('amUserData');
+        
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                console.log('✅ User is logged in:', user.email);
+                
+                // Update header to show user name
+                updateHeaderForLoggedInUser(user);
+                
+                // Pre-fill review form with user's name
+                const nameInput = document.getElementById('name');
+                if (nameInput && user.name) {
+                    nameInput.value = user.name;
+                }
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+                localStorage.removeItem('amUserData');
+            }
+        } else {
+            console.log('ℹ️ User not logged in');
+        }
+    }
+
+    // Update header when user is logged in
+    function updateHeaderForLoggedInUser(user) {
+        const userDisplayName = document.getElementById('user-display-name');
+        if (userDisplayName) {
+            // Show user's first name or "Account"
+            const firstName = user.name.split(' ')[0];
+            userDisplayName.innerHTML = `<span class="user-name">${firstName}</span>`;
+        }
+    }
+
+    // Handle user header click (go to auth page if logged in or logged out)
+    function handleUserHeaderClick() {
+        window.location.href = 'https://auth.amhairandbeauty.com';
+    }
+
+    // Check and show important message once for logged-in users
+    function checkAndShowImportantMessage() {
+        const userData = localStorage.getItem('amUserData');
+        
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                const messageKey = `amImportantMessageSeen_${user.email}`;
+                
+                // Check if user has seen the message
+                const hasSeenMessage = localStorage.getItem(messageKey);
+                
+                if (!hasSeenMessage) {
+                    // Show the message
+                    const messageEl = document.getElementById('important-message');
+                    if (messageEl) {
+                        messageEl.classList.add('show');
+                        console.log('📢 Showing important message for:', user.email);
+                    }
+                } else {
+                    console.log('ℹ️ User has already seen the important message');
+                }
+            } catch (e) {
+                console.error('Error checking message status:', e);
+            }
+        } else {
+            console.log('ℹ️ User not logged in - message hidden');
+        }
+    }
+
+    // Dismiss important message and remember it
+    function dismissImportantMessage() {
+        const userData = localStorage.getItem('amUserData');
+        
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                const messageKey = `amImportantMessageSeen_${user.email}`;
+                
+                // Mark as seen for this user
+                localStorage.setItem(messageKey, 'true');
+                console.log('✅ Important message dismissed for:', user.email);
+            } catch (e) {
+                console.error('Error saving message status:', e);
+            }
+        }
+        
+        // Hide the message with animation
+        const messageEl = document.getElementById('important-message');
+        if (messageEl) {
+            messageEl.classList.remove('show');
+            messageEl.classList.add('hidden');
+            
+            // Remove from DOM after animation
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 300);
+        }
+    }
+
+    // Load user's theme preference
+    function loadUserTheme() {
+        const userData = localStorage.getItem('amUserData');
+        
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                if (user.darkMode !== undefined) {
+                    applyTheme(user.darkMode ? 'dark' : 'light');
+                    console.log('🎨 Applied user theme:', user.darkMode ? 'dark' : 'light');
+                }
+            } catch (e) {
+                console.error('Error loading user theme:', e);
+            }
+        } else {
+            // Load from localStorage if not logged in
+            const savedTheme = localStorage.getItem('amTheme') || 'light';
+            applyTheme(savedTheme);
+        }
+    }
+
+    // Apply theme to the page
+    function applyTheme(theme) {
+        const html = document.documentElement;
+        
+        if (theme === 'dark') {
+            html.setAttribute('data-theme', 'dark');
+        } else {
+            html.removeAttribute('data-theme');
+        }
+    }
+
+    // ========================================
+    // EXISTING PRODUCT CODE
+    // ========================================
+    
     const allProducts = [
         {id:'product1', name:'Hair Growth Oil (100ml)', price:9.99, image:'big hair oil.jpg'},
         {id:'product2', name:'Satin Bonnet', price:2.99, image:'good bonnet.jpg'},

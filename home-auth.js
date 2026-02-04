@@ -1,4 +1,5 @@
-
+// A&M Hair and Beauty - Main Website User Authentication
+// home-auth.js - Place this in the same directory as index.html
 
 // YOUR GOOGLE SHEETS WEB APP URL (Same as auth.js)
 const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx527wq0vGwyr2mQ7mGy7LGGny7IamcZB6EOzA2aLeXG_3LW2vBoBXIF3fWX6x-z0QOTA/exec';
@@ -169,13 +170,12 @@ function showLoggedOutState() {
     currentUser = null;
 }
 
-// Handle user header click
+// Handle user header click - FIXED VERSION
 function handleUserHeaderClick() {
-    if (currentUser) {
-        console.log('🔄 Navigating to account page (logged in)');
-    } else {
-        console.log('🔄 Navigating to login page');
-    }
+    console.log('🖱️ User header clicked');
+    console.log('Current user state:', currentUser ? 'logged in' : 'logged out');
+    
+    // Always redirect to auth page
     window.location.href = 'https://auth.amhairandbeauty.com';
 }
 

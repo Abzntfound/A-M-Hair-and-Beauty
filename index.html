@@ -541,6 +541,11 @@
             <img src="A&M.png" alt="A&M Logo">
         </div>
 
+        <div class="right" onclick="window.location.href='https://auth.amhairandbeauty.com'">
+            <img src="user.png" alt="Log in">
+            <span>Log In</span>
+        </div>
+
         <div class="right" onclick="window.location.href='https://shop.amhairandbeauty.com/cart/'">
             <img src="basket.png" alt="Basket">
             <span>Basket</span>
@@ -556,7 +561,6 @@
         <img src="reviews.png" alt="reviews image">
     </div>
 
-    <!-- Review overlay -->
     <div id="review-overlay" onclick="closeReviewForm()">
         <div id="review-form-container" onclick="event.stopPropagation()">
             <h2>Submit Your Review</h2>
@@ -610,13 +614,11 @@
         <br>
     </div>
 
-    <!-- Customer Reviews Section -->
     <div id="customer-reviews" class="scroll-text" style="padding: 40px 20px; background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); border-radius: 15px; margin: 20px auto; max-width: 1200px;">
         <h1 style="text-align: center; margin-bottom: 30px;">Customer Reviews</h1>
         <hr style="margin-bottom: 30px;">
         
         <div id="reviews-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-            <!-- Reviews will be displayed here dynamically -->
         </div>
         
         <div id="show-more-reviews-container" style="text-align: center; margin-top: 20px; display: none;">
@@ -635,7 +637,6 @@
 
     <section id="products" class="scroll-text">
         <section class="small">
-            <!-- Product 1 -->
             <div class="product" onclick="showProduct('product1');">
                 <br>
                 <img src="big hair oil.jpg" alt="Hair Growth Oil">
@@ -648,7 +649,6 @@
                 </ul>
             </div>
 
-            <!-- Product 2 -->
             <div class="product" onclick="showProduct('product2');">
                 <br>
                 <img src="good bonnet.jpg" alt="Satin Bonnet">
@@ -665,7 +665,6 @@
             </div>
         </section>
 
-        <!-- Carousel Container -->
         <div id="carousel-container">
             <div id="carousel"></div>
         </div>
@@ -699,7 +698,6 @@
         </div>
     </section>
 
-    <!-- Product Details -->
     <div id="product1" class="product-detail" data-issue="7">
         <h1>Product - Hair Growth Oil</h1>
         <img src="big hair oil.jpg" alt="Hair Growth Oil">
@@ -801,7 +799,6 @@
         {id:'product8', name:'Tumeric', price:3.49, image:'tumeric.jpg'},
     ];
 
-    // Show product details
     function showProduct(productId) {
         document.querySelectorAll('.product-detail').forEach(p => p.style.display = 'none');
         const product = document.getElementById(productId);
@@ -811,7 +808,6 @@
         }
     }
 
-    // Activate carousel and add all products
     function activateCarousel() {
         const carousel = document.getElementById('carousel');
         carousel.innerHTML = '';
@@ -828,12 +824,10 @@
         document.getElementById('carousel-container').scrollIntoView({behavior:'smooth'});
     }
 
-    // Open review form
     document.getElementById('review').addEventListener('click', () => {
         document.getElementById('review-overlay').style.display = 'flex';
     });
 
-    // Close review form
     function closeReviewForm() {
         document.getElementById('review-overlay').style.display = 'none';
     }
@@ -842,13 +836,3 @@
 <script src="index.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-

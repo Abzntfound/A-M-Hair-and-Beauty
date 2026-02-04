@@ -1,4 +1,4 @@
-// Reviews Management System using Google Sheets
+// Reviews Management System using Google Sheets (CSP-COMPLIANT)
 // FREE shared reviews visible to ALL users!
 
 // SETUP INSTRUCTIONS:
@@ -7,7 +7,7 @@
 // 3. Get your Sheet.best API URL and paste it below
 // 4. FREE tier allows 100 requests per month
 
-const SHEET_BEST_URL = 'https://api.sheetbest.com/sheets/de9f4919-1fda-4381-b13f-df7942993356'; // REPLACE THIS!
+const SHEET_BEST_URL = 'https://api.sheetbest.com/sheets/de9f4919-1fda-4381-b13f-df7942993356';
 
 // If you haven't set up Sheet.best yet, it will use localStorage as fallback
 const USE_GOOGLE_SHEETS = true; // Set to true after you get your Sheet.best URL
@@ -19,6 +19,10 @@ const PROFANITY_LIST = [
     'slut', 'fag', 'nigger', 'cunt', 'asshole', 'motherfucker'
     // Add more words as needed
 ];
+
+// ========================================
+// UTILITY FUNCTIONS
+// ========================================
 
 // Check if text contains profanity
 function containsProfanity(text) {
@@ -60,6 +64,17 @@ function formatDate(dateString) {
     if (diffDays < 60) return '1 month ago';
     return `${Math.floor(diffDays / 30)} months ago`;
 }
+
+// Sanitize HTML to prevent XSS attacks
+function sanitizeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// ========================================
+// DATA MANAGEMENT
+// ========================================
 
 // Get default reviews for fallback
 function getDefaultReviews() {
@@ -152,12 +167,9 @@ async function saveReview(review) {
     return true;
 }
 
-// Sanitize HTML to prevent XSS attacks
-function sanitizeHTML(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
+// ========================================
+// DISPLAY FUNCTIONS
+// ========================================
 
 // Track how many reviews are currently displayed
 let displayedReviewsCount = 0;
@@ -170,20 +182,7 @@ async function displayReviews(append = false) {
     
     if (!append) {
         // Show loading state only on initial load
-        reviewsContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #dba9c8; border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 10px;">Loading reviews...</p></div>';
-        
-        // Add spinner animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `;
-        if (!document.getElementById('spinner-style')) {
-            style.id = 'spinner-style';
-            document.head.appendChild(style);
-        }
+        reviewsContainer.innerHTML = '<div class="reviews-loading"><div class="spinner"></div><p>Loading reviews...</p></div>';
     }
     
     const reviews = await getReviews();
@@ -198,7 +197,7 @@ async function displayReviews(append = false) {
     }
     
     if (reviews.length === 0) {
-        reviewsContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><p>No reviews yet. Be the first to leave a review!</p></div>';
+        reviewsContainer.innerHTML = '<div class="reviews-empty"><p>No reviews yet. Be the first to leave a review!</p></div>';
         document.getElementById('show-more-reviews-container').style.display = 'none';
         return;
     }
@@ -212,26 +211,15 @@ async function displayReviews(append = false) {
     reviewsToShow.forEach(review => {
         const reviewCard = document.createElement('div');
         reviewCard.className = 'review-card';
-        reviewCard.style.cssText = 'background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: transform 0.2s ease;';
         
         reviewCard.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <strong style="font-size: 1.1rem;">${sanitizeHTML(review.name)}</strong>
-                <span style="color: gold; font-size: 1.2rem;">${generateStars(review.rating)}</span>
+            <div class="review-header">
+                <strong class="review-name">${sanitizeHTML(review.name)}</strong>
+                <span class="review-stars">${generateStars(review.rating)}</span>
             </div>
-            <p style="color: #666; font-style: italic; margin-bottom: 10px;">"${sanitizeHTML(review.review)}"</p>
-            <p style="color: #999; font-size: 0.85rem;">${formatDate(review.date)}</p>
+            <p class="review-text">"${sanitizeHTML(review.review)}"</p>
+            <p class="review-date">${formatDate(review.date)}</p>
         `;
-        
-        // Add hover effect
-        reviewCard.addEventListener('mouseenter', () => {
-            reviewCard.style.transform = 'translateY(-5px)';
-            reviewCard.style.boxShadow = '0 6px 12px rgba(0,0,0,0.15)';
-        });
-        reviewCard.addEventListener('mouseleave', () => {
-            reviewCard.style.transform = 'translateY(0)';
-            reviewCard.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-        });
         
         reviewsContainer.appendChild(reviewCard);
     });
@@ -256,6 +244,10 @@ async function displayReviews(append = false) {
 function showMoreReviews() {
     displayReviews(true);
 }
+
+// ========================================
+// FORM HANDLING
+// ========================================
 
 // Handle form submission
 async function handleReviewSubmit(event) {
@@ -299,7 +291,8 @@ async function handleReviewSubmit(event) {
     
     // Disable button while submitting
     submitButton.disabled = true;
-    submitButton.style.opacity = '0.6';
+    submitButton.classList.add('submitting');
+    const originalText = submitButton.textContent;
     submitButton.textContent = 'Submitting...';
     
     // Create new review object
@@ -322,34 +315,25 @@ async function handleReviewSubmit(event) {
     // Reset form
     form.reset();
     submitButton.disabled = false;
-    submitButton.style.opacity = '1';
-    submitButton.textContent = 'Submit Review';
+    submitButton.classList.remove('submitting');
+    submitButton.textContent = originalText;
     
     // Show success message
     showSuccessMessage();
     
     // Scroll to reviews section
     setTimeout(() => {
-        document.getElementById('customer-reviews').scrollIntoView({ behavior: 'smooth' });
+        const reviewsSection = document.getElementById('customer-reviews');
+        if (reviewsSection) {
+            reviewsSection.scrollIntoView({ behavior: 'smooth' });
+        }
     }, 500);
 }
 
 // Show success message
 function showSuccessMessage() {
     const message = document.createElement('div');
-    message.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #4CAF50;
-        color: white;
-        padding: 15px 25px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        z-index: 100000;
-        font-family: 'Poppins', sans-serif;
-        animation: slideIn 0.3s ease;
-    `;
+    message.className = 'review-success-message';
     message.innerHTML = '<strong>✓ Thank you for your review!</strong><br><small>' + 
         (USE_GOOGLE_SHEETS ? 'Everyone can now see it!' : 'Note: Reviews are stored locally on your device') + 
         '</small>';
@@ -358,13 +342,22 @@ function showSuccessMessage() {
     
     // Remove after 4 seconds
     setTimeout(() => {
-        message.style.animation = 'slideOut 0.3s ease';
+        message.classList.add('fade-out');
         setTimeout(() => message.remove(), 300);
     }, 4000);
 }
 
+// ========================================
+// INITIALIZATION
+// ========================================
+
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🌟 Reviews system initializing...');
+    
+    // Add CSS styles for reviews
+    addReviewStyles();
+    
     // Display reviews
     displayReviews();
     
@@ -374,9 +367,110 @@ document.addEventListener('DOMContentLoaded', function() {
         reviewForm.addEventListener('submit', handleReviewSubmit);
     }
     
-    // Add CSS animations
+    console.log('✅ Reviews system loaded!');
+});
+
+// Add CSS styles dynamically (CSP-compliant)
+function addReviewStyles() {
+    // Check if styles already added
+    if (document.getElementById('review-styles')) return;
+    
     const style = document.createElement('style');
+    style.id = 'review-styles';
     style.textContent = `
+        /* Review Cards */
+        .review-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .review-name {
+            font-size: 1.1rem;
+        }
+        
+        .review-stars {
+            color: gold;
+            font-size: 1.2rem;
+        }
+        
+        .review-text {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        
+        .review-date {
+            color: #999;
+            font-size: 0.85rem;
+        }
+        
+        /* Loading State */
+        .reviews-loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #dba9c8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .reviews-loading p {
+            margin-top: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Empty State */
+        .reviews-empty {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        /* Success Message */
+        .review-success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 100000;
+            font-family: 'Poppins', sans-serif;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .review-success-message.fade-out {
+            animation: slideOut 0.3s ease;
+        }
+        
         @keyframes slideIn {
             from {
                 transform: translateX(400px);
@@ -398,6 +492,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 opacity: 0;
             }
         }
+        
+        /* Submitting State */
+        button.submitting {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     `;
+    
     document.head.appendChild(style);
-});
+}
+
+// Make showMoreReviews available globally
+window.showMoreReviews = showMoreReviews;

@@ -87,6 +87,9 @@
 [data-theme="dark"] #review {
     background: var(--dark-bg-glass);
     border-color: var(--dark-border);
+}
+
+[data-theme="dark"] # review img {
     border-radius: 60%;
 }
 

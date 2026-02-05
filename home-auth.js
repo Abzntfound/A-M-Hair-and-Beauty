@@ -1,7 +1,7 @@
 // A&M Hair and Beauty - Main Website User Authentication (WITH COOKIE SUPPORT)
 // home-auth.js
 
-const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwxf-IKCOeVzbRM6Wne7_7q2gCdH2w1pQs1kw6gZ143TNh5yGv-uFp7-LFNeG90_3MH8A/exec';
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzyQsEQCkZ_UaRF9g_h_w3UHVAM4h8V7mEBy3euBlvOZvvAf2KtB9iF4j_GH8LXy1Iw5A/exec';
 
 let currentUser = null;
 

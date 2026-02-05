@@ -1,0 +1,373 @@
+/* A&M Hair and Beauty - Dark/Light Theme Styles */
+
+/* ========================================
+   LIGHT THEME (DEFAULT)
+   ======================================== */
+
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #fce4ec;
+    --bg-glass: rgba(255, 255, 255, 0.95);
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-muted: #999999;
+    --border-color: rgba(219, 169, 200, 0.3);
+    --shadow: rgba(0, 0, 0, 0.1);
+    --shadow-hover: rgba(0, 0, 0, 0.15);
+    --primary-color: #dba9c8;
+    --primary-hover: #c692b0;
+    --input-bg: #f5f5f5;
+    --card-bg: #ffffff;
+}
+
+/* ========================================
+   DARK THEME
+   ======================================== */
+
+[data-theme="dark"] {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2a1a2e;
+    --bg-glass: rgba(40, 40, 40, 0.95);
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --text-muted: #888888;
+    --border-color: rgba(219, 169, 200, 0.5);
+    --shadow: rgba(0, 0, 0, 0.3);
+    --shadow-hover: rgba(0, 0, 0, 0.5);
+    --primary-color: #dba9c8;
+    --primary-hover: #c692b0;
+    --input-bg: #2a2a2a;
+    --card-bg: #2a2a2a;
+}
+
+/* ========================================
+   APPLY THEME TO ELEMENTS
+   ======================================== */
+
+body {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, #f8bbd0 50%, var(--primary-color) 100%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] body {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, #4a2545 50%, #6b3a5c 100%);
+}
+
+/* Header */
+#header {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px 0 var(--shadow);
+}
+
+#header h1,
+#header span {
+    color: var(--text-primary);
+}
+
+/* Glass Effect */
+.glass {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px 0 var(--shadow);
+}
+
+/* Slideshow Content */
+.slide-content {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text-primary);
+}
+
+.slide-content h1 {
+    color: var(--text-primary);
+}
+
+.slide-content p {
+    color: var(--text-secondary);
+}
+
+.slide-content button {
+    background: var(--primary-color);
+    color: #ffffff;
+}
+
+.slide-content button:hover {
+    background: var(--primary-hover);
+}
+
+/* About Section */
+#about {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+#about h1 {
+    color: var(--primary-color);
+}
+
+#about p {
+    color: var(--text-primary);
+}
+
+#about hr {
+    border-color: var(--border-color);
+}
+
+/* Customer Reviews Section */
+#customer-reviews {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+#customer-reviews h1 {
+    color: var(--primary-color);
+}
+
+#customer-reviews p {
+    color: var(--text-secondary);
+}
+
+/* Review Cards */
+.review-card {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    box-shadow: 0 4px 8px var(--shadow);
+}
+
+.review-card:hover {
+    box-shadow: 0 6px 12px var(--shadow-hover);
+}
+
+.review-name {
+    color: var(--text-primary);
+}
+
+.review-text {
+    color: var(--text-secondary);
+}
+
+.review-date {
+    color: var(--text-muted);
+}
+
+/* Products Section */
+#products {
+    color: var(--text-primary);
+}
+
+.product {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 8px var(--shadow);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.product:hover {
+    box-shadow: 0 6px 12px var(--shadow-hover);
+}
+
+.product p {
+    color: var(--text-primary);
+}
+
+.product ul {
+    color: var(--text-secondary);
+}
+
+/* Product Details */
+.product-detail {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 30px;
+    border-radius: 15px;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+.product-detail h1 {
+    color: var(--primary-color);
+}
+
+.product-detail p,
+.product-detail label {
+    color: var(--text-primary);
+}
+
+/* Product Cards (Carousel) */
+.product-card {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    box-shadow: 0 4px 8px var(--shadow);
+}
+
+.product-card:hover {
+    box-shadow: 0 6px 12px var(--shadow-hover);
+}
+
+/* Buttons */
+button {
+    background: var(--primary-color);
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: var(--primary-hover);
+}
+
+.basket-button {
+    background: var(--primary-color);
+}
+
+.basket-button:hover {
+    background: var(--primary-hover);
+}
+
+/* Hampers */
+#hamper1 {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 40px var(--shadow);
+}
+
+#hamper1 p,
+#hamper1 label,
+#hamper1 ul {
+    color: var(--text-primary);
+}
+
+#hamper2 {
+    background: rgba(255, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] #hamper2 {
+    background: rgba(150, 0, 0, 0.9);
+}
+
+/* Review Overlay */
+#review-overlay {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] #review-overlay {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+#review-form-container {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text-primary);
+}
+
+#review-form-container input,
+#review-form-container textarea,
+#review-form-container select {
+    background: var(--input-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+#review-form-container h2 {
+    color: var(--primary-color);
+}
+
+/* Review Button */
+#review {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 16px var(--shadow);
+}
+
+/* Important Message */
+#important-message {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+/* Valentine Section */
+.valentine {
+    position: relative;
+}
+
+.valentine::after {
+    background: linear-gradient(
+        to bottom,
+        var(--bg-primary) 0%,
+        rgba(255, 255, 255, 0) 20%
+    );
+}
+
+[data-theme="dark"] .valentine::after {
+    background: linear-gradient(
+        to bottom,
+        var(--bg-primary) 0%,
+        rgba(26, 26, 26, 0) 20%
+    );
+}
+
+/* Scrollbar (Chrome/Edge) */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover);
+}
+
+/* Loading States */
+.reviews-loading {
+    color: var(--text-secondary);
+}
+
+.reviews-empty {
+    color: var(--text-secondary);
+}
+
+/* Smooth Transitions */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Prevent transition on page load */
+.no-transition {
+    transition: none !important;
+}

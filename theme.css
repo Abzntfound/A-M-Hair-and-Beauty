@@ -1,131 +1,68 @@
-/* A&M Hair and Beauty - MINIMAL Dark Mode Only */
-/* This CSS does NOTHING in light mode - only adds dark mode */
-
-/* ========================================
-   DARK THEME ONLY
-   ======================================== */
+/* A&M Hair and Beauty - ULTRA MINIMAL Dark Mode */
+/* ONLY changes backgrounds in dark mode - keeps ALL original text colors */
 
 [data-theme="dark"] {
-    /* Variables */
     --dark-bg: #1a1a1a;
     --dark-bg-secondary: #2a2a2a;
-    --dark-text: #ffffff;
-    --dark-text-secondary: #cccccc;
+    --dark-bg-glass: rgba(40, 40, 40, 0.95);
     --dark-border: rgba(255, 255, 255, 0.1);
-    --dark-shadow: rgba(0, 0, 0, 0.5);
 }
 
-/* Apply dark mode to body */
+/* Body background gradient only */
 [data-theme="dark"] body {
     background: linear-gradient(135deg, #2a1a2e 0%, #4a2545 50%, #6b3a5c 100%);
     background-attachment: fixed;
-    color: var(--dark-text);
 }
 
-/* Header */
+/* Header - background only */
 [data-theme="dark"] #header {
-    background: rgba(40, 40, 40, 0.95);
+    background: var(--dark-bg-glass);
     border-color: var(--dark-border);
 }
 
-[data-theme="dark"] #header h1,
-[data-theme="dark"] #header span,
-[data-theme="dark"] #header .right {
-    color: var(--dark-text);
-}
-
-/* Glass elements */
+/* Glass elements - background only */
 [data-theme="dark"] .glass {
-    background: rgba(40, 40, 40, 0.95);
+    background: var(--dark-bg-glass);
     border-color: var(--dark-border);
 }
 
-/* Slideshow content */
+/* Slideshow content - background only */
 [data-theme="dark"] .slide-content {
-    background: rgba(40, 40, 40, 0.95);
-    color: var(--dark-text);
+    background: var(--dark-bg-glass);
 }
 
-[data-theme="dark"] .slide-content h1 {
-    color: var(--dark-text);
-}
-
-[data-theme="dark"] .slide-content p {
-    color: var(--dark-text-secondary);
-}
-
-/* About section */
+/* About section - background only */
 [data-theme="dark"] #about {
-    background: rgba(40, 40, 40, 0.95);
-    color: var(--dark-text);
-}
-
-[data-theme="dark"] #about p {
-    color: var(--dark-text);
+    background: var(--dark-bg-glass);
 }
 
 [data-theme="dark"] #about hr {
     border-color: var(--dark-border);
 }
 
-/* Customer reviews */
+/* Customer reviews - background only, NO text color changes */
 [data-theme="dark"] #customer-reviews {
-    background: rgba(40, 40, 40, 0.95);
-    color: var(--dark-text);
+    background: var(--dark-bg-glass);
 }
 
-[data-theme="dark"] #customer-reviews h1 {
-    color: #dba9c8;
-}
-
-[data-theme="dark"] #customer-reviews p {
-    color: var(--dark-text-secondary);
-}
-
-/* Review cards */
+/* Review cards - background only, keeps original text colors */
 [data-theme="dark"] .review-card {
     background: var(--dark-bg-secondary);
-    color: var(--dark-text);
-}
-
-[data-theme="dark"] .review-name {
-    color: var(--dark-text);
-}
-
-[data-theme="dark"] .review-text {
-    color: var(--dark-text-secondary);
 }
 
 /* Products section */
-[data-theme="dark"] #products {
-    color: var(--dark-text);
-}
-
 [data-theme="dark"] .product {
-    background: rgba(40, 40, 40, 0.95);
-    color: var(--dark-text);
-}
-
-[data-theme="dark"] .product p,
-[data-theme="dark"] .product ul {
-    color: var(--dark-text);
+    background: var(--dark-bg-glass);
 }
 
 /* Product cards */
 [data-theme="dark"] .product-card {
     background: var(--dark-bg-secondary);
-    color: var(--dark-text);
 }
 
-/* Hampers - keep hamper1 as is, only darken hamper2 slightly */
+/* Hampers */
 [data-theme="dark"] #hamper1 {
-    background: rgba(40, 40, 40, 0.95);
-}
-
-[data-theme="dark"] #hamper1 p,
-[data-theme="dark"] #hamper1 label,
-[data-theme="dark"] #hamper1 ul {
-    color: var(--dark-text);
+    background: var(--dark-bg-glass);
 }
 
 [data-theme="dark"] #hamper2 {
@@ -138,31 +75,24 @@
 }
 
 [data-theme="dark"] #review-form-container {
-    background: rgba(40, 40, 40, 0.98);
-    color: var(--dark-text);
+    background: var(--dark-bg-glass);
 }
 
 [data-theme="dark"] #review-form-container input,
 [data-theme="dark"] #review-form-container textarea {
     background: var(--dark-bg);
-    color: var(--dark-text);
     border-color: var(--dark-border);
-}
-
-[data-theme="dark"] #review-form-container h2 {
-    color: #dba9c8;
 }
 
 /* Review button */
 [data-theme="dark"] #review {
-    background: rgba(40, 40, 40, 0.95);
+    background: var(--dark-bg-glass);
     border-color: var(--dark-border);
 }
 
 /* Important message */
 [data-theme="dark"] #important-message {
-    background: rgba(40, 40, 40, 0.95);
-    color: var(--dark-text);
+    background: var(--dark-bg-glass);
     border-color: var(--dark-border);
 }
 
@@ -180,17 +110,7 @@
     background: var(--dark-bg);
 }
 
-/* Loading and empty states */
-[data-theme="dark"] .reviews-loading,
-[data-theme="dark"] .reviews-empty {
-    color: var(--dark-text-secondary);
-}
-
 /* Smooth transitions */
-html {
-    transition: none;
-}
-
 [data-theme="dark"] * {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }

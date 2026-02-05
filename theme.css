@@ -14,6 +14,10 @@
     background-attachment: fixed;
 }
 
+[date-theme="dark"] #important-message {
+    color: white;
+}
+
 /* Header - background only */
 [data-theme="dark"] #header {
     background: var(--dark-bg-glass);
@@ -83,6 +87,7 @@
 [data-theme="dark"] #review {
     background: var(--dark-bg-glass);
     border-color: var(--dark-border);
+    border-radius: 60%;
 }
 
 /* Important message */

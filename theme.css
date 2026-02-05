@@ -1,372 +1,196 @@
-/* A&M Hair and Beauty - Dark/Light Theme Styles */
+/* A&M Hair and Beauty - MINIMAL Dark Mode Only */
+/* This CSS does NOTHING in light mode - only adds dark mode */
 
 /* ========================================
-   LIGHT THEME (DEFAULT)
-   ======================================== */
-
-:root {
-    --bg-primary: #ffffff;
-    --bg-secondary: #fce4ec;
-    --bg-glass: rgba(255, 255, 255, 0.95);
-    --text-primary: #333333;
-    --text-secondary: #666666;
-    --text-muted: #999999;
-    --border-color: rgba(219, 169, 200, 0.3);
-    --shadow: rgba(0, 0, 0, 0.1);
-    --shadow-hover: rgba(0, 0, 0, 0.15);
-    --primary-color: #dba9c8;
-    --primary-hover: #c692b0;
-    --input-bg: #f5f5f5;
-    --card-bg: #ffffff;
-}
-
-/* ========================================
-   DARK THEME
+   DARK THEME ONLY
    ======================================== */
 
 [data-theme="dark"] {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #2a1a2e;
-    --bg-glass: rgba(40, 40, 40, 0.95);
-    --text-primary: #ffffff;
-    --text-secondary: #cccccc;
-    --text-muted: #888888;
-    --border-color: rgba(219, 169, 200, 0.5);
-    --shadow: rgba(0, 0, 0, 0.3);
-    --shadow-hover: rgba(0, 0, 0, 0.5);
-    --primary-color: #dba9c8;
-    --primary-hover: #c692b0;
-    --input-bg: #2a2a2a;
-    --card-bg: #2a2a2a;
+    /* Variables */
+    --dark-bg: #1a1a1a;
+    --dark-bg-secondary: #2a2a2a;
+    --dark-text: #ffffff;
+    --dark-text-secondary: #cccccc;
+    --dark-border: rgba(255, 255, 255, 0.1);
+    --dark-shadow: rgba(0, 0, 0, 0.5);
 }
 
-/* ========================================
-   APPLY THEME TO ELEMENTS
-   ======================================== */
-
-body {
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, #f8bbd0 50%, var(--primary-color) 100%);
-    background-attachment: fixed;
-    color: var(--text-primary);
-    transition: background 0.3s ease, color 0.3s ease;
-}
-
+/* Apply dark mode to body */
 [data-theme="dark"] body {
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, #4a2545 50%, #6b3a5c 100%);
+    background: linear-gradient(135deg, #2a1a2e 0%, #4a2545 50%, #6b3a5c 100%);
+    background-attachment: fixed;
+    color: var(--dark-text);
 }
 
 /* Header */
-#header {
-    background: var(--bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 8px 32px 0 var(--shadow);
+[data-theme="dark"] #header {
+    background: rgba(40, 40, 40, 0.95);
+    border-color: var(--dark-border);
 }
 
-#header h1,
-#header span {
-    color: var(--text-primary);
+[data-theme="dark"] #header h1,
+[data-theme="dark"] #header span,
+[data-theme="dark"] #header .right {
+    color: var(--dark-text);
 }
 
-/* Glass Effect */
-.glass {
-    background: var(--bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 8px 32px 0 var(--shadow);
+/* Glass elements */
+[data-theme="dark"] .glass {
+    background: rgba(40, 40, 40, 0.95);
+    border-color: var(--dark-border);
 }
 
-/* Slideshow Content */
-.slide-content {
-    background: var(--bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: var(--text-primary);
+/* Slideshow content */
+[data-theme="dark"] .slide-content {
+    background: rgba(40, 40, 40, 0.95);
+    color: var(--dark-text);
 }
 
-.slide-content h1 {
-    color: var(--text-primary);
+[data-theme="dark"] .slide-content h1 {
+    color: var(--dark-text);
 }
 
-.slide-content p {
-    color: var(--text-secondary);
+[data-theme="dark"] .slide-content p {
+    color: var(--dark-text-secondary);
 }
 
-.slide-content button {
-    background: var(--primary-color);
-    color: #ffffff;
+/* About section */
+[data-theme="dark"] #about {
+    background: rgba(40, 40, 40, 0.95);
+    color: var(--dark-text);
 }
 
-.slide-content button:hover {
-    background: var(--primary-hover);
+[data-theme="dark"] #about p {
+    color: var(--dark-text);
 }
 
-/* About Section */
-#about {
-    background: var(--bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
+[data-theme="dark"] #about hr {
+    border-color: var(--dark-border);
 }
 
-#about h1 {
-    color: var(--primary-color);
+/* Customer reviews */
+[data-theme="dark"] #customer-reviews {
+    background: rgba(40, 40, 40, 0.95);
+    color: var(--dark-text);
 }
 
-#about p {
-    color: var(--text-primary);
+[data-theme="dark"] #customer-reviews h1 {
+    color: #dba9c8;
 }
 
-#about hr {
-    border-color: var(--border-color);
+[data-theme="dark"] #customer-reviews p {
+    color: var(--dark-text-secondary);
 }
 
-/* Customer Reviews Section */
-#customer-reviews {
-    background: var(--bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
+/* Review cards */
+[data-theme="dark"] .review-card {
+    background: var(--dark-bg-secondary);
+    color: var(--dark-text);
 }
 
-#customer-reviews h1 {
-    color: var(--primary-color);
+[data-theme="dark"] .review-name {
+    color: var(--dark-text);
 }
 
-#customer-reviews p {
-    color: var(--text-secondary);
+[data-theme="dark"] .review-text {
+    color: var(--dark-text-secondary);
 }
 
-/* Review Cards */
-.review-card {
-    background: var(--card-bg);
-    color: var(--text-primary);
-    box-shadow: 0 4px 8px var(--shadow);
+/* Products section */
+[data-theme="dark"] #products {
+    color: var(--dark-text);
 }
 
-.review-card:hover {
-    box-shadow: 0 6px 12px var(--shadow-hover);
+[data-theme="dark"] .product {
+    background: rgba(40, 40, 40, 0.95);
+    color: var(--dark-text);
 }
 
-.review-name {
-    color: var(--text-primary);
+[data-theme="dark"] .product p,
+[data-theme="dark"] .product ul {
+    color: var(--dark-text);
 }
 
-.review-text {
-    color: var(--text-secondary);
+/* Product cards */
+[data-theme="dark"] .product-card {
+    background: var(--dark-bg-secondary);
+    color: var(--dark-text);
 }
 
-.review-date {
-    color: var(--text-muted);
+/* Hampers - keep hamper1 as is, only darken hamper2 slightly */
+[data-theme="dark"] #hamper1 {
+    background: rgba(40, 40, 40, 0.95);
 }
 
-/* Products Section */
-#products {
-    color: var(--text-primary);
-}
-
-.product {
-    background: var(--bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 8px var(--shadow);
-    color: var(--text-primary);
-    transition: all 0.3s ease;
-}
-
-.product:hover {
-    box-shadow: 0 6px 12px var(--shadow-hover);
-}
-
-.product p {
-    color: var(--text-primary);
-}
-
-.product ul {
-    color: var(--text-secondary);
-}
-
-/* Product Details */
-.product-detail {
-    background: var(--bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: 30px;
-    border-radius: 15px;
-    margin: 20px auto;
-    max-width: 600px;
-}
-
-.product-detail h1 {
-    color: var(--primary-color);
-}
-
-.product-detail p,
-.product-detail label {
-    color: var(--text-primary);
-}
-
-/* Product Cards (Carousel) */
-.product-card {
-    background: var(--card-bg);
-    color: var(--text-primary);
-    box-shadow: 0 4px 8px var(--shadow);
-}
-
-.product-card:hover {
-    box-shadow: 0 6px 12px var(--shadow-hover);
-}
-
-/* Buttons */
-button {
-    background: var(--primary-color);
-    color: #ffffff;
-    transition: all 0.3s ease;
-}
-
-button:hover {
-    background: var(--primary-hover);
-}
-
-.basket-button {
-    background: var(--primary-color);
-}
-
-.basket-button:hover {
-    background: var(--primary-hover);
-}
-
-/* Hampers */
-#hamper1 {
-    background: var(--bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 10px 40px var(--shadow);
-}
-
-#hamper1 p,
-#hamper1 label,
-#hamper1 ul {
-    color: var(--text-primary);
-}
-
-#hamper2 {
-    background: rgba(255, 0, 0, 0.9);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+[data-theme="dark"] #hamper1 p,
+[data-theme="dark"] #hamper1 label,
+[data-theme="dark"] #hamper1 ul {
+    color: var(--dark-text);
 }
 
 [data-theme="dark"] #hamper2 {
     background: rgba(150, 0, 0, 0.9);
 }
 
-/* Review Overlay */
-#review-overlay {
-    background: rgba(0, 0, 0, 0.4);
-}
-
+/* Review overlay */
 [data-theme="dark"] #review-overlay {
     background: rgba(0, 0, 0, 0.7);
 }
 
-#review-form-container {
-    background: var(--bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: var(--text-primary);
+[data-theme="dark"] #review-form-container {
+    background: rgba(40, 40, 40, 0.98);
+    color: var(--dark-text);
 }
 
-#review-form-container input,
-#review-form-container textarea,
-#review-form-container select {
-    background: var(--input-bg);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
+[data-theme="dark"] #review-form-container input,
+[data-theme="dark"] #review-form-container textarea {
+    background: var(--dark-bg);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
 }
 
-#review-form-container h2 {
-    color: var(--primary-color);
+[data-theme="dark"] #review-form-container h2 {
+    color: #dba9c8;
 }
 
-/* Review Button */
-#review {
-    background: var(--bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 16px var(--shadow);
+/* Review button */
+[data-theme="dark"] #review {
+    background: rgba(40, 40, 40, 0.95);
+    border-color: var(--dark-border);
 }
 
-/* Important Message */
-#important-message {
-    background: var(--bg-glass);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
+/* Important message */
+[data-theme="dark"] #important-message {
+    background: rgba(40, 40, 40, 0.95);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
 }
 
-/* Valentine Section */
-.valentine {
-    position: relative;
-}
-
-.valentine::after {
-    background: linear-gradient(
-        to bottom,
-        var(--bg-primary) 0%,
-        rgba(255, 255, 255, 0) 20%
-    );
-}
-
+/* Valentine section gradient overlay */
 [data-theme="dark"] .valentine::after {
     background: linear-gradient(
         to bottom,
-        var(--bg-primary) 0%,
+        #1a1a1a 0%,
         rgba(26, 26, 26, 0) 20%
     );
 }
 
-/* Scrollbar (Chrome/Edge) */
-::-webkit-scrollbar {
-    width: 12px;
+/* Scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: var(--dark-bg);
 }
 
-::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
+/* Loading and empty states */
+[data-theme="dark"] .reviews-loading,
+[data-theme="dark"] .reviews-empty {
+    color: var(--dark-text-secondary);
 }
 
-::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 6px;
+/* Smooth transitions */
+html {
+    transition: none;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-hover);
-}
-
-/* Loading States */
-.reviews-loading {
-    color: var(--text-secondary);
-}
-
-.reviews-empty {
-    color: var(--text-secondary);
-}
-
-/* Smooth Transitions */
-* {
+[data-theme="dark"] * {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-.no-transition {
-    transition: none !important;
 }

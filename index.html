@@ -571,6 +571,10 @@
         }
     }
 
+        .bottom-login {
+            border: 2.5px solid lightgray;
+        }
+
     </style>
 </head>
 <body>
@@ -842,8 +846,8 @@
 
 </div>
 
-<div class="right" id="user-header">
-    <img src="user.png" alt="User" id="user-icon">
+<div class="bottom-login" id="user-header">
+    <img src="user.png" alt="User" class="bottom" id="user-icon">
     <div class="user-info">
         <span id="user-display-name">Log In</span>
     </div>
@@ -866,12 +870,26 @@
         // ========================================
         
         // Logo clicks - go to home
+        const bottomLogo = document.querSelector('.bottom-login');
+        const bottomLogoImg = document.querySelector('.bottom');
         const headerLogo = document.querySelector('.left');
         const headerLogoImg = document.querySelector('.logo');
         
         if (headerLogo) {
             headerLogo.addEventListener('click', function() {
                 window.location.href = 'https://www.amhairandbeauty.com';
+            });
+        }
+
+        if (bottomLogo) {
+            bottomLogo.addEventListener('click', function() {
+                window.location.href = 'https://auth.amhairandbeauty.com';
+            });
+        }
+
+        if (bottomLogoImg) {
+            bottomLogoImg.addEventListener('click', function() {
+                window.location.href = 'https://auth.amhairandbeauty.com';
             });
         }
         
@@ -1086,6 +1104,7 @@
 <script nonce="A2Fc45" src="https://amhairandbeauty.com/index.js"></script>
 </body>
 </html>
+
 
 
 

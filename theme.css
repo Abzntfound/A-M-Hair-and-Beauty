@@ -26,11 +26,6 @@
     border-color: var(--dark-border);
 }
 
-/* Slideshow content - background only */
-[data-theme="dark"] .slide-content {
-    background: var(--dark-bg-glass);
-}
-
 /* About section - background only */
 [data-theme="dark"] #about {
     background: var(--dark-bg-glass);

@@ -112,6 +112,7 @@
             gap: 10px;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
         }
 
         .logo:hover {
@@ -203,6 +204,7 @@
             box-shadow: 0 4px 20px rgba(217, 70, 166, 0.3);
             position: relative;
             overflow: hidden;
+            display: inline-block;
         }
 
         .btn-primary::before {
@@ -405,6 +407,7 @@
             border: 2px solid #d946a6;
             position: relative;
             overflow: hidden;
+            display: inline-block;
         }
 
         .btn-secondary::before {
@@ -693,9 +696,104 @@
             margin-bottom: 2rem;
         }
 
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 1001;
+        }
+
+        .mobile-menu-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: #d946a6;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+            z-index: 1002;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 80px 2rem 2rem;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .mobile-menu nav {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .mobile-menu nav a {
+            font-size: 1.1rem;
+            color: #333;
+            text-decoration: none;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu nav a:hover {
+            color: #d946a6;
+            padding-left: 10px;
+        }
+
+        .mobile-login-btn {
+            margin-top: 2rem;
+            background: linear-gradient(135deg, #d946a6 0%, #ec4899 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: block;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(217, 70, 166, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(217, 70, 166, 0.4);
+        }
+
         /* Mobile */
         @media (max-width: 768px) {
             nav { display: none; }
+            .mobile-menu-btn { display: block; }
             .hero h1 { font-size: 2.8rem; letter-spacing: -1px; }
             .hero p { font-size: 1.05rem; }
             .gradient-bars { width: 100%; opacity: 0.6; }
@@ -703,6 +801,7 @@
             .user-name { display: none; }
             .review-card { flex: 0 0 300px; }
             .product-card { flex: 0 0 300px; }
+            .user-info img { display: none; }
         }
 
         /* Important Message */
@@ -753,16 +852,243 @@
             transform: scale(1.02);
             box-shadow: 0 8px 25px rgba(217, 70, 166, 0.4);
         }
+
+        /* Review Modal */
+        .review-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .review-modal-overlay.active {
+            display: flex;
+        }
+
+        .review-modal {
+            background: white;
+            border-radius: 25px;
+            padding: 3rem;
+            max-width: 550px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .review-modal h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-modal p {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .review-form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .review-form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-form-group input,
+        .review-form-group textarea {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .review-form-group input:focus,
+        .review-form-group textarea:focus {
+            outline: none;
+            border-color: #d946a6;
+            box-shadow: 0 0 0 3px rgba(217, 70, 166, 0.1);
+        }
+
+        .review-form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .star-rating .star {
+            cursor: pointer;
+            color: #ddd;
+            transition: all 0.2s ease;
+        }
+
+        .star-rating .star:hover,
+        .star-rating .star.active {
+            color: #f59e0b;
+            transform: scale(1.1);
+        }
+
+        .review-modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .review-modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #999;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .review-modal-close:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-submit {
+            flex: 1;
+            background: linear-gradient(135deg, #d946a6 0%, #ec4899 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 20px rgba(217, 70, 166, 0.3);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(217, 70, 166, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: #f0f0f0;
+            color: #666;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        .leave-review-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #d946a6 0%, #ec4899 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(217, 70, 166, 0.3);
+            margin-top: 2rem;
+        }
+
+        .leave-review-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(217, 70, 166, 0.4);
+        }
+
+        .success-message {
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
 
 <!-- Header -->
 <header id="header">
-    <div class="logo" onclick="window.location.href='https://www.amhairandbeauty.com'">
-        <img src="A&M.png" alt="A&M" onerror="this.style.display='none'">
+    <a href="https://www.amhairandbeauty.com" class="logo">
+        <img src="A&M.png" alt="A&M">
         <span>A&M Hair & Beauty</span>
-    </div>
+    </a>
 
     <nav>
         <a href="#products">Products</a>
@@ -772,13 +1098,30 @@
     </nav>
 
     <div class="header-actions">
-        <div class="user-info" id="user-header" onclick="handleUserHeaderClick()">
-            <img src="user.png" alt="User" width="24" height="24" onerror="this.style.display='none'">
-            <span id="user-display-name">Sign In</span>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="user-info" id="user-header">
+            <img src="user.png" alt="User" width="24" height="24">
+            <span id="user-display-name" class="user-name">Sign In</span>
         </div>
         <a href="https://shop.amhairandbeauty.com/cart/" class="btn-primary">Basket</a>
     </div>
 </header>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
+<div class="mobile-menu" id="mobile-menu">
+    <nav>
+        <a href="#products">Products</a>
+        <a href="#about">About</a>
+        <a href="#reviews">Reviews</a>
+        <a href="https://shop.amhairandbeauty.com">Shop</a>
+    </nav>
+    <a href="#" class="mobile-login-btn" id="mobile-login-btn">Sign In</a>
+</div>
 
 <!-- Hero Section -->
 <section class="hero">
@@ -862,6 +1205,12 @@
             <p class="review-date">5 days ago</p>
         </div>
     </div>
+    
+    <div style="text-align: center;">
+        <button class="leave-review-btn" id="leave-review-btn">
+            ✍️ Leave a Review
+        </button>
+    </div>
 </section>
 
 <!-- Products Section -->
@@ -872,7 +1221,7 @@
     </div>
 
     <div class="products-initial" id="products-initial">
-        <div class="product-card scroll-reveal-left" onclick="showProduct('product1')">
+        <div class="product-card scroll-reveal-left" data-product="product1">
             <img src="big hair oil.jpg" alt="Hair Growth Oil" class="product-image">
             <div class="product-info">
                 <div class="product-price">£9.99</div>
@@ -881,7 +1230,7 @@
             </div>
         </div>
 
-        <div class="product-card scale-in" onclick="showProduct('product2')">
+        <div class="product-card scale-in" data-product="product2">
             <img src="good bonnet.jpg" alt="Satin Bonnet" class="product-image">
             <div class="product-info">
                 <div class="product-price">£2.99</div>
@@ -890,7 +1239,7 @@
             </div>
         </div>
 
-        <div class="product-card scroll-reveal-right" onclick="showProduct('product3')">
+        <div class="product-card scroll-reveal-right" data-product="product3">
             <img src="small hair oil.jpg" alt="Hair Oil" class="product-image">
             <div class="product-info">
                 <div class="product-price">£4.99</div>
@@ -901,7 +1250,7 @@
     </div>
 
     <div style="text-align: center; margin-bottom: 3rem;" class="scroll-reveal">
-        <button class="btn-primary" onclick="activateCarousel()" style="padding: 1.2rem 3.5rem; font-size: 1.1rem;">Show More Products</button>
+        <button class="btn-primary" id="show-more-btn" style="padding: 1.2rem 3.5rem; font-size: 1.1rem;">Show More Products</button>
     </div>
 
     <div id="carousel-container">
@@ -924,7 +1273,54 @@
 <div id="important-message">
     <p style="color: #333; font-weight: 700; margin-bottom: 0.5rem; font-size: 1.1rem;">💡 Shopping Tip</p>
     <p style="color: #666; font-size: 0.95rem; line-height: 1.6;">Once you've added products to your basket, click the back arrow to continue shopping.</p>
-    <button onclick="dismissImportantMessage()">Got it!</button>
+    <button id="dismiss-message-btn">Got it!</button>
+</div>
+
+<!-- Review Modal -->
+<div class="review-modal-overlay" id="review-modal-overlay">
+    <div class="review-modal">
+        <button class="review-modal-close" id="review-modal-close">✕</button>
+        <h3>Leave a Review ⭐</h3>
+        <p>Share your experience with A&M Hair & Beauty</p>
+        
+        <div class="success-message" id="review-success-message">
+            ✓ Thank you! Your review has been submitted successfully.
+        </div>
+        
+        <form id="review-form">
+            <div class="review-form-group">
+                <label for="review-name">Your Name *</label>
+                <input type="text" id="review-name" name="name" required placeholder="Enter your name">
+            </div>
+            
+            <div class="review-form-group">
+                <label for="review-email">Email (optional)</label>
+                <input type="email" id="review-email" name="email" placeholder="your@email.com">
+            </div>
+            
+            <div class="review-form-group">
+                <label>Rating *</label>
+                <div class="star-rating" id="star-rating">
+                    <span class="star" data-rating="1">★</span>
+                    <span class="star" data-rating="2">★</span>
+                    <span class="star" data-rating="3">★</span>
+                    <span class="star" data-rating="4">★</span>
+                    <span class="star" data-rating="5">★</span>
+                </div>
+                <input type="hidden" id="review-rating" name="rating" required>
+            </div>
+            
+            <div class="review-form-group">
+                <label for="review-text">Your Review *</label>
+                <textarea id="review-text" name="review" required placeholder="Tell us about your experience..."></textarea>
+            </div>
+            
+            <div class="review-modal-actions">
+                <button type="button" class="btn-cancel" id="review-cancel-btn">Cancel</button>
+                <button type="submit" class="btn-submit" id="review-submit-btn">Submit Review</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Scripts -->
@@ -944,22 +1340,262 @@ const allProducts = [
     {id:'product8', name:'Tumeric Soap', price:3.49, image:'tumeric.jpg', url:'https://shop.amhairandbeauty.com/products/tumeric-soap'},
 ];
 
+// Product navigation function
 function showProduct(productId) {
     const product = allProducts.find(p => p.id === productId);
-    if (product) window.location.href = product.url;
+    if (product) {
+        window.location.href = product.url;
+    }
 }
 
+// Add click listeners to all product cards
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle product card clicks
+    const productCards = document.querySelectorAll('.product-card');
+    productCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product');
+            if (productId) {
+                showProduct(productId);
+            }
+        });
+    });
+
+    // Handle show more button
+    const showMoreBtn = document.getElementById('show-more-btn');
+    if (showMoreBtn) {
+        showMoreBtn.addEventListener('click', activateCarousel);
+    }
+
+    // Handle user header click
+    const userHeader = document.getElementById('user-header');
+    if (userHeader) {
+        userHeader.addEventListener('click', handleUserHeaderClick);
+    }
+
+    // Handle dismiss message button
+    const dismissBtn = document.getElementById('dismiss-message-btn');
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', dismissImportantMessage);
+    }
+
+    // Handle mobile menu
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const mobileLoginBtn = document.getElementById('mobile-login-btn');
+    
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileMenu.classList.toggle('active');
+            mobileMenuOverlay.classList.toggle('active');
+        });
+    }
+    
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', function() {
+            mobileMenu.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+        });
+    }
+    
+    // Close mobile menu when clicking nav links
+    const mobileNavLinks = document.querySelectorAll('.mobile-menu nav a');
+    mobileNavLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            mobileMenu.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+        });
+    });
+    
+    // Handle mobile login button
+    if (mobileLoginBtn) {
+        mobileLoginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            mobileMenu.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+            handleUserHeaderClick();
+        });
+    }
+
+    // Handle review modal
+    const leaveReviewBtn = document.getElementById('leave-review-btn');
+    const reviewModalOverlay = document.getElementById('review-modal-overlay');
+    const reviewModalClose = document.getElementById('review-modal-close');
+    const reviewCancelBtn = document.getElementById('review-cancel-btn');
+    const reviewForm = document.getElementById('review-form');
+    const starRating = document.getElementById('star-rating');
+    const reviewRatingInput = document.getElementById('review-rating');
+    const reviewSubmitBtn = document.getElementById('review-submit-btn');
+    const reviewSuccessMessage = document.getElementById('review-success-message');
+    
+    // Open review modal
+    if (leaveReviewBtn) {
+        leaveReviewBtn.addEventListener('click', function() {
+            reviewModalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        });
+    }
+    
+    // Close review modal
+    function closeReviewModal() {
+        reviewModalOverlay.classList.remove('active');
+        document.body.style.overflow = ''; // Restore scrolling
+        reviewSuccessMessage.classList.remove('show');
+        reviewForm.reset();
+        // Reset stars
+        document.querySelectorAll('.star').forEach(star => {
+            star.classList.remove('active');
+        });
+        reviewRatingInput.value = '';
+    }
+    
+    if (reviewModalClose) {
+        reviewModalClose.addEventListener('click', closeReviewModal);
+    }
+    
+    if (reviewCancelBtn) {
+        reviewCancelBtn.addEventListener('click', closeReviewModal);
+    }
+    
+    if (reviewModalOverlay) {
+        reviewModalOverlay.addEventListener('click', function(e) {
+            if (e.target === reviewModalOverlay) {
+                closeReviewModal();
+            }
+        });
+    }
+    
+    // Star rating functionality
+    if (starRating) {
+        const stars = starRating.querySelectorAll('.star');
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = this.getAttribute('data-rating');
+                reviewRatingInput.value = rating;
+                
+                // Update star display
+                stars.forEach(s => {
+                    const starRating = s.getAttribute('data-rating');
+                    if (starRating <= rating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Hover effect
+            star.addEventListener('mouseenter', function() {
+                const rating = this.getAttribute('data-rating');
+                stars.forEach(s => {
+                    const starRating = s.getAttribute('data-rating');
+                    if (starRating <= rating) {
+                        s.style.color = '#f59e0b';
+                    }
+                });
+            });
+        });
+        
+        starRating.addEventListener('mouseleave', function() {
+            const currentRating = reviewRatingInput.value;
+            stars.forEach(s => {
+                const starRating = s.getAttribute('data-rating');
+                if (!currentRating || starRating > currentRating) {
+                    if (!s.classList.contains('active')) {
+                        s.style.color = '#ddd';
+                    }
+                }
+            });
+        });
+    }
+    
+    // Handle review form submission
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('review-name').value,
+                email: document.getElementById('review-email').value,
+                rating: reviewRatingInput.value,
+                review: document.getElementById('review-text').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Validate rating
+            if (!formData.rating) {
+                alert('Please select a star rating');
+                return;
+            }
+            
+            // Disable submit button
+            reviewSubmitBtn.disabled = true;
+            reviewSubmitBtn.textContent = 'Submitting...';
+            
+            // Here you would normally send to your backend/database
+            // For now, we'll simulate a submission
+            console.log('Review submitted:', formData);
+            
+            // Simulate API call
+            setTimeout(() => {
+                reviewSuccessMessage.classList.add('show');
+                reviewSubmitBtn.disabled = false;
+                reviewSubmitBtn.textContent = 'Submit Review';
+                
+                // Close modal after 2 seconds
+                setTimeout(() => {
+                    closeReviewModal();
+                }, 2000);
+                
+                // TODO: Send to your backend
+                // You can integrate this with Google Sheets, a database, or email
+                // Example with Google Apps Script:
+                // fetch('YOUR_GOOGLE_APPS_SCRIPT_URL', {
+                //     method: 'POST',
+                //     body: JSON.stringify(formData)
+                // });
+                
+            }, 1000);
+        });
+    }
+
+    // Handle image errors
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        img.addEventListener('error', function() {
+            this.style.display = 'none';
+        });
+    });
+});
+
+// User header click handler
+function handleUserHeaderClick() {
+    // This function should be defined in home-auth.js
+    // Fallback behavior if function doesn't exist
+    if (typeof window.handleUserHeaderClick === 'function') {
+        window.handleUserHeaderClick();
+    } else {
+        // Default behavior - could redirect to login page
+        console.log('User header clicked');
+    }
+}
+
+// Carousel activation function
 function activateCarousel() {
     const carousel = document.getElementById('carousel');
     const container = document.getElementById('carousel-container');
     const initialGrid = document.getElementById('products-initial');
+    const showMoreBtn = document.getElementById('show-more-btn');
+    
+    if (!carousel || !container || !initialGrid) return;
     
     carousel.innerHTML = '';
     allProducts.forEach((p, i) => {
         const card = document.createElement('div');
         card.className = 'product-card';
         card.style.animationDelay = `${i * 0.1}s`;
-        card.onclick = () => showProduct(p.id);
+        card.setAttribute('data-product', p.id);
         card.innerHTML = `
             <img src="${p.image}" alt="${p.name}" class="product-image" onerror="this.src='https://via.placeholder.com/350x320/f9a8d4/ffffff?text=${encodeURIComponent(p.name)}'">
             <div class="product-info">
@@ -968,19 +1604,38 @@ function activateCarousel() {
                 <p class="product-description">Click to view details and purchase</p>
             </div>
         `;
+        
+        // Add click listener to new card
+        card.addEventListener('click', function() {
+            showProduct(p.id);
+        });
+        
         carousel.appendChild(card);
     });
     
     initialGrid.style.opacity = '0';
     initialGrid.style.transform = 'scale(0.95)';
-    document.querySelector('[onclick="activateCarousel()"]').style.opacity = '0';
+    if (showMoreBtn) {
+        showMoreBtn.style.opacity = '0';
+    }
     
     setTimeout(() => {
         initialGrid.style.display = 'none';
-        document.querySelector('[onclick="activateCarousel()"]').style.display = 'none';
+        if (showMoreBtn) {
+            showMoreBtn.style.display = 'none';
+        }
         container.style.display = 'block';
         container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 400);
+}
+
+// Dismiss important message
+function dismissImportantMessage() {
+    const message = document.getElementById('important-message');
+    if (message) {
+        message.classList.remove('show');
+        message.style.display = 'none';
+    }
 }
 
 // Slideshow
@@ -988,6 +1643,7 @@ let currentSlide = 0;
 const slides = document.querySelectorAll('.slide-image');
 
 function showNextSlide() {
+    if (slides.length === 0) return;
     slides[currentSlide].classList.remove('active');
     currentSlide = (currentSlide + 1) % slides.length;
     slides[currentSlide].classList.add('active');
@@ -1028,18 +1684,20 @@ const reviewsContainer = document.getElementById('reviews-container');
 let scrollPosition = 0;
 let isHovering = false;
 
-reviewsContainer?.addEventListener('mouseenter', () => isHovering = true);
-reviewsContainer?.addEventListener('mouseleave', () => isHovering = false);
+if (reviewsContainer) {
+    reviewsContainer.addEventListener('mouseenter', () => isHovering = true);
+    reviewsContainer.addEventListener('mouseleave', () => isHovering = false);
 
-setInterval(() => {
-    if (!isHovering && reviewsContainer) {
-        scrollPosition += 0.5;
-        if (scrollPosition >= reviewsContainer.scrollWidth - reviewsContainer.clientWidth) {
-            scrollPosition = 0;
+    setInterval(() => {
+        if (!isHovering && reviewsContainer) {
+            scrollPosition += 0.5;
+            if (scrollPosition >= reviewsContainer.scrollWidth - reviewsContainer.clientWidth) {
+                scrollPosition = 0;
+            }
+            reviewsContainer.scrollTo({ left: scrollPosition, behavior: 'smooth' });
         }
-        reviewsContainer.scrollTo({ left: scrollPosition, behavior: 'smooth' });
-    }
-}, 30);
+    }, 30);
+}
 
 console.log('✨ A&M - Smooth Animations Loaded!');
 </script>
@@ -1047,4 +1705,4 @@ console.log('✨ A&M - Smooth Animations Loaded!');
 <script nonce="A2Fc45" src="https://amhairandbeauty.com/reviews.js"></script>
 
 </body>
-</html>
+</html>gyv g

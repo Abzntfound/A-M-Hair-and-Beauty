@@ -1312,7 +1312,7 @@ function loadTheme() {
     let theme = null;
     
     // 1. Check localStorage (from auth subdomain)
-    const userData = localStorage.getItem('userData');
+    const userData = localStorage.getItem('amUserData');
     if (userData) {
         try {
             const user = JSON.parse(userData);
@@ -1374,35 +1374,40 @@ async function checkAuthStatus() {
     console.log('🔐 Checking auth status...');
     
     try {
-        const token = localStorage.getItem('authToken');
-        const userData = localStorage.getItem('userData');
+        // IMPORTANT: Auth system uses 'amUserData' not 'userData'
+        const userData = localStorage.getItem('amUserData');
         
-        console.log('Token in localStorage:', token ? 'Present' : 'Not found');
         console.log('User data in localStorage:', userData ? 'Present' : 'Not found');
         
         // Also check cookie for cross-subdomain data
         const cookieUserData = getCookie('amUserData');
         console.log('User data in cookie:', cookieUserData ? 'Present' : 'Not found');
         
-        if (token && userData) {
-            const user = JSON.parse(userData);
-            console.log('✅ User found in localStorage:', user);
-            updateUIForLoggedInUser(user);
-            
-            // Apply user's theme preference
-            if (user.darkMode !== undefined) {
-                applyTheme(user.darkMode ? 'dark' : 'light');
+        // Try localStorage first
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                console.log('✅ User found in localStorage:', user);
+                updateUIForLoggedInUser(user);
+                
+                // Apply user's theme preference
+                if (user.darkMode !== undefined) {
+                    applyTheme(user.darkMode ? 'dark' : 'light');
+                }
+                
+                return user;
+            } catch (e) {
+                console.error('Error parsing localStorage user data:', e);
             }
-            
-            return user;
         }
         
-        // Try cookie if localStorage doesn't have user data but has token
-        if (token && !userData && cookieUserData) {
+        // Try cookie if localStorage doesn't have user data
+        if (!userData && cookieUserData) {
             try {
                 const user = JSON.parse(cookieUserData);
                 console.log('✅ User found in cookie:', user);
-                localStorage.setItem('userData', JSON.stringify(user));
+                // Save to localStorage for faster access next time
+                localStorage.setItem('amUserData', JSON.stringify(user));
                 updateUIForLoggedInUser(user);
                 
                 if (user.darkMode !== undefined) {
@@ -1412,42 +1417,6 @@ async function checkAuthStatus() {
                 return user;
             } catch (e) {
                 console.error('Error parsing cookie user data:', e);
-            }
-        }
-        
-        if (token) {
-            console.log('🌐 Verifying token with auth server...');
-            const response = await fetch(`${AUTH_API_URL}/verify`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                credentials: 'include'
-            });
-            
-            console.log('Auth server response status:', response.status);
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Auth server response:', data);
-                
-                if (data.user) {
-                    console.log('✅ User verified by server:', data.user);
-                    localStorage.setItem('userData', JSON.stringify(data.user));
-                    updateUIForLoggedInUser(data.user);
-                    
-                    // Apply user's theme preference
-                    if (data.user.darkMode !== undefined) {
-                        applyTheme(data.user.darkMode ? 'dark' : 'light');
-                    }
-                    
-                    return data.user;
-                }
-            } else {
-                console.log('⚠️ Token invalid, clearing storage...');
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userData');
             }
         }
         
@@ -1507,86 +1476,44 @@ function updateUIForLoggedOutUser() {
 
 // Handle user header/login button click
 function handleUserHeaderClick() {
-    const token = localStorage.getItem('authToken');
-    const userData = localStorage.getItem('userData');
+    // IMPORTANT: Check using 'amUserData' not 'userData'
+    const userData = localStorage.getItem('amUserData') || getCookie('amUserData');
     
-    if (token && userData) {
-        const user = JSON.parse(userData);
-        const userChoice = confirm(`Logged in as ${user.name || user.email}\n\nClick OK to sign out, or Cancel to go to your account.`);
-        
-        if (userChoice) {
-            handleLogout();
-        } else {
-            window.location.href = `${AUTH_LOGIN_URL}/account`;
+    if (userData) {
+        try {
+            const user = JSON.parse(userData);
+            const userChoice = confirm(`Logged in as ${user.name || user.email}\n\nClick OK to sign out, or Cancel to stay logged in.`);
+            
+            if (userChoice) {
+                handleLogout();
+            }
+        } catch (e) {
+            console.error('Error parsing user data:', e);
+            window.location.href = AUTH_LOGIN_URL;
         }
     } else {
-        const returnUrl = encodeURIComponent(window.location.href);
-        window.location.href = `${AUTH_LOGIN_URL}?return=${returnUrl}`;
+        // Not logged in - redirect to auth
+        window.location.href = AUTH_LOGIN_URL;
     }
 }
 
 // Handle logout
 function handleLogout() {
-    const token = localStorage.getItem('authToken');
+    console.log('🚪 Logging out...');
     
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
+    // Clear all storage
+    localStorage.removeItem('amUserData');
+    sessionStorage.removeItem('amUserData');
+    
+    // Clear cookie
+    document.cookie = 'amUserData=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.amhairandbeauty.com;';
+    
     updateUIForLoggedOutUser();
-    
-    if (token) {
-        fetch(`${AUTH_API_URL}/logout`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            credentials: 'include'
-        }).catch(err => console.error('Logout error:', err));
-    }
     
     alert('You have been signed out successfully.');
 }
 
-// Check for auth callback
-function checkAuthCallback() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    const userData = urlParams.get('user');
-    
-    console.log('🔍 Checking auth callback...');
-    console.log('Token:', token ? 'Present' : 'Not found');
-    console.log('User data:', userData ? 'Present' : 'Not found');
-    
-    if (token) {
-        console.log('✅ Token found, saving...');
-        localStorage.setItem('authToken', token);
-        
-        if (userData) {
-            try {
-                const user = JSON.parse(decodeURIComponent(userData));
-                console.log('👤 User data parsed:', user);
-                localStorage.setItem('userData', JSON.stringify(user));
-                updateUIForLoggedInUser(user);
-                
-                // Apply theme immediately
-                if (user.darkMode !== undefined) {
-                    applyTheme(user.darkMode ? 'dark' : 'light');
-                }
-            } catch (e) {
-                console.error('❌ Error parsing user data:', e);
-            }
-        }
-        
-        // Clean URL
-        const cleanUrl = window.location.origin + window.location.pathname;
-        window.history.replaceState({}, document.title, cleanUrl);
-    } else {
-        console.log('ℹ️ No token in URL, checking localStorage...');
-    }
-}
-
 // Initialize auth on page load
-checkAuthCallback();
 checkAuthStatus();
 
 // Initialize theme on page load
@@ -1595,14 +1522,23 @@ loadTheme();
 // Add a manual check function for debugging (can be called from console)
 window.debugAuth = function() {
     console.log('=== AUTH DEBUG INFO ===');
-    console.log('Token:', localStorage.getItem('authToken'));
-    console.log('User Data:', localStorage.getItem('userData'));
+    console.log('amUserData (localStorage):', localStorage.getItem('amUserData'));
+    console.log('amUserData (cookie):', getCookie('amUserData'));
+    console.log('amTheme (localStorage):', localStorage.getItem('amTheme'));
+    console.log('amTheme (cookie):', getCookie('amTheme'));
     
-    const userData = localStorage.getItem('userData');
+    const userData = localStorage.getItem('amUserData') || getCookie('amUserData');
     if (userData) {
-        const user = JSON.parse(userData);
-        console.log('Parsed user:', user);
-        updateUIForLoggedInUser(user);
+        try {
+            const user = JSON.parse(userData);
+            console.log('Parsed user:', user);
+            console.log('Attempting to update UI...');
+            updateUIForLoggedInUser(user);
+        } catch (e) {
+            console.error('Error parsing user data:', e);
+        }
+    } else {
+        console.log('❌ No user data found!');
     }
 };
 

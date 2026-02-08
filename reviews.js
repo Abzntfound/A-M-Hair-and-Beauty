@@ -1,5 +1,5 @@
 // Reviews Management System using Google Sheets (CSP-COMPLIANT)
-// FREE shared reviews visible to ALL users!
+// FREE shared reviews visible to ALL users
 
 const SHEET_BEST_URL = 'https://api.sheetbest.com/sheets/de9f4919-1fda-4381-b13f-df7942993356';
 const USE_GOOGLE_SHEETS = true;

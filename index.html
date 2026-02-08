@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="A&M.ico">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="theme.css" id="theme-stylesheet">
     
     <!-- Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="
@@ -1305,19 +1305,118 @@
 const AUTH_API_URL = 'https://auth.amhairandbeauty.com/api';
 const AUTH_LOGIN_URL = 'https://auth.amhairandbeauty.com';
 
+// ===== THEME SYSTEM =====
+// Load theme from user preferences or cookies
+function loadTheme() {
+    // Check multiple sources for theme preference
+    let theme = null;
+    
+    // 1. Check localStorage (from auth subdomain)
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+        try {
+            const user = JSON.parse(userData);
+            if (user.darkMode !== undefined) {
+                theme = user.darkMode ? 'dark' : 'light';
+                console.log('📱 Theme from user data:', theme);
+            }
+        } catch (e) {
+            console.error('Error parsing user data:', e);
+        }
+    }
+    
+    // 2. Check cookie (cross-subdomain)
+    if (!theme) {
+        const cookieTheme = getCookie('amTheme');
+        if (cookieTheme) {
+            theme = cookieTheme;
+            console.log('🍪 Theme from cookie:', theme);
+        }
+    }
+    
+    // 3. Check localStorage direct theme setting
+    if (!theme) {
+        theme = localStorage.getItem('amTheme') || 'light';
+        console.log('💾 Theme from localStorage:', theme);
+    }
+    
+    // Apply theme
+    applyTheme(theme);
+}
+
+function applyTheme(theme) {
+    const html = document.documentElement;
+    
+    if (theme === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+    } else {
+        html.removeAttribute('data-theme');
+    }
+    
+    console.log('🎨 Applied theme:', theme);
+}
+
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) {
+            return decodeURIComponent(c.substring(nameEQ.length, c.length));
+        }
+    }
+    return null;
+}
+
 // Check if user is logged in
 async function checkAuthStatus() {
+    console.log('🔐 Checking auth status...');
+    
     try {
         const token = localStorage.getItem('authToken');
         const userData = localStorage.getItem('userData');
         
+        console.log('Token in localStorage:', token ? 'Present' : 'Not found');
+        console.log('User data in localStorage:', userData ? 'Present' : 'Not found');
+        
+        // Also check cookie for cross-subdomain data
+        const cookieUserData = getCookie('amUserData');
+        console.log('User data in cookie:', cookieUserData ? 'Present' : 'Not found');
+        
         if (token && userData) {
             const user = JSON.parse(userData);
+            console.log('✅ User found in localStorage:', user);
             updateUIForLoggedInUser(user);
+            
+            // Apply user's theme preference
+            if (user.darkMode !== undefined) {
+                applyTheme(user.darkMode ? 'dark' : 'light');
+            }
+            
             return user;
         }
         
+        // Try cookie if localStorage doesn't have user data but has token
+        if (token && !userData && cookieUserData) {
+            try {
+                const user = JSON.parse(cookieUserData);
+                console.log('✅ User found in cookie:', user);
+                localStorage.setItem('userData', JSON.stringify(user));
+                updateUIForLoggedInUser(user);
+                
+                if (user.darkMode !== undefined) {
+                    applyTheme(user.darkMode ? 'dark' : 'light');
+                }
+                
+                return user;
+            } catch (e) {
+                console.error('Error parsing cookie user data:', e);
+            }
+        }
+        
         if (token) {
+            console.log('🌐 Verifying token with auth server...');
             const response = await fetch(`${AUTH_API_URL}/verify`, {
                 method: 'POST',
                 headers: {
@@ -1327,23 +1426,36 @@ async function checkAuthStatus() {
                 credentials: 'include'
             });
             
+            console.log('Auth server response status:', response.status);
+            
             if (response.ok) {
                 const data = await response.json();
+                console.log('Auth server response:', data);
+                
                 if (data.user) {
+                    console.log('✅ User verified by server:', data.user);
                     localStorage.setItem('userData', JSON.stringify(data.user));
                     updateUIForLoggedInUser(data.user);
+                    
+                    // Apply user's theme preference
+                    if (data.user.darkMode !== undefined) {
+                        applyTheme(data.user.darkMode ? 'dark' : 'light');
+                    }
+                    
                     return data.user;
                 }
             } else {
+                console.log('⚠️ Token invalid, clearing storage...');
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('userData');
             }
         }
         
+        console.log('ℹ️ No user logged in');
         updateUIForLoggedOutUser();
         return null;
     } catch (error) {
-        console.error('Auth check error:', error);
+        console.error('❌ Auth check error:', error);
         updateUIForLoggedOutUser();
         return null;
     }
@@ -1351,18 +1463,30 @@ async function checkAuthStatus() {
 
 // Update UI for logged in user
 function updateUIForLoggedInUser(user) {
+    console.log('👤 Updating UI for logged in user:', user);
+    
     const userDisplayName = document.getElementById('user-display-name');
     const mobileLoginBtn = document.getElementById('mobile-login-btn');
     
+    console.log('User display element:', userDisplayName);
+    console.log('Mobile login button:', mobileLoginBtn);
+    
     const displayName = user.name || user.firstName || user.email?.split('@')[0] || 'Account';
+    console.log('Display name will be:', displayName);
     
     if (userDisplayName) {
         userDisplayName.textContent = displayName;
         userDisplayName.classList.add('user-name');
+        console.log('✅ Desktop header updated to:', displayName);
+    } else {
+        console.error('❌ Could not find user-display-name element!');
     }
     
     if (mobileLoginBtn) {
         mobileLoginBtn.textContent = displayName;
+        console.log('✅ Mobile button updated to:', displayName);
+    } else {
+        console.error('❌ Could not find mobile-login-btn element!');
     }
 }
 
@@ -1429,27 +1553,68 @@ function checkAuthCallback() {
     const token = urlParams.get('token');
     const userData = urlParams.get('user');
     
+    console.log('🔍 Checking auth callback...');
+    console.log('Token:', token ? 'Present' : 'Not found');
+    console.log('User data:', userData ? 'Present' : 'Not found');
+    
     if (token) {
+        console.log('✅ Token found, saving...');
         localStorage.setItem('authToken', token);
         
         if (userData) {
             try {
                 const user = JSON.parse(decodeURIComponent(userData));
+                console.log('👤 User data parsed:', user);
                 localStorage.setItem('userData', JSON.stringify(user));
                 updateUIForLoggedInUser(user);
+                
+                // Apply theme immediately
+                if (user.darkMode !== undefined) {
+                    applyTheme(user.darkMode ? 'dark' : 'light');
+                }
             } catch (e) {
-                console.error('Error parsing user data:', e);
+                console.error('❌ Error parsing user data:', e);
             }
         }
         
+        // Clean URL
         const cleanUrl = window.location.origin + window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
+    } else {
+        console.log('ℹ️ No token in URL, checking localStorage...');
     }
 }
 
 // Initialize auth on page load
 checkAuthCallback();
 checkAuthStatus();
+
+// Initialize theme on page load
+loadTheme();
+
+// Add a manual check function for debugging (can be called from console)
+window.debugAuth = function() {
+    console.log('=== AUTH DEBUG INFO ===');
+    console.log('Token:', localStorage.getItem('authToken'));
+    console.log('User Data:', localStorage.getItem('userData'));
+    
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+        const user = JSON.parse(userData);
+        console.log('Parsed user:', user);
+        updateUIForLoggedInUser(user);
+    }
+};
+
+// Also check cookies for cross-subdomain data
+window.debugCookies = function() {
+    console.log('=== COOKIES DEBUG ===');
+    console.log('All cookies:', document.cookie);
+    console.log('amUserData cookie:', getCookie('amUserData'));
+    console.log('amTheme cookie:', getCookie('amTheme'));
+};
+
+console.log('💡 Debug helpers available: debugAuth() and debugCookies()');
 
 </script>
 

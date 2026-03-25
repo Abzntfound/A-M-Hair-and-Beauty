@@ -1,8 +1,10 @@
-// Reviews Management System using Google Sheets (CSP-COMPLIANT)
+// Reviews Management System using Google Sheets API
 // FREE shared reviews visible to ALL users — with profile picture support
 
-const SHEET_BEST_URL = 'https://api.sheetbest.com/sheets/de9f4919-1fda-4381-b13f-df7942993356';
-const USE_GOOGLE_SHEETS = true;
+const SHEET_ID = '12Q0Kp1-K4PnA5SsMQNovmcIAKdqVJsV_BKqItwMNFy4';
+const API_KEY = 'AIzaSyAfvqiFKatwdVPvuNyDDGEgCnbnafo779c';
+const SHEET_NAME = 'Amhairandbeauty';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5c0TS4jt2ebmKeKdPrrNTgMVxfSHmB_RzUvyEzLKth4DkoIq4Xfly3lS4EhQDdoNAMw/exec'; // Add your Apps Script URL here if you set one up for writing
 
 // Profanity filter
 const PROFANITY_LIST = [
@@ -49,16 +51,13 @@ function sanitizeHTML(str) {
     return div.innerHTML;
 }
 
-// ── Get the current user's profile picture from storage ──
 function getCurrentUserPfp() {
     try {
-        // Try localStorage first (set by auth.js)
         const raw = localStorage.getItem('amUserData');
         if (raw) {
             const u = JSON.parse(raw);
             if (u.pfp) return u.pfp;
         }
-        // Fallback: try cookie
         const cookieMatch = document.cookie
             .split('; ')
             .find(row => row.startsWith('amUserData='));
@@ -72,9 +71,6 @@ function getCurrentUserPfp() {
     return null;
 }
 
-// ── Build the avatar element for a review card ──
-// pfp: base64 string or null/empty
-// name: reviewer's name for initial fallback
 function buildAvatar(pfp, name) {
     if (pfp && pfp.startsWith('data:image')) {
         return `<img src="${pfp}" alt="${sanitizeHTML(name)}" class="review-avatar review-avatar-img">`;
@@ -116,35 +112,46 @@ function getDefaultReviews() {
     ];
 }
 
+// READ reviews from Google Sheets using API key
 async function getReviews() {
-    if (USE_GOOGLE_SHEETS) {
-        try {
-            const response = await fetch(SHEET_BEST_URL);
-            if (response.ok) {
-                const reviews = await response.json();
-                return reviews.map(r => ({
-                    ...r,
-                    rating: parseInt(r.rating),
-                    pfp: r.pfp || ""
-                }));
-            }
-        } catch (error) {
-            console.log('Using local storage fallback:', error);
+    try {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+        const response = await fetch(url);
+
+        if (response.ok) {
+            const data = await response.json();
+            const rows = data.values;
+
+            if (!rows || rows.length <= 1) return getDefaultReviews();
+
+            // Skip the header row (row 0) and map the rest
+            // Expected columns: name, rating, review, date, pfp
+            return rows.slice(1).map(row => ({
+                name: row[0] || '',
+                rating: parseInt(row[1]) || 5,
+                review: row[2] || '',
+                date: row[3] || new Date().toISOString(),
+                pfp: row[4] || ''
+            }));
         }
+    } catch (error) {
+        console.log('Google Sheets read failed, using fallback:', error);
     }
 
+    // Fallback to localStorage
     const storedReviews = localStorage.getItem('amReviews');
-    if (storedReviews) {
-        return JSON.parse(storedReviews);
-    }
+    if (storedReviews) return JSON.parse(storedReviews);
 
     return getDefaultReviews();
 }
 
+// WRITE reviews — Google Sheets API key is read-only
+// To write, you need a Google Apps Script Web App URL
+// Set it as APPS_SCRIPT_URL at the top of this file
 async function saveReview(review) {
-    if (USE_GOOGLE_SHEETS) {
+    if (APPS_SCRIPT_URL) {
         try {
-            const response = await fetch(SHEET_BEST_URL, {
+            const response = await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(review)
@@ -155,10 +162,11 @@ async function saveReview(review) {
                 return true;
             }
         } catch (error) {
-            console.log('Cloud save failed, using local storage');
+            console.log('Apps Script save failed, using local storage');
         }
     }
 
+    // Fallback to localStorage if no Apps Script URL set
     const reviews = await getReviews();
     reviews.unshift(review);
     localStorage.setItem('amReviews', JSON.stringify(reviews));
@@ -239,7 +247,6 @@ async function handleReviewSubmit(event) {
     const originalText = submitButton.textContent;
     submitButton.textContent = 'Submitting...';
 
-    // Attach the current user's pfp (if they have one) to the review
     const userPfp = getCurrentUserPfp() || "";
 
     const newReview = {
@@ -247,7 +254,7 @@ async function handleReviewSubmit(event) {
         rating: rating,
         review: reviewTextarea.value.trim(),
         date: new Date().toISOString(),
-        pfp: userPfp   // ← stored alongside the review in Sheets / localStorage
+        pfp: userPfp
     };
 
     await saveReview(newReview);
@@ -279,8 +286,6 @@ async function handleReviewSubmit(event) {
     }
 }
 
-// ── Inject avatar img styles into the page ──
-// (so the circular pfp image looks consistent with the initial avatar)
 (function injectAvatarStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -297,8 +302,7 @@ async function handleReviewSubmit(event) {
 })();
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('🌟 Reviews system initializing...');
-
+    console.log('Reviews system initializing...');
     displayReviews();
 
     const reviewForm = document.getElementById('review-form');
@@ -306,5 +310,5 @@ document.addEventListener('DOMContentLoaded', function () {
         reviewForm.addEventListener('submit', handleReviewSubmit);
     }
 
-    console.log('✅ Reviews system loaded!');
+    console.log('Reviews system loaded!');
 });

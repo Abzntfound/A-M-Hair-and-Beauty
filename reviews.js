@@ -3,7 +3,7 @@
 
 const SHEET_ID = '12Q0Kp1-K4PnA5SsMQNovmcIAKdqVJsV_BKqItwMNFy4';
 const API_KEY = 'AIzaSyAfvqiFKatwdVPvuNyDDGEgCnbnafo779c';
-const SHEET_NAME = 'Amhairandbeauty';
+const SHEET_NAME = 'Sheet1';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5c0TS4jt2ebmKeKdPrrNTgMVxfSHmB_RzUvyEzLKth4DkoIq4Xfly3lS4EhQDdoNAMw/exec'; // Add your Apps Script URL here if you set one up for writing
 
 // Profanity filter

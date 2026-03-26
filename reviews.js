@@ -6,10 +6,8 @@ const API_KEY = 'AIzaSyAfvqiFKatwdVPvuNyDDGEgCnbnafo779c';
 const SHEET_NAME = 'Sheet1';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5c0TS4jt2ebmKeKdPrrNTgMVxfSHmB_RzUvyEzLKth4DkoIq4Xfly3lS4EhQDdoNAMw/exec';
 
-// Dev accounts that can reply to reviews
 const DEV_EMAILS = ['vuyo_ncanywa@yahoo.co.uk', 'adube6113@outlook.com'];
 
-// Profanity filter
 const PROFANITY_LIST = [
     'damn', 'hell', 'crap', 'shit', 'fuck', 'ass', 'bitch',
     'bastard', 'dick', 'piss', 'cock', 'pussy', 'whore',
@@ -24,15 +22,11 @@ function containsProfanity(text) {
 }
 
 function isRealEmail(email) {
-    // Must match standard email format AND have a real-looking TLD (2-6 chars)
     const regex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
     if (!regex.test(email)) return false;
-
-    // Block obviously fake domains
     const fakeDomains = ['test.com', 'fake.com', 'example.com', 'mail.com', 'asdf.com', 'abc.com'];
     const domain = email.split('@')[1].toLowerCase();
     if (fakeDomains.includes(domain)) return false;
-
     return true;
 }
 
@@ -91,14 +85,14 @@ function buildAvatar(pfp, name) {
 
 function getDefaultReviews() {
     return [
-        { name: "Sarah M.", rating: 5, review: "The hair growth oil is amazing! My hair has never felt so healthy and strong. I've noticed significant growth in just 3 weeks!", date: new Date(Date.now() - 14 * 86400000).toISOString(), pfp: "" },
-        { name: "Jessica T.", rating: 5, review: "Best satin bonnet I've ever owned! Keeps my hair protected all night and the quality is outstanding.", date: new Date(Date.now() - 7 * 86400000).toISOString(), pfp: "" },
-        { name: "Maria L.", rating: 5, review: "Natural ingredients, visible results! My hair is shinier and healthier. Highly recommend A&M products!", date: new Date(Date.now() - 3 * 86400000).toISOString(), pfp: "" },
-        { name: "Aisha K.", rating: 5, review: "This rosemary oil is a game changer! My edges are filling in and my scalp feels so nourished.", date: new Date(Date.now() - 5 * 86400000).toISOString(), pfp: "" }
+        { name: "Sarah M.", rating: 5, review: "The hair growth oil is amazing! My hair has never felt so healthy and strong. I've noticed significant growth in just 3 weeks!", date: new Date(Date.now() - 14 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" },
+        { name: "Jessica T.", rating: 5, review: "Best satin bonnet I've ever owned! Keeps my hair protected all night and the quality is outstanding.", date: new Date(Date.now() - 7 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" },
+        { name: "Maria L.", rating: 5, review: "Natural ingredients, visible results! My hair is shinier and healthier. Highly recommend A&M products!", date: new Date(Date.now() - 3 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" },
+        { name: "Aisha K.", rating: 5, review: "This rosemary oil is a game changer! My edges are filling in and my scalp feels so nourished.", date: new Date(Date.now() - 5 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" }
     ];
 }
 
-// ── Read / Write reviews ──────────────────────────────────
+// ── Read reviews ──────────────────────────────────────────
 
 async function getReviews() {
     try {
@@ -108,7 +102,6 @@ async function getReviews() {
             const data = await response.json();
             const rows = data.values;
             if (!rows || rows.length <= 1) return getDefaultReviews();
-            // Columns: name, rating, review, date, pfp, reply, replyAuthor
             return rows.slice(1).map(row => ({
                 name: row[0] || '',
                 rating: parseInt(row[1]) || 5,
@@ -127,6 +120,8 @@ async function getReviews() {
     return getDefaultReviews();
 }
 
+// ── Save review ───────────────────────────────────────────
+
 async function saveReview(review) {
     if (APPS_SCRIPT_URL) {
         try {
@@ -144,6 +139,8 @@ async function saveReview(review) {
     return true;
 }
 
+// ── Save reply ────────────────────────────────────────────
+
 async function saveReply(reviewIndex, replyText, replyAuthor) {
     if (APPS_SCRIPT_URL) {
         try {
@@ -152,13 +149,18 @@ async function saveReply(reviewIndex, replyText, replyAuthor) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'ADD_REPLY', reviewIndex, reply: replyText, replyAuthor })
             });
-            if (response.ok) { console.log('Reply saved to Sheets'); return true; }
-        } catch (error) { console.log('Reply save failed'); }
+            if (response.ok) {
+                console.log('Reply saved');
+                return true;
+            }
+        } catch (error) {
+            console.log('Reply save failed:', error);
+        }
     }
     return false;
 }
 
-// ── Display ───────────────────────────────────────────────
+// ── Display reviews ───────────────────────────────────────
 
 async function displayReviews() {
     const container = document.getElementById('reviews-container');
@@ -179,22 +181,15 @@ async function displayReviews() {
     reviews.forEach((review, index) => {
         const card = document.createElement('div');
         card.className = 'review-card';
-        card.style.position = 'relative';
 
         const stars = generateStars(review.rating);
         const avatarHTML = buildAvatar(review.pfp || '', review.name);
 
-        // Reply section HTML
         const replyHTML = review.reply
             ? `<div class="review-reply">
                 <span class="review-reply-author">${sanitizeHTML(review.replyAuthor)} - Dev</span>
-                <p>${sanitizeHTML(review.reply)}</p>
+                <p style="margin:0;">${sanitizeHTML(review.reply)}</p>
                </div>`
-            : '';
-
-        // Reply button — only visible on hover for dev accounts
-        const replyBtnHTML = devUser && !review.reply
-            ? `<button class="review-reply-btn" data-index="${index}">Reply</button>`
             : '';
 
         card.innerHTML = `
@@ -208,58 +203,117 @@ async function displayReviews() {
             <p class="review-text">"${sanitizeHTML(review.review)}"</p>
             <p class="review-date">${formatDate(review.date)}</p>
             ${replyHTML}
-            ${replyBtnHTML}
             ${devUser && !review.reply ? `
-            <div class="review-reply-form" id="reply-form-${index}" style="display:none;">
-                <textarea class="review-reply-input" id="reply-input-${index}" placeholder="Write your reply..."></textarea>
-                <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-                    <button class="review-reply-submit" data-index="${index}">Post Reply</button>
-                    <button class="review-reply-cancel" data-index="${index}">Cancel</button>
+                <button class="am-reply-btn" style="
+                    margin-top:0.8rem;
+                    background:linear-gradient(135deg,#d946a6,#ec4899);
+                    color:white;
+                    border:none;
+                    padding:0.4rem 1rem;
+                    border-radius:50px;
+                    font-size:0.82rem;
+                    font-weight:600;
+                    cursor:pointer;
+                    font-family:'Poppins',sans-serif;
+                    box-shadow:0 2px 10px rgba(217,70,166,0.3);
+                ">Reply</button>
+                <div class="am-reply-form" style="display:none;margin-top:0.8rem;">
+                    <textarea class="am-reply-input" placeholder="Write your reply..." style="
+                        width:100%;
+                        padding:0.7rem 1rem;
+                        border:2px solid #f0a8d4;
+                        border-radius:10px;
+                        font-family:'Poppins',sans-serif;
+                        font-size:0.9rem;
+                        resize:vertical;
+                        min-height:70px;
+                        outline:none;
+                        box-sizing:border-box;
+                    "></textarea>
+                    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+                        <button class="am-reply-submit" style="
+                            background:linear-gradient(135deg,#d946a6,#ec4899);
+                            color:white;
+                            border:none;
+                            padding:0.5rem 1.2rem;
+                            border-radius:50px;
+                            font-size:0.85rem;
+                            font-weight:600;
+                            cursor:pointer;
+                            font-family:'Poppins',sans-serif;
+                        ">Post Reply</button>
+                        <button class="am-reply-cancel" style="
+                            background:#f0f0f0;
+                            color:#666;
+                            border:none;
+                            padding:0.5rem 1.2rem;
+                            border-radius:50px;
+                            font-size:0.85rem;
+                            font-weight:600;
+                            cursor:pointer;
+                            font-family:'Poppins',sans-serif;
+                        ">Cancel</button>
+                    </div>
                 </div>
-            </div>` : ''}
+            ` : ''}
         `;
 
         container.appendChild(card);
-    });
 
-    // Attach reply button events
-    if (devUser) {
-        container.querySelectorAll('.review-reply-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const idx = btn.getAttribute('data-index');
-                document.getElementById(`reply-form-${idx}`).style.display = 'block';
-                btn.style.display = 'none';
+        // Attach events directly to this card's elements right after appending
+        if (devUser && !review.reply) {
+            const replyBtn = card.querySelector('.am-reply-btn');
+            const replyForm = card.querySelector('.am-reply-form');
+            const replyInput = card.querySelector('.am-reply-input');
+            const submitBtn = card.querySelector('.am-reply-submit');
+            const cancelBtn = card.querySelector('.am-reply-cancel');
+
+            replyBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                replyForm.style.display = 'block';
+                replyBtn.style.display = 'none';
+                replyInput.focus();
             });
-        });
 
-        container.querySelectorAll('.review-reply-cancel').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const idx = btn.getAttribute('data-index');
-                document.getElementById(`reply-form-${idx}`).style.display = 'none';
-                container.querySelectorAll(`.review-reply-btn[data-index="${idx}"]`).forEach(b => b.style.display = '');
+            cancelBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                replyForm.style.display = 'none';
+                replyBtn.style.display = 'inline-block';
+                replyInput.value = '';
             });
-        });
 
-        container.querySelectorAll('.review-reply-submit').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const idx = parseInt(btn.getAttribute('data-index'));
-                const input = document.getElementById(`reply-input-${idx}`);
-                const replyText = input.value.trim();
+            submitBtn.addEventListener('click', async function(e) {
+                e.stopPropagation();
+                const replyText = replyInput.value.trim();
 
                 if (!replyText) { alert('Please write a reply first'); return; }
                 if (containsProfanity(replyText)) { alert('Reply contains inappropriate language'); return; }
 
-                btn.disabled = true;
-                btn.textContent = 'Posting...';
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Posting...';
 
                 const devUserData = getCurrentUser();
                 const replyAuthor = devUserData ? devUserData.name.split(' ')[0] : 'Dev';
 
-                await saveReply(idx, replyText, replyAuthor);
-                await displayReviews();
+                const saved = await saveReply(index, replyText, replyAuthor);
+
+                if (saved) {
+                    await displayReviews();
+                } else {
+                    // Show reply locally even if save failed
+                    replyForm.style.display = 'none';
+                    card.insertAdjacentHTML('beforeend', `
+                        <div class="review-reply">
+                            <span class="review-reply-author">${sanitizeHTML(replyAuthor)} - Dev</span>
+                            <p style="margin:0;">${sanitizeHTML(replyText)}</p>
+                        </div>
+                    `);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Post Reply';
+                }
             });
-        });
-    }
+        }
+    });
 }
 
 // ── Review submission ─────────────────────────────────────
@@ -280,12 +334,9 @@ async function handleReviewSubmit(event) {
     if (rating === 0 || isNaN(rating)) { alert('Please select a rating'); return; }
     if (!reviewTextarea.value.trim()) { alert('Please write a review'); return; }
 
-    // Validate email if provided
-    if (emailInput && emailInput.value.trim()) {
-        if (!isRealEmail(emailInput.value.trim())) {
-            alert('Please enter a valid email address');
-            return;
-        }
+    if (emailInput && emailInput.value.trim() && !isRealEmail(emailInput.value.trim())) {
+        alert('Please enter a valid email address');
+        return;
     }
 
     if (containsProfanity(nameInput.value) || containsProfanity(reviewTextarea.value)) {
@@ -342,7 +393,6 @@ async function handleReviewSubmit(event) {
             border: 2px solid rgba(217,70,166,0.25);
             display: block;
         }
-
         .review-reply {
             margin-top: 1rem;
             padding: 0.8rem 1rem;
@@ -352,7 +402,6 @@ async function handleReviewSubmit(event) {
             font-size: 0.9rem;
             color: #555;
         }
-
         .review-reply-author {
             font-weight: 700;
             color: #d946a6;
@@ -360,87 +409,9 @@ async function handleReviewSubmit(event) {
             display: block;
             margin-bottom: 0.3rem;
         }
-
-        .review-reply-btn {
-            display: none;
-            margin-top: 0.8rem;
-            background: linear-gradient(135deg, #d946a6, #ec4899);
-            color: white;
-            border: none;
-            padding: 0.4rem 1rem;
-            border-radius: 50px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(217,70,166,0.3);
-        }
-
-        .review-reply-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(217,70,166,0.4);
-        }
-
-        .review-reply-btn {
-            display: inline-block;
-        }
-
-        .review-reply-form {
-            margin-top: 0.8rem;
-        }
-
-        .review-reply-input {
-            width: 100%;
-            padding: 0.7rem 1rem;
-            border: 2px solid #f0a8d4;
-            border-radius: 10px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.9rem;
-            resize: vertical;
-            min-height: 70px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .review-reply-input:focus {
-            border-color: #d946a6;
+        .am-reply-input:focus {
+            border-color: #d946a6 !important;
             box-shadow: 0 0 0 3px rgba(217,70,166,0.1);
-        }
-
-        .review-reply-submit {
-            background: linear-gradient(135deg, #d946a6, #ec4899);
-            color: white;
-            border: none;
-            padding: 0.5rem 1.2rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-        }
-
-        .review-reply-submit:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(217,70,166,0.4);
-        }
-
-        .review-reply-cancel {
-            background: #f0f0f0;
-            color: #666;
-            border: none;
-            padding: 0.5rem 1.2rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-        }
-
-        .review-reply-cancel:hover {
-            background: #e0e0e0;
         }
     `;
     document.head.appendChild(style);
@@ -450,7 +421,6 @@ async function handleReviewSubmit(event) {
 
 document.addEventListener('DOMContentLoaded', function () {
     displayReviews();
-
     const reviewForm = document.getElementById('review-form');
     if (reviewForm) reviewForm.addEventListener('submit', handleReviewSubmit);
 });

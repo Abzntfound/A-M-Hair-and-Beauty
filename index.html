@@ -7,9 +7,7 @@
     <link rel="icon" href="A&M.ico">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="theme.css" id="theme-stylesheet">
-    
-    <!-- Content Security Policy -->
-<meta http-equiv="Content-Security-Policy" content="
+    <meta http-equiv="Content-Security-Policy" content="
         default-src 'self' https:;
         script-src 'self' 'nonce-A2Fc45' https://amhairandbeauty.com https://auth.amhairandbeauty.com https://shop.amhairandbeauty.com https://fonts.googleapis.com https://script.google.com https://api.sheetbest.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://amhairandbeauty.com https://auth.amhairandbeauty.com;
@@ -18,1210 +16,185 @@
         connect-src 'self' https://sheets.googleapis.com https://script.google.com https://amhairandbeauty.com https://auth.amhairandbeauty.com https://api.sheetbest.com;
         frame-src 'none';
     ">
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            overflow-x: hidden;
-            background: #fff;
-        }
-
-        /* Smooth scroll reveal animations */
-        .scroll-reveal {
-            opacity: 0;
-            transform: translateY(60px);
-            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .scroll-reveal.revealed {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .scroll-reveal-left {
-            opacity: 0;
-            transform: translateX(-80px);
-            transition: all 1.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .scroll-reveal-left.revealed {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .scroll-reveal-right {
-            opacity: 0;
-            transform: translateX(80px);
-            transition: all 1.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .scroll-reveal-right.revealed {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .scale-in {
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 1.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .scale-in.revealed {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        /* Header with smooth entrance */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0);
-            backdrop-filter: blur(0px);
-            padding: 1.5rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        header.scrolled {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            padding: 1rem 5%;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #1a1a1a;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            text-decoration: none;
-        }
-
-        .logo:hover {
-            transform: scale(1.05);
-        }
-
-        .logo img {
-            width: 40px;
-            height: 40px;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .logo:hover img {
-            transform: rotate(360deg);
-        }
-
-        nav {
-            display: flex;
-            gap: 2.5rem;
-            align-items: center;
-        }
-
-        nav a {
-            text-decoration: none;
-            color: #666;
-            font-weight: 500;
-            font-size: 0.95rem;
-            position: relative;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        nav a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 50%;
-            transform: translateX(-50%) scaleX(0);
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, #d946a6, #ec4899);
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        nav a:hover {
-            color: #d946a6;
-        }
-
-        nav a:hover::after {
-            transform: translateX(-50%) scaleX(1);
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        /* ── User dropdown ── */
-        .user-dropdown-wrapper {
-            position: relative;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            padding: 0.6rem 1.2rem;
-            border-radius: 50px;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            user-select: none;
-        }
-
-        .user-info:hover {
-            background: rgba(217, 70, 166, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .user-name {
-            font-weight: 600;
-            color: #d946a6;
-        }
-
-        /* The dropdown panel itself */
-        .user-dropdown-menu {
-            display: none;
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
-            min-width: 180px;
-            z-index: 2000;
-            overflow: hidden;
-            border: 1px solid rgba(217,70,166,0.15);
-            animation: dropdownFadeIn 0.2s ease;
-        }
-
-        .user-dropdown-menu.open {
-            display: block;
-        }
-
-        @keyframes dropdownFadeIn {
-            from { opacity: 0; transform: translateY(-8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .user-dropdown-menu a,
-        .user-dropdown-menu button {
-            display: block;
-            width: 100%;
-            padding: 0.85rem 1.3rem;
-            text-align: left;
-            background: none;
-            border: none;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #444;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background 0.2s ease, color 0.2s ease;
-        }
-
-        .user-dropdown-menu a:hover,
-        .user-dropdown-menu button:hover {
-            background: rgba(217,70,166,0.08);
-            color: #d946a6;
-        }
-
-        .user-dropdown-menu .dropdown-divider {
-            height: 1px;
-            background: #f0f0f0;
-            margin: 0.3rem 0;
-        }
-
-        .user-dropdown-menu .sign-out-btn {
-            color: #e53935;
-        }
-
-        .user-dropdown-menu .sign-out-btn:hover {
-            background: rgba(229,57,53,0.08);
-            color: #e53935;
-        }
-
-        /* END user dropdown */
-
-        .btn-primary {
-            background: linear-gradient(135deg, #d946a6 0%, #ec4899 100%);
-            color: white;
-            padding: 0.8rem 1.8rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(217, 70, 166, 0.3);
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-        }
-
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .btn-primary:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 30px rgba(217, 70, 166, 0.4);
-        }
-
-        /* Hero Section */
-        .hero {
-            position: relative;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 120px 5% 80px;
-            overflow: hidden;
-        }
-
-        .slideshow-background {
-            position: absolute;
-            inset: 0;
-            z-index: 0;
-        }
-
-        .slideshow-background::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, 
-                rgba(253, 242, 248, 0.7) 0%,
-                rgba(252, 231, 243, 0.8) 30%,
-                rgba(251, 207, 232, 0.85) 60%,
-                rgba(249, 168, 212, 0.9) 100%
-            );
-            z-index: 1;
-        }
-
-        .slide-image {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            transition: opacity 2.5s cubic-bezier(0.16, 1, 0.3, 1);
-            object-fit: cover;
-            width: 100%;
-            height: 100%;
-            transform: scale(1.1);
-        }
-
-        .slide-image.active {
-            opacity: 1;
-            animation: kenBurns 15s ease-out infinite;
-        }
-
-        @keyframes kenBurns {
-            0% { transform: scale(1.1) translateX(0); }
-            50% { transform: scale(1.15) translateX(-20px); }
-            100% { transform: scale(1.1) translateX(0); }
-        }
-
-        /* Gradient Bars with stagger animation */
-        .gradient-bars {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 50%;
-            display: flex;
-            align-items: flex-end;
-            justify-content: flex-end;
-            gap: 0;
-            z-index: 2;
-        }
-
-        .gradient-bar {
-            flex: 1;
-            background: linear-gradient(to bottom, 
-                rgba(236, 72, 153, 0) 0%,
-                rgba(236, 72, 153, 0.3) 30%,
-                rgba(236, 72, 153, 0.6) 60%,
-                rgba(236, 72, 153, 0.9) 100%
-            );
-            opacity: 0;
-            transform: translateY(100%);
-            animation: barSlideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .gradient-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
-        .gradient-bar:nth-child(2) { height: 50%; animation-delay: 0.2s; }
-        .gradient-bar:nth-child(3) { height: 65%; animation-delay: 0.3s; }
-        .gradient-bar:nth-child(4) { height: 75%; animation-delay: 0.4s; }
-        .gradient-bar:nth-child(5) { height: 85%; animation-delay: 0.5s; }
-        .gradient-bar:nth-child(6) { height: 90%; animation-delay: 0.6s; }
-        .gradient-bar:nth-child(7) { height: 95%; animation-delay: 0.7s; }
-        .gradient-bar:nth-child(8) { height: 100%; animation-delay: 0.8s; }
-
-        @keyframes barSlideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 10;
-            max-width: 750px;
-        }
-
-        .feature-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 0.6rem 1.3rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 2.5rem;
-            border: 1px solid rgba(219, 169, 200, 0.3);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
-        }
-
-        .feature-badge::before {
-            content: '✨';
-            font-size: 1rem;
-            animation: sparkle 2s ease-in-out infinite;
-        }
-
-        @keyframes sparkle {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.2) rotate(180deg); }
-        }
-
-        .hero h1 {
-            font-size: 5rem;
-            font-weight: 900;
-            color: #1a1a1a;
-            line-height: 1.05;
-            margin-bottom: 2rem;
-            letter-spacing: -3px;
-            opacity: 0;
-            transform: translateY(40px);
-            animation: fadeSlideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            color: #333;
-            line-height: 1.8;
-            margin-bottom: 3rem;
-            max-width: 650px;
-            font-weight: 400;
-            opacity: 0;
-            transform: translateY(40px);
-            animation: fadeSlideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 1.2rem;
-            flex-wrap: wrap;
-            opacity: 0;
-            transform: translateY(40px);
-            animation: fadeSlideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
-        }
-
-        @keyframes fadeSlideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #d946a6;
-            padding: 1rem 2.3rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 2px solid #d946a6;
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-        }
-
-        .btn-secondary::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: #d946a6;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease, height 0.6s ease;
-            z-index: -1;
-        }
-
-        .btn-secondary:hover::before {
-            width: 300%;
-            height: 300%;
-        }
-
-        .btn-secondary:hover {
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(217, 70, 166, 0.3);
-        }
-
-        /* Reviews Section */
-        .reviews-showcase {
-            padding: 120px 5% 100px;
-            background: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .reviews-showcase::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #f0f0f0, transparent);
-        }
-
-        .reviews-showcase h2 {
-            text-align: center;
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: #1a1a1a;
-            margin-bottom: 4rem;
-            letter-spacing: -2px;
-        }
-
-        .reviews-slider {
-            display: flex;
-            gap: 2.5rem;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            padding: 30px 0;
-            scrollbar-width: none;
-        }
-
-        .reviews-slider::-webkit-scrollbar {
-            display: none;
-        }
-
-        .review-card {
-            flex: 0 0 380px;
-            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
-            border-radius: 25px;
-            padding: 2.5rem;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
-            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-        }
-
-        .review-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 25px;
-            padding: 2px;
-            background: linear-gradient(135deg, #d946a6, #ec4899);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0;
-            transition: opacity 0.6s ease;
-        }
-
-        .review-card:hover::before {
-            opacity: 1;
-        }
-
-        .review-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 60px rgba(217, 70, 166, 0.25);
-        }
-
-        .review-header {
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .review-avatar {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #d946a6, #ec4899);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.3rem;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .review-card:hover .review-avatar {
-            transform: rotate(360deg) scale(1.1);
-        }
-
-        .review-info h3 {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        .review-rating {
-            color: #f59e0b;
-            font-size: 0.95rem;
-            letter-spacing: 2px;
-        }
-
-        .review-text {
-            color: #666;
-            line-height: 1.8;
-            font-size: 0.98rem;
-            margin-bottom: 1.2rem;
-        }
-
-        /* Products Section */
-        .products-section {
-            padding: 120px 5%;
-            background: linear-gradient(to bottom, white 0%, #fdf2f8 100%);
-        }
-
-        .section-header h2 {
-            text-align: center;
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: #1a1a1a;
-            margin-bottom: 1.5rem;
-            letter-spacing: -2px;
-        }
-
-        .section-header p {
-            text-align: center;
-            font-size: 1.2rem;
-            color: #666;
-            max-width: 650px;
-            margin: 0 auto 5rem;
-        }
-
-        .products-initial {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2.5rem;
-            max-width: 1300px;
-            margin: 0 auto 4rem;
-        }
-
-        #carousel-container {
-            display: none;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        #carousel {
-            display: flex;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            gap: 2.5rem;
-            padding: 30px 20px;
-            scrollbar-width: thin;
-            scrollbar-color: #d946a6 #f0f0f0;
-        }
-
-        .product-card {
-            background: white;
-            border-radius: 25px;
-            overflow: hidden;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
-            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-            cursor: pointer;
-            flex: 0 0 350px;
-            position: relative;
-        }
-
-        .product-card::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            background: linear-gradient(135deg, #d946a6, #ec4899);
-            border-radius: 25px;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.6s ease;
-        }
-
-        .product-card:hover::after {
-            opacity: 1;
-        }
-
-        .product-card:hover {
-            transform: translateY(-15px) scale(1.03);
-            box-shadow: 0 25px 70px rgba(217, 70, 166, 0.3);
-        }
-
-        .product-image {
-            width: 100%;
-            height: 320px;
-            object-fit: cover;
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .product-card:hover .product-image {
-            transform: scale(1.08);
-        }
-
-        .product-info {
-            padding: 2rem;
-            background: white;
-            position: relative;
-            z-index: 1;
-        }
-
-        .product-price {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #d946a6;
-            margin-bottom: 0.5rem;
-            transition: all 0.4s ease;
-        }
-
-        .product-card:hover .product-price {
-            transform: scale(1.05);
-        }
-
-        .product-name {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 1rem;
-        }
-
-        /* About Section */
-        .about-section {
-            padding: 120px 5%;
-            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .about-content {
-            max-width: 900px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .about-content h2 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: #1a1a1a;
-            margin-bottom: 3rem;
-            letter-spacing: -2px;
-        }
-
-        .about-content p {
-            font-size: 1.2rem;
-            color: #666;
-            line-height: 2;
-            margin-bottom: 2rem;
-        }
-
-        /* Mobile Menu */
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            z-index: 1001;
-        }
-
-        .mobile-menu-btn span {
-            display: block;
-            width: 25px;
-            height: 3px;
-            background: #d946a6;
-            margin: 5px 0;
-            transition: all 0.3s ease;
-            border-radius: 2px;
-        }
-
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 280px;
-            height: 100vh;
-            background: white;
-            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
-            z-index: 1002;
-            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            padding: 80px 2rem 2rem;
-        }
-
-        .mobile-menu.active {
-            right: 0;
-        }
-
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1001;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-        }
-
-        .mobile-menu-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .mobile-menu nav {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .mobile-menu nav a {
-            font-size: 1.1rem;
-            color: #333;
-            text-decoration: none;
-            padding: 0.8rem 0;
-            border-bottom: 1px solid #f0f0f0;
-            transition: all 0.3s ease;
-        }
-
-        .mobile-menu nav a:hover {
-            color: #d946a6;
-            padding-left: 10px;
-        }
-
-        .mobile-login-btn {
-            margin-top: 2rem;
-            background: linear-gradient(135deg, #d946a6 0%, #ec4899 100%);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            display: block;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(217, 70, 166, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .mobile-login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(217, 70, 166, 0.4);
-        }
-
-        /* Mobile sign-out button in mobile menu */
-        .mobile-signout-btn {
-            margin-top: 0.8rem;
-            background: none;
-            border: 2px solid #e53935;
-            color: #e53935;
-            padding: 0.9rem 2rem;
-            border-radius: 50px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
-            display: none; /* shown only when logged in */
-            width: 100%;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .mobile-signout-btn:hover {
-            background: #e53935;
-            color: white;
-        }
-
-        /* Mobile */
-        @media (max-width: 768px) {
-            nav { display: none; }
-            .mobile-menu-btn { display: block; }
-            .hero h1 { font-size: 2.8rem; letter-spacing: -1px; }
-            .hero p { font-size: 1.05rem; }
-            .gradient-bars { width: 100%; opacity: 0.6; }
-            .section-header h2, .about-content h2, .reviews-showcase h2 { font-size: 2.2rem; }
-            .user-name { display: none; }
-            .review-card { flex: 0 0 300px; }
-            .product-card { flex: 0 0 300px; }
-            .user-info img { display: none; }
-        }
-
-        /* Important Message */
-        #important-message {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            max-width: 420px;
-            padding: 2rem;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
-            display: none;
-            z-index: 1000;
-            border: 2px solid #f9a8d4;
-            animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        #important-message.show {
-            display: block;
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(500px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        #important-message button {
-            background: linear-gradient(135deg, #d946a6, #ec4899);
-            color: white;
-            border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 1.2rem;
-            width: 100%;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        #important-message button:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 25px rgba(217, 70, 166, 0.4);
-        }
-
-        /* Review Modal */
-        .review-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 2000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-
-        .review-modal-overlay.active {
-            display: flex;
-        }
-
-        .review-modal {
-            background: white;
-            border-radius: 25px;
-            padding: 3rem;
-            max-width: 550px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-        }
-
-        .discontinued p {
-            color: rgb(132, 153, 160);
-        }
-
-        @keyframes modalSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .review-modal h3 {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #1a1a1a;
-            margin-bottom: 0.5rem;
-        }
-
-        .review-modal p {
-            color: #666;
-            margin-bottom: 2rem;
-        }
-
-        .review-form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .review-form-group label {
-            display: block;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .review-form-group input,
-        .review-form-group textarea {
-            width: 100%;
-            padding: 0.9rem 1.2rem;
-            border: 2px solid #f0f0f0;
-            border-radius: 12px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        .review-form-group input:focus,
-        .review-form-group textarea:focus {
-            outline: none;
-            border-color: #d946a6;
-            box-shadow: 0 0 0 3px rgba(217, 70, 166, 0.1);
-        }
-
-        .review-form-group textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .star-rating {
-            display: flex;
-            gap: 0.5rem;
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .star-rating .star {
-            cursor: pointer;
-            color: #ddd;
-            transition: all 0.2s ease;
-        }
-
-        .star-rating .star:hover,
-        .star-rating .star.active {
-            color: #f59e0b;
-            transform: scale(1.1);
-        }
-
-        .review-modal-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .review-modal-close {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #999;
-            cursor: pointer;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .review-modal-close:hover {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-submit {
-            flex: 1;
-            background: linear-gradient(135deg, #d946a6 0%, #ec4899 100%);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            border: none;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            box-shadow: 0 4px 20px rgba(217, 70, 166, 0.3);
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(217, 70, 166, 0.4);
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-cancel {
-            flex: 1;
-            background: #f0f0f0;
-            color: #666;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            border: none;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-cancel:hover {
-            background: #e0e0e0;
-        }
-
-        .leave-review-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: linear-gradient(135deg, #d946a6 0%, #ec4899 100%);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(217, 70, 166, 0.3);
-            margin-top: 2rem;
-        }
-
-        .leave-review-btn:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 30px rgba(217, 70, 166, 0.4);
-        }
-
-        .success-message {
-            background: #10b981;
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            display: none;
-        }
-
-        .success-message.show {
-            display: block;
-            animation: slideDown 0.4s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Poppins', sans-serif; overflow-x: hidden; background: #fff; }
+
+        .scroll-reveal { opacity: 0; transform: translateY(60px); transition: all 1.2s cubic-bezier(0.16,1,0.3,1); }
+        .scroll-reveal.revealed { opacity: 1; transform: translateY(0); }
+        .scroll-reveal-left { opacity: 0; transform: translateX(-80px); transition: all 1.4s cubic-bezier(0.16,1,0.3,1); }
+        .scroll-reveal-left.revealed { opacity: 1; transform: translateX(0); }
+        .scroll-reveal-right { opacity: 0; transform: translateX(80px); transition: all 1.4s cubic-bezier(0.16,1,0.3,1); }
+        .scroll-reveal-right.revealed { opacity: 1; transform: translateX(0); }
+        .scale-in { opacity: 0; transform: scale(0.8); transition: all 1.3s cubic-bezier(0.16,1,0.3,1); }
+        .scale-in.revealed { opacity: 1; transform: scale(1); }
+
+        header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(255,255,255,0); backdrop-filter: blur(0px); padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center; transition: all 0.6s cubic-bezier(0.16,1,0.3,1); }
+        header.scrolled { background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); padding: 1rem 5%; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
+        .logo { font-size: 1.5rem; font-weight: 800; color: #1a1a1a; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); text-decoration: none; }
+        .logo:hover { transform: scale(1.05); }
+        .logo img { width: 40px; height: 40px; transition: all 0.5s cubic-bezier(0.16,1,0.3,1); }
+        .logo:hover img { transform: rotate(360deg); }
+        nav { display: flex; gap: 2.5rem; align-items: center; }
+        nav a { text-decoration: none; color: #666; font-weight: 500; font-size: 0.95rem; position: relative; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); }
+        nav a::after { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%) scaleX(0); width: 100%; height: 2px; background: linear-gradient(90deg,#d946a6,#ec4899); transition: transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+        nav a:hover { color: #d946a6; }
+        nav a:hover::after { transform: translateX(-50%) scaleX(1); }
+        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .user-dropdown-wrapper { position: relative; }
+        .user-info { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.6rem 1.2rem; border-radius: 50px; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); user-select: none; }
+        .user-info:hover { background: rgba(217,70,166,0.1); transform: translateY(-2px); }
+        .user-name { font-weight: 600; color: #d946a6; }
+        .user-dropdown-menu { display: none; position: absolute; top: calc(100% + 10px); right: 0; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); min-width: 180px; z-index: 2000; overflow: hidden; border: 1px solid rgba(217,70,166,0.15); animation: dropdownFadeIn 0.2s ease; }
+        .user-dropdown-menu.open { display: block; }
+        @keyframes dropdownFadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .user-dropdown-menu a, .user-dropdown-menu button { display: block; width: 100%; padding: 0.85rem 1.3rem; text-align: left; background: none; border: none; font-family: 'Poppins',sans-serif; font-size: 0.9rem; font-weight: 500; color: #444; cursor: pointer; text-decoration: none; transition: background 0.2s ease, color 0.2s ease; }
+        .user-dropdown-menu a:hover, .user-dropdown-menu button:hover { background: rgba(217,70,166,0.08); color: #d946a6; }
+        .user-dropdown-menu .dropdown-divider { height: 1px; background: #f0f0f0; margin: 0.3rem 0; }
+        .user-dropdown-menu .sign-out-btn { color: #e53935; }
+        .user-dropdown-menu .sign-out-btn:hover { background: rgba(229,57,53,0.08); color: #e53935; }
+        .btn-primary { background: linear-gradient(135deg,#d946a6 0%,#ec4899 100%); color: white; padding: 0.8rem 1.8rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.5s cubic-bezier(0.16,1,0.3,1); border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(217,70,166,0.3); position: relative; overflow: hidden; display: inline-block; }
+        .btn-primary::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent); transition: left 0.6s ease; }
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 30px rgba(217,70,166,0.4); }
+        .hero { position: relative; min-height: 100vh; display: flex; align-items: center; padding: 120px 5% 80px; overflow: hidden; }
+        .slideshow-background { position: absolute; inset: 0; z-index: 0; }
+        .slideshow-background::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom,rgba(253,242,248,0.7) 0%,rgba(252,231,243,0.8) 30%,rgba(251,207,232,0.85) 60%,rgba(249,168,212,0.9) 100%); z-index: 1; }
+        .slide-image { position: absolute; inset: 0; opacity: 0; transition: opacity 2.5s cubic-bezier(0.16,1,0.3,1); object-fit: cover; width: 100%; height: 100%; transform: scale(1.1); }
+        .slide-image.active { opacity: 1; animation: kenBurns 15s ease-out infinite; }
+        @keyframes kenBurns { 0% { transform: scale(1.1) translateX(0); } 50% { transform: scale(1.15) translateX(-20px); } 100% { transform: scale(1.1) translateX(0); } }
+        .gradient-bars { position: absolute; right: 0; top: 0; bottom: 0; width: 50%; display: flex; align-items: flex-end; justify-content: flex-end; z-index: 2; }
+        .gradient-bar { flex: 1; background: linear-gradient(to bottom,rgba(236,72,153,0) 0%,rgba(236,72,153,0.3) 30%,rgba(236,72,153,0.6) 60%,rgba(236,72,153,0.9) 100%); opacity: 0; transform: translateY(100%); animation: barSlideUp 1.2s cubic-bezier(0.16,1,0.3,1) forwards; }
+        .gradient-bar:nth-child(1){height:40%;animation-delay:0.1s} .gradient-bar:nth-child(2){height:50%;animation-delay:0.2s} .gradient-bar:nth-child(3){height:65%;animation-delay:0.3s} .gradient-bar:nth-child(4){height:75%;animation-delay:0.4s} .gradient-bar:nth-child(5){height:85%;animation-delay:0.5s} .gradient-bar:nth-child(6){height:90%;animation-delay:0.6s} .gradient-bar:nth-child(7){height:95%;animation-delay:0.7s} .gradient-bar:nth-child(8){height:100%;animation-delay:0.8s}
+        @keyframes barSlideUp { to { opacity:1; transform:translateY(0); } }
+        .hero-content { position: relative; z-index: 10; max-width: 750px; }
+        .feature-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.95); padding: 0.6rem 1.3rem; border-radius: 50px; font-size: 0.85rem; color: #666; margin-bottom: 2.5rem; border: 1px solid rgba(219,169,200,0.3); box-shadow: 0 4px 20px rgba(0,0,0,0.08); opacity: 0; transform: translateY(30px); animation: fadeSlideUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.3s forwards; }
+        .feature-badge::before { content: '✨'; font-size: 1rem; animation: sparkle 2s ease-in-out infinite; }
+        @keyframes sparkle { 0%,100% { transform:scale(1) rotate(0deg); } 50% { transform:scale(1.2) rotate(180deg); } }
+        .hero h1 { font-size: 5rem; font-weight: 900; color: #1a1a1a; line-height: 1.05; margin-bottom: 2rem; letter-spacing: -3px; opacity: 0; transform: translateY(40px); animation: fadeSlideUp 1s cubic-bezier(0.16,1,0.3,1) 0.5s forwards; }
+        .hero p { font-size: 1.3rem; color: #333; line-height: 1.8; margin-bottom: 3rem; max-width: 650px; font-weight: 400; opacity: 0; transform: translateY(40px); animation: fadeSlideUp 1s cubic-bezier(0.16,1,0.3,1) 0.7s forwards; }
+        .hero-actions { display: flex; gap: 1.2rem; flex-wrap: wrap; opacity: 0; transform: translateY(40px); animation: fadeSlideUp 1s cubic-bezier(0.16,1,0.3,1) 0.9s forwards; }
+        @keyframes fadeSlideUp { to { opacity:1; transform:translateY(0); } }
+        .btn-secondary { background: white; color: #d946a6; padding: 1rem 2.3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.5s cubic-bezier(0.16,1,0.3,1); border: 2px solid #d946a6; position: relative; overflow: hidden; display: inline-block; }
+        .btn-secondary::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: #d946a6; transform: translate(-50%,-50%); transition: width 0.6s ease, height 0.6s ease; z-index: -1; }
+        .btn-secondary:hover::before { width: 300%; height: 300%; }
+        .btn-secondary:hover { color: white; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(217,70,166,0.3); }
+        .reviews-showcase { padding: 120px 5% 100px; background: white; position: relative; overflow: hidden; }
+        .reviews-showcase::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg,transparent,#f0f0f0,transparent); }
+        .reviews-showcase h2 { text-align: center; font-size: 3.5rem; font-weight: 800; color: #1a1a1a; margin-bottom: 4rem; letter-spacing: -2px; }
+        .reviews-slider { display: flex; gap: 2.5rem; overflow-x: auto; scroll-behavior: smooth; padding: 30px 0; scrollbar-width: none; }
+        .reviews-slider::-webkit-scrollbar { display: none; }
+        .review-card { flex: 0 0 380px; background: linear-gradient(135deg,#fdf2f8 0%,#fce7f3 100%); border-radius: 25px; padding: 2.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.06); transition: all 0.6s cubic-bezier(0.16,1,0.3,1); position: relative; }
+        .review-card::before { content: ''; position: absolute; inset: 0; border-radius: 25px; padding: 2px; background: linear-gradient(135deg,#d946a6,#ec4899); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0; transition: opacity 0.6s ease; }
+        .review-card:hover::before { opacity: 1; }
+        .review-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 60px rgba(217,70,166,0.25); }
+        .review-header { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.5rem; }
+        .review-avatar { width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg,#d946a6,#ec4899); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.3rem; transition: all 0.5s cubic-bezier(0.16,1,0.3,1); }
+        .review-card:hover .review-avatar { transform: rotate(360deg) scale(1.1); }
+        .review-info h3 { font-size: 1.15rem; font-weight: 600; color: #1a1a1a; }
+        .review-rating { color: #f59e0b; font-size: 0.95rem; letter-spacing: 2px; }
+        .review-text { color: #666; line-height: 1.8; font-size: 0.98rem; margin-bottom: 1.2rem; }
+        .products-section { padding: 120px 5%; background: linear-gradient(to bottom,white 0%,#fdf2f8 100%); }
+        .section-header h2 { text-align: center; font-size: 3.5rem; font-weight: 800; color: #1a1a1a; margin-bottom: 1.5rem; letter-spacing: -2px; }
+        .section-header p { text-align: center; font-size: 1.2rem; color: #666; max-width: 650px; margin: 0 auto 5rem; }
+        .products-initial { display: grid; grid-template-columns: repeat(auto-fit,minmax(320px,1fr)); gap: 2.5rem; max-width: 1300px; margin: 0 auto 4rem; }
+        #carousel-container { display: none; width: 100%; margin-top: 20px; }
+        #carousel { display: flex; overflow-x: auto; scroll-behavior: smooth; gap: 2.5rem; padding: 30px 20px; scrollbar-width: thin; scrollbar-color: #d946a6 #f0f0f0; }
+        .product-card { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 50px rgba(0,0,0,0.08); transition: all 0.7s cubic-bezier(0.16,1,0.3,1); cursor: pointer; flex: 0 0 350px; position: relative; }
+        .product-card::after { content: ''; position: absolute; inset: -2px; background: linear-gradient(135deg,#d946a6,#ec4899); border-radius: 25px; z-index: -1; opacity: 0; transition: opacity 0.6s ease; }
+        .product-card:hover::after { opacity: 1; }
+        .product-card:hover { transform: translateY(-15px) scale(1.03); box-shadow: 0 25px 70px rgba(217,70,166,0.3); }
+        .product-image { width: 100%; height: 320px; object-fit: cover; transition: all 0.8s cubic-bezier(0.16,1,0.3,1); }
+        .product-card:hover .product-image { transform: scale(1.08); }
+        .product-info { padding: 2rem; background: white; position: relative; z-index: 1; }
+        .product-price { font-size: 2rem; font-weight: 800; color: #d946a6; margin-bottom: 0.5rem; transition: all 0.4s ease; }
+        .product-card:hover .product-price { transform: scale(1.05); }
+        .product-name { font-size: 1.4rem; font-weight: 700; color: #1a1a1a; margin-bottom: 1rem; }
+        .about-section { padding: 120px 5%; background: linear-gradient(135deg,#fdf2f8 0%,#fce7f3 100%); position: relative; overflow: hidden; }
+        .about-content { max-width: 900px; margin: 0 auto; text-align: center; }
+        .about-content h2 { font-size: 3.5rem; font-weight: 800; color: #1a1a1a; margin-bottom: 3rem; letter-spacing: -2px; }
+        .about-content p { font-size: 1.2rem; color: #666; line-height: 2; margin-bottom: 2rem; }
+        .mobile-menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; z-index: 1001; }
+        .mobile-menu-btn span { display: block; width: 25px; height: 3px; background: #d946a6; margin: 5px 0; transition: all 0.3s ease; border-radius: 2px; }
+        .mobile-menu { position: fixed; top: 0; right: -100%; width: 280px; height: 100vh; background: white; box-shadow: -5px 0 20px rgba(0,0,0,0.1); z-index: 1002; transition: right 0.4s cubic-bezier(0.16,1,0.3,1); padding: 80px 2rem 2rem; }
+        .mobile-menu.active { right: 0; }
+        .mobile-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1001; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+        .mobile-menu-overlay.active { opacity: 1; pointer-events: all; }
+        .mobile-menu nav { display: flex; flex-direction: column; gap: 1.5rem; }
+        .mobile-menu nav a { font-size: 1.1rem; color: #333; text-decoration: none; padding: 0.8rem 0; border-bottom: 1px solid #f0f0f0; transition: all 0.3s ease; }
+        .mobile-menu nav a:hover { color: #d946a6; padding-left: 10px; }
+        .mobile-login-btn { margin-top: 2rem; background: linear-gradient(135deg,#d946a6 0%,#ec4899 100%); color: white; padding: 1rem 2rem; border-radius: 50px; text-decoration: none; font-weight: 600; display: block; text-align: center; box-shadow: 0 4px 20px rgba(217,70,166,0.3); transition: all 0.3s ease; }
+        .mobile-login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(217,70,166,0.4); }
+        .mobile-signout-btn { margin-top: 0.8rem; background: none; border: 2px solid #e53935; color: #e53935; padding: 0.9rem 2rem; border-radius: 50px; font-family: 'Poppins',sans-serif; font-weight: 600; font-size: 1rem; display: none; width: 100%; cursor: pointer; text-align: center; transition: all 0.3s ease; }
+        .mobile-signout-btn:hover { background: #e53935; color: white; }
+        @media (max-width:768px) { nav{display:none} .mobile-menu-btn{display:block} .hero h1{font-size:2.8rem;letter-spacing:-1px} .hero p{font-size:1.05rem} .gradient-bars{width:100%;opacity:0.6} .section-header h2,.about-content h2,.reviews-showcase h2{font-size:2.2rem} .user-name{display:none} .review-card{flex:0 0 300px} .product-card{flex:0 0 300px} .user-info img{display:none} }
+        #important-message { position: fixed; bottom: 30px; right: 30px; max-width: 420px; padding: 2rem; background: white; border-radius: 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.15); display: none; z-index: 1000; border: 2px solid #f9a8d4; animation: slideInRight 0.8s cubic-bezier(0.16,1,0.3,1); }
+        #important-message.show { display: block; }
+        @keyframes slideInRight { from { transform:translateX(500px);opacity:0; } to { transform:translateX(0);opacity:1; } }
+        #important-message button { background: linear-gradient(135deg,#d946a6,#ec4899); color: white; border: none; padding: 0.8rem 2rem; border-radius: 50px; font-weight: 600; cursor: pointer; margin-top: 1.2rem; width: 100%; transition: all 0.5s cubic-bezier(0.16,1,0.3,1); }
+        #important-message button:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(217,70,166,0.4); }
+        .review-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .review-modal-overlay.active { display: flex; }
+        .review-modal { background: white; border-radius: 25px; padding: 3rem; max-width: 550px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalSlideUp 0.4s cubic-bezier(0.16,1,0.3,1); position: relative; }
+        .discontinued p { color: rgb(132,153,160); }
+        @keyframes modalSlideUp { from { opacity:0;transform:translateY(50px); } to { opacity:1;transform:translateY(0); } }
+        .review-modal h3 { font-size: 2rem; font-weight: 800; color: #1a1a1a; margin-bottom: 0.5rem; }
+        .review-modal p { color: #666; margin-bottom: 2rem; }
+        .review-form-group { margin-bottom: 1.5rem; }
+        .review-form-group label { display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem; }
+        .review-form-group input, .review-form-group textarea { width: 100%; padding: 0.9rem 1.2rem; border: 2px solid #f0f0f0; border-radius: 12px; font-family: 'Poppins',sans-serif; font-size: 0.95rem; transition: all 0.3s ease; }
+        .review-form-group input:focus, .review-form-group textarea:focus { outline: none; border-color: #d946a6; box-shadow: 0 0 0 3px rgba(217,70,166,0.1); }
+        .review-form-group textarea { min-height: 120px; resize: vertical; }
+        .star-rating { display: flex; gap: 0.5rem; font-size: 2rem; margin-bottom: 1rem; }
+        .star-rating .star { cursor: pointer; color: #ddd; transition: all 0.2s ease; }
+        .star-rating .star:hover, .star-rating .star.active { color: #f59e0b; transform: scale(1.1); }
+        .review-modal-actions { display: flex; gap: 1rem; margin-top: 2rem; }
+        .review-modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease; }
+        .review-modal-close:hover { background: #f0f0f0; color: #333; }
+        .btn-submit { flex: 1; background: linear-gradient(135deg,#d946a6 0%,#ec4899 100%); color: white; padding: 1rem 2rem; border-radius: 50px; border: none; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.4s ease; box-shadow: 0 4px 20px rgba(217,70,166,0.3); }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(217,70,166,0.4); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-cancel { flex: 1; background: #f0f0f0; color: #666; padding: 1rem 2rem; border-radius: 50px; border: none; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; }
+        .btn-cancel:hover { background: #e0e0e0; }
+        .leave-review-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg,#d946a6 0%,#ec4899 100%); color: white; padding: 1rem 2rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: all 0.5s cubic-bezier(0.16,1,0.3,1); border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(217,70,166,0.3); margin-top: 2rem; }
+        .leave-review-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 30px rgba(217,70,166,0.4); }
+        .success-message { background: #10b981; color: white; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 1rem; display: none; }
+        .success-message.show { display: block; animation: slideDown 0.4s ease; }
+        @keyframes slideDown { from { opacity:0;transform:translateY(-10px); } to { opacity:1;transform:translateY(0); } }
     </style>
 </head>
 <body>
 
-<!-- Header -->
 <header id="header">
     <a href="https://www.amhairandbeauty.com" class="logo">
-        <img src="A&M.png" alt="A&M">
-        <span>A&M Hair & Beauty</span>
+        <img src="A&M.png" alt="A&M"><span>A&M Hair & Beauty</span>
     </a>
-
     <nav>
         <a href="#products">Products</a>
         <a href="#about">About</a>
         <a href="#reviews">Reviews</a>
         <a href="https://shop.amhairandbeauty.com">Shop</a>
     </nav>
-
     <div class="header-actions">
         <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">
-            <span></span>
-            <span></span>
-            <span></span>
+            <span></span><span></span><span></span>
         </button>
-
-        <!-- FIX: Wrapped user-info in a dropdown wrapper -->
         <div class="user-dropdown-wrapper" id="user-dropdown-wrapper">
             <div class="user-info" id="user-header">
                 <img src="user.png" alt="User" width="24" height="24">
                 <span id="user-display-name" class="user-name">Sign In</span>
             </div>
-            <!-- Dropdown: only visible when logged in -->
             <div class="user-dropdown-menu" id="user-dropdown-menu">
                 <a href="https://auth.amhairandbeauty.com">My Account</a>
                 <div class="dropdown-divider"></div>
                 <button class="sign-out-btn" id="sign-out-btn">Sign Out</button>
             </div>
         </div>
-
         <a href="https://shop.amhairandbeauty.com/cart/" class="btn-primary">Basket</a>
     </div>
 </header>
 
-<!-- Mobile Menu -->
 <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
 <div class="mobile-menu" id="mobile-menu">
     <nav>
@@ -1231,29 +204,21 @@
         <a href="https://shop.amhairandbeauty.com">Shop</a>
     </nav>
     <a href="#" class="mobile-login-btn" id="mobile-login-btn">Sign In</a>
-    <!-- FIX: Mobile sign-out button (shown only when logged in) -->
     <button class="mobile-signout-btn" id="mobile-signout-btn">Sign Out</button>
 </div>
 
-<!-- Hero Section -->
 <section class="hero">
     <div class="slideshow-background">
         <img src="small hair oil.jpg" class="slide-image active" alt="Product 1">
         <img src="good bonnet.jpg" class="slide-image" alt="Product 2">
         <img src="tumeric.jpg" class="slide-image" alt="Product 3">
     </div>
-
     <div class="gradient-bars">
-        <div class="gradient-bar"></div>
-        <div class="gradient-bar"></div>
-        <div class="gradient-bar"></div>
-        <div class="gradient-bar"></div>
-        <div class="gradient-bar"></div>
-        <div class="gradient-bar"></div>
-        <div class="gradient-bar"></div>
-        <div class="gradient-bar"></div>
+        <div class="gradient-bar"></div><div class="gradient-bar"></div>
+        <div class="gradient-bar"></div><div class="gradient-bar"></div>
+        <div class="gradient-bar"></div><div class="gradient-bar"></div>
+        <div class="gradient-bar"></div><div class="gradient-bar"></div>
     </div>
-
     <div class="hero-content">
         <div class="feature-badge">Natural Hair Care Solutions</div>
         <h1>Beautiful Hair,<br>Made Effortlessly.</h1>
@@ -1265,27 +230,19 @@
     </div>
 </section>
 
-<!-- Reviews Section -->
 <section class="reviews-showcase scroll-reveal" id="reviews">
     <h2>What Our Customers Say ⭐</h2>
-    <div class="reviews-slider" id="reviews-container">
-        <!-- Reviews will be loaded here by reviews.js -->
-    </div>
-    
-    <div style="text-align: center;">
-        <button class="leave-review-btn" id="leave-review-btn">
-            ✍️ Leave a Review
-        </button>
+    <div class="reviews-slider" id="reviews-container"></div>
+    <div style="text-align:center;">
+        <button class="leave-review-btn" id="leave-review-btn">✍️ Leave a Review</button>
     </div>
 </section>
 
-<!-- Products Section -->
 <section class="products-section" id="products">
     <div class="section-header scroll-reveal">
         <h2>Our Products</h2>
         <p>Discover our complete collection of premium hair care essentials</p>
     </div>
-
     <div class="products-initial" id="products-initial">
         <div class="product-card scroll-reveal-left" data-product="product1">
             <img src="big hair oil.jpg" alt="Hair Growth Oil" class="product-image">
@@ -1295,7 +252,6 @@
                 <p class="product-description">100ml premium formula that promotes healthy scalp and adds brilliant shine</p>
             </div>
         </div>
-
         <div class="product-card scale-in" data-product="product2">
             <img src="good bonnet.jpg" alt="Satin Bonnet" class="product-image">
             <div class="product-info">
@@ -1304,7 +260,6 @@
                 <p class="product-description">Locks in moisture, prevents breakage, suitable for all hair types</p>
             </div>
         </div>
-
         <div class="product-card scroll-reveal-right" data-product="product3">
             <img src="small hair oil.jpg" alt="Hair Oil" class="product-image">
             <div class="product-info">
@@ -1313,78 +268,62 @@
                 <p class="product-description">60ml concentrated formula for growth and strength with natural ingredients</p>
             </div>
         </div>
-
-        <!-- Valentine's Hampers -->
         <div class="scroll-reveal-left">
             <img src="valentinehamper.png" alt="Valentine Hamper" class="product-image">
             <div class="product-info">
-                <p class="discontinued" style="color: rgb(132, 153, 160);">*discontinued*</p>
+                <p class="discontinued" style="color:rgb(132,153,160);">*discontinued*</p>
                 <div class="product-price">£39.99</div>
                 <div class="product-name">Valentine Hamper</div>
                 <p class="product-description">Perfect gift set for hair care - suitable for all hair types</p>
             </div>
         </div>
-
         <div class="scale-in">
             <img src="IMG_1753.png" alt="Valentine Hamper 2" class="product-image">
             <div class="product-info">
-                <p class="discontinued" style="color: rgb(132, 153, 160);">*discontinued*</p>
+                <p class="discontinued" style="color:rgb(132,153,160);">*discontinued*</p>
                 <div class="product-price">£49.99</div>
                 <div class="product-name">Valentine Hamper +</div>
                 <p class="product-description">Premium hair care bundle - the perfect Valentine's gift</p>
             </div>
         </div>
     </div>
-
-    <div style="text-align: center; margin-bottom: 3rem;" class="scroll-reveal">
-        <button class="btn-primary" id="show-more-btn" style="padding: 1.2rem 3.5rem; font-size: 1.1rem;">Show More Products</button>
+    <div style="text-align:center;margin-bottom:3rem;" class="scroll-reveal">
+        <button class="btn-primary" id="show-more-btn" style="padding:1.2rem 3.5rem;font-size:1.1rem;">Show More Products</button>
     </div>
-
-    <div id="carousel-container">
-        <div id="carousel"></div>
-    </div>
+    <div id="carousel-container"><div id="carousel"></div></div>
 </section>
 
-<!-- About Section -->
 <section class="about-section scroll-reveal" id="about">
     <div class="about-content">
         <h2>Our Story</h2>
         <p>At A&M Hair Beauty, our journey began from personal experience. My hair was breaking, dry, and seemed impossible to grow no matter what I tried.</p>
         <p>Through dedication and belief, I developed a blend that transformed my hair—making it longer, stronger, and full of shine.</p>
         <p>A&M Hair Beauty was born from a passion to help people regain confidence in their natural beauty.</p>
-        <p style="font-weight: 700; color: #d946a6; font-size: 1.3rem; margin-top: 2rem;">We believe that when your hair is healthy, you feel empowered. 🌿✨</p>
+        <p style="font-weight:700;color:#d946a6;font-size:1.3rem;margin-top:2rem;">We believe that when your hair is healthy, you feel empowered. 🌿✨</p>
     </div>
 </section>
 
-<!-- Important Message -->
 <div id="important-message">
-    <p style="color: #333; font-weight: 700; margin-bottom: 0.5rem; font-size: 1.1rem;">💡 Shopping Tip</p>
-    <p style="color: #666; font-size: 0.95rem; line-height: 1.6;">Once you've added products to your basket, click the back arrow to continue shopping.</p>
+    <p style="color:#333;font-weight:700;margin-bottom:0.5rem;font-size:1.1rem;">💡 Shopping Tip</p>
+    <p style="color:#666;font-size:0.95rem;line-height:1.6;">Once you've added products to your basket, click the back arrow to continue shopping.</p>
     <button id="dismiss-message-btn">Got it!</button>
 </div>
 
-<!-- Review Modal -->
 <div class="review-modal-overlay" id="review-modal-overlay">
     <div class="review-modal">
         <button class="review-modal-close" id="review-modal-close">✕</button>
         <h3>Leave a Review ⭐</h3>
         <p>Share your experience with A&M Hair & Beauty</p>
-        
-        <div class="success-message" id="review-success-message">
-            ✓ Thank you! Your review has been submitted successfully.
-        </div>
-        
+        <div class="success-message" id="review-success-message">✓ Thank you! Your review has been submitted successfully.</div>
         <form id="review-form">
             <div class="review-form-group">
                 <label for="review-name">Your Name *</label>
                 <input type="text" id="review-name" name="name" required placeholder="Enter your name">
             </div>
-            
             <div class="review-form-group">
                 <label for="review-email">Email (optional)</label>
                 <input type="email" id="review-email" name="email" placeholder="your@email.com">
             </div>
-            
             <div class="review-form-group">
                 <label>Rating *</label>
                 <div class="star-rating" id="star-rating">
@@ -1396,12 +335,10 @@
                 </div>
                 <input type="hidden" id="review-rating" name="rating" required>
             </div>
-            
             <div class="review-form-group">
                 <label for="review-text">Your Review *</label>
                 <textarea id="review-text" name="review" required placeholder="Tell us about your experience..."></textarea>
             </div>
-            
             <div class="review-modal-actions">
                 <button type="button" class="btn-cancel" id="review-cancel-btn">Cancel</button>
                 <button type="submit" class="btn-submit" id="review-submit-btn">Submit Review</button>
@@ -1410,439 +347,236 @@
     </div>
 </div>
 
-<!-- Scripts -->
 <script nonce="A2Fc45" src="https://amhairandbeauty.com/error-handler.js"></script>
 
 <script nonce="A2Fc45">
-// ===== AUTHENTICATION SYSTEM =====
-const AUTH_API_URL = 'https://auth.amhairandbeauty.com/api';
+const AUTH_API_URL   = 'https://auth.amhairandbeauty.com/api';
 const AUTH_LOGIN_URL = 'https://auth.amhairandbeauty.com';
 
-// ===== THEME SYSTEM =====
 function loadTheme() {
     let theme = null;
-    
-    const userData = localStorage.getItem('amUserData');
-    if (userData) {
-        try {
-            const user = JSON.parse(userData);
-            if (user.darkMode !== undefined) {
-                theme = user.darkMode ? 'dark' : 'light';
-            }
-        } catch (e) {}
-    }
-    
-    if (!theme) {
-        const cookieTheme = getCookie('amTheme');
-        if (cookieTheme) theme = cookieTheme;
-    }
-    
-    if (!theme) {
-        theme = localStorage.getItem('amTheme') || 'light';
-    }
-    
+    const raw = localStorage.getItem('amUserData');
+    if (raw) { try { const u = JSON.parse(raw); if (u.darkMode !== undefined) theme = u.darkMode ? 'dark' : 'light'; } catch(e){} }
+    if (!theme) { const c = getCookie('amTheme'); if (c) theme = c; }
+    if (!theme) theme = localStorage.getItem('amTheme') || 'light';
     applyTheme(theme);
 }
-
-function applyTheme(theme) {
-    const html = document.documentElement;
-    if (theme === 'dark') {
-        html.setAttribute('data-theme', 'dark');
-    } else {
-        html.removeAttribute('data-theme');
-    }
+function applyTheme(t) {
+    if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+    else document.documentElement.removeAttribute('data-theme');
 }
-
 function getCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1);
-        if (c.indexOf(nameEQ) === 0) {
-            return decodeURIComponent(c.substring(nameEQ.length));
-        }
+    const eq = name + '=';
+    for (let c of document.cookie.split(';')) {
+        c = c.trimStart();
+        if (c.startsWith(eq)) return decodeURIComponent(c.slice(eq.length));
     }
     return null;
 }
 
-// ── FIX: Single unified logout that clears EVERY storage location ──
+// ── Full logout: wipe every local trace ──
 function handleLogout() {
-    // Clear localStorage keys
-    localStorage.removeItem('amUserData');
-    localStorage.removeItem('amToken');
-    localStorage.removeItem('amSession');
-    localStorage.removeItem('amTheme');
-
-    // Expire cookie with AND without domain (covers both set scenarios)
-    const expiry = 'expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'amUserData=; ' + expiry;
-    document.cookie = 'amUserData=; ' + expiry + ' domain=.amhairandbeauty.com;';
-    document.cookie = 'amUserData=; ' + expiry + ' domain=amhairandbeauty.com;';
-
-    // Refresh UI
+    ['amUserData','amToken','amSession','amTheme'].forEach(k => localStorage.removeItem(k));
+    const exp = 'expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'amUserData=; ' + exp;
+    document.cookie = 'amUserData=; ' + exp + ' domain=.amhairandbeauty.com;';
+    document.cookie = 'amUserData=; ' + exp + ' domain=amhairandbeauty.com;';
     updateUIForLoggedOutUser();
-
-    // Tell reviews.js to re-render (hides dev reply buttons)
     if (typeof displayReviews === 'function') displayReviews();
 }
-
-// Expose so reviews.js / other scripts can call it too
 window.handleLogout = handleLogout;
 
-// Check if user is logged in
-async function checkAuthStatus() {
+// ── FIX: Verify session with auth server on page load ──
+// If you logged out on auth.amhairandbeauty.com the server session is gone.
+// We ask the server "is this user still valid?" — if not, wipe local data.
+async function verifySession(user) {
     try {
-        const userData    = localStorage.getItem('amUserData');
-        const cookieUserData = getCookie('amUserData');
-
-        if (userData) {
-            try {
-                const user = JSON.parse(userData);
-                if (user && user.email) {
-                    updateUIForLoggedInUser(user);
-                    if (user.darkMode !== undefined) applyTheme(user.darkMode ? 'dark' : 'light');
-                    return user;
-                }
-            } catch (e) {}
-        }
-
-        if (!userData && cookieUserData) {
-            try {
-                const user = JSON.parse(cookieUserData);
-                if (user && user.email) {
-                    localStorage.setItem('amUserData', JSON.stringify(user));
-                    updateUIForLoggedInUser(user);
-                    if (user.darkMode !== undefined) applyTheme(user.darkMode ? 'dark' : 'light');
-                    return user;
-                }
-            } catch (e) {}
-        }
-
-        updateUIForLoggedOutUser();
-        return null;
-    } catch (error) {
-        updateUIForLoggedOutUser();
-        return null;
+        const res = await fetch(AUTH_API_URL + '/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',   // sends the auth cookie cross-origin
+            body: JSON.stringify({ email: user.email })
+        });
+        if (!res.ok) { handleLogout(); return false; }
+        const json = await res.json();
+        if (!json.valid) { handleLogout(); return false; }
+        return true;
+    } catch (e) {
+        // Network error — don't force logout (could be offline), leave UI alone
+        console.warn('Session verify network error:', e);
+        return true;
     }
 }
 
-// Update UI for logged-in user
+async function checkAuthStatus() {
+    let user = null;
+    const raw = localStorage.getItem('amUserData');
+    if (raw) { try { const p = JSON.parse(raw); if (p && p.email) user = p; } catch(e){} }
+    if (!user) {
+        const c = getCookie('amUserData');
+        if (c) { try { const p = JSON.parse(c); if (p && p.email) { localStorage.setItem('amUserData', JSON.stringify(p)); user = p; } } catch(e){} }
+    }
+    if (!user) { updateUIForLoggedOutUser(); return null; }
+
+    // Show logged-in UI immediately for snappiness, then verify in background.
+    // verifySession() will call handleLogout() and flip the UI if invalid.
+    updateUIForLoggedInUser(user);
+    if (user.darkMode !== undefined) applyTheme(user.darkMode ? 'dark' : 'light');
+    verifySession(user); // NOT awaited — runs in background
+    return user;
+}
+
 function updateUIForLoggedInUser(user) {
-    const displayName = user.name || user.firstName || user.email?.split('@')[0] || 'Account';
-
-    const userDisplayName = document.getElementById('user-display-name');
-    if (userDisplayName) userDisplayName.textContent = displayName;
-
-    const mobileLoginBtn = document.getElementById('mobile-login-btn');
-    if (mobileLoginBtn) mobileLoginBtn.textContent = displayName;
-
-    // Show mobile sign-out button
-    const mobileSignoutBtn = document.getElementById('mobile-signout-btn');
-    if (mobileSignoutBtn) mobileSignoutBtn.style.display = 'block';
-
-    // FIX: Clicking the user-info now toggles the dropdown (not a redirect)
-    const userHeader = document.getElementById('user-header');
-    if (userHeader) {
-        userHeader.onclick = function (e) {
-            e.stopPropagation();
-            const menu = document.getElementById('user-dropdown-menu');
-            if (menu) menu.classList.toggle('open');
-        };
-    }
+    const name = user.name || user.firstName || user.email?.split('@')[0] || 'Account';
+    const el = document.getElementById('user-display-name');
+    if (el) el.textContent = name;
+    const mob = document.getElementById('mobile-login-btn');
+    if (mob) mob.textContent = name;
+    const mobOut = document.getElementById('mobile-signout-btn');
+    if (mobOut) mobOut.style.display = 'block';
+    const hdr = document.getElementById('user-header');
+    if (hdr) hdr.onclick = function(e) {
+        e.stopPropagation();
+        document.getElementById('user-dropdown-menu')?.classList.toggle('open');
+    };
 }
-
-// Update UI for logged-out user
 function updateUIForLoggedOutUser() {
-    const userDisplayName = document.getElementById('user-display-name');
-    if (userDisplayName) userDisplayName.textContent = 'Sign In';
-
-    const mobileLoginBtn = document.getElementById('mobile-login-btn');
-    if (mobileLoginBtn) mobileLoginBtn.textContent = 'Sign In';
-
-    // Hide mobile sign-out button
-    const mobileSignoutBtn = document.getElementById('mobile-signout-btn');
-    if (mobileSignoutBtn) mobileSignoutBtn.style.display = 'none';
-
-    // Clicking user-info when logged out goes to auth page
-    const userHeader = document.getElementById('user-header');
-    if (userHeader) {
-        userHeader.onclick = function () {
-            window.location.href = AUTH_LOGIN_URL;
-        };
-    }
+    const el = document.getElementById('user-display-name');
+    if (el) el.textContent = 'Sign In';
+    const mob = document.getElementById('mobile-login-btn');
+    if (mob) mob.textContent = 'Sign In';
+    const mobOut = document.getElementById('mobile-signout-btn');
+    if (mobOut) mobOut.style.display = 'none';
+    document.getElementById('user-dropdown-menu')?.classList.remove('open');
+    const hdr = document.getElementById('user-header');
+    if (hdr) hdr.onclick = () => window.location.href = AUTH_LOGIN_URL;
 }
 
-// Close dropdown when clicking anywhere outside it
-document.addEventListener('click', function () {
-    const menu = document.getElementById('user-dropdown-menu');
-    if (menu) menu.classList.remove('open');
+document.addEventListener('click', () => {
+    document.getElementById('user-dropdown-menu')?.classList.remove('open');
 });
 
-// Initialize
 checkAuthStatus();
 loadTheme();
 
-// Debug helpers
-window.debugAuth = function () {
-    console.log('amUserData (localStorage):', localStorage.getItem('amUserData'));
-    console.log('amUserData (cookie):', getCookie('amUserData'));
-    console.log('amTheme:', localStorage.getItem('amTheme'), '|', getCookie('amTheme'));
-};
-window.debugCookies = function () {
-    console.log('All cookies:', document.cookie);
-};
-
-console.log('💡 Debug helpers: debugAuth() and debugCookies()');
+window.debugAuth    = () => { console.log('localStorage:', localStorage.getItem('amUserData')); console.log('cookie:', getCookie('amUserData')); };
+window.debugCookies = () => console.log('cookies:', document.cookie);
+console.log('💡 debugAuth() / debugCookies() available');
 </script>
 
 <script nonce="A2Fc45">
-// Products Data
 const allProducts = [
-    {id:'product1', name:'Hair Growth Oil (100ml)', price:9.99, image:'big hair oil.jpg', url:'https://shop.amhairandbeauty.com/products/hair-growth-oil'},
-    {id:'product2', name:'Satin Bonnet', price:2.99, image:'good bonnet.jpg', url:'https://shop.amhairandbeauty.com/products/satin-bonnet'},
-    {id:'product3', name:'Hair Oil (60ml)', price:4.99, image:'small hair oil.jpg', url:'https://shop.amhairandbeauty.com/products/hair-growth-oil-1'},
-    {id:'product4', name:'Shampoo', price:12.99, image:'shampoo.jpg', url:'https://shop.amhairandbeauty.com/products/untitled-sep26_07-47'},
-    {id:'product5', name:'Conditioner', price:9.99, image:'conditioner.jpg', url:'https://shop.amhairandbeauty.com/products/conditioner'},
-    {id:'product6', name:'Pomade', price:4.99, image:'Pomade.jpg', url:'https://shop.amhairandbeauty.com/products/pomade'},
-    {id:'product7', name:'Sisal Soap Bag', price:2.59, image:'IMG_9162.PNG', url:'https://shop.amhairandbeauty.com/products/sisal-soap-bags'},
-    {id:'product8', name:'Tumeric Soap', price:3.49, image:'tumeric.jpg', url:'https://shop.amhairandbeauty.com/products/tumeric-soap'},
+    {id:'product1',name:'Hair Growth Oil (100ml)',price:9.99, image:'big hair oil.jpg', url:'https://shop.amhairandbeauty.com/products/hair-growth-oil'},
+    {id:'product2',name:'Satin Bonnet',           price:2.99, image:'good bonnet.jpg',  url:'https://shop.amhairandbeauty.com/products/satin-bonnet'},
+    {id:'product3',name:'Hair Oil (60ml)',         price:4.99, image:'small hair oil.jpg',url:'https://shop.amhairandbeauty.com/products/hair-growth-oil-1'},
+    {id:'product4',name:'Shampoo',                price:12.99,image:'shampoo.jpg',       url:'https://shop.amhairandbeauty.com/products/untitled-sep26_07-47'},
+    {id:'product5',name:'Conditioner',            price:9.99, image:'conditioner.jpg',   url:'https://shop.amhairandbeauty.com/products/conditioner'},
+    {id:'product6',name:'Pomade',                 price:4.99, image:'Pomade.jpg',        url:'https://shop.amhairandbeauty.com/products/pomade'},
+    {id:'product7',name:'Sisal Soap Bag',         price:2.59, image:'IMG_9162.PNG',      url:'https://shop.amhairandbeauty.com/products/sisal-soap-bags'},
+    {id:'product8',name:'Tumeric Soap',           price:3.49, image:'tumeric.jpg',       url:'https://shop.amhairandbeauty.com/products/tumeric-soap'},
 ];
-
-function showProduct(productId) {
-    const product = allProducts.find(p => p.id === productId);
-    if (product) window.location.href = product.url;
-}
+function showProduct(id) { const p = allProducts.find(x => x.id===id); if (p) window.location.href = p.url; }
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Product card clicks
     document.querySelectorAll('.product-card').forEach(card => {
-        card.addEventListener('click', function () {
-            const productId = this.getAttribute('data-product');
-            if (productId) showProduct(productId);
-        });
+        card.addEventListener('click', function() { const id = this.getAttribute('data-product'); if (id) showProduct(id); });
+    });
+    document.getElementById('show-more-btn')?.addEventListener('click', activateCarousel);
+    document.getElementById('dismiss-message-btn')?.addEventListener('click', dismissImportantMessage);
+    document.getElementById('sign-out-btn')?.addEventListener('click', handleLogout);
+    document.getElementById('mobile-signout-btn')?.addEventListener('click', function() {
+        document.getElementById('mobile-menu')?.classList.remove('active');
+        document.getElementById('mobile-menu-overlay')?.classList.remove('active');
+        handleLogout();
     });
 
-    const showMoreBtn = document.getElementById('show-more-btn');
-    if (showMoreBtn) showMoreBtn.addEventListener('click', activateCarousel);
-
-    const dismissBtn = document.getElementById('dismiss-message-btn');
-    if (dismissBtn) dismissBtn.addEventListener('click', dismissImportantMessage);
-
-    // Sign-out buttons (desktop dropdown + mobile)
-    const signOutBtn = document.getElementById('sign-out-btn');
-    if (signOutBtn) signOutBtn.addEventListener('click', handleLogout);
-
-    const mobileSignoutBtn = document.getElementById('mobile-signout-btn');
-    if (mobileSignoutBtn) {
-        mobileSignoutBtn.addEventListener('click', function () {
-            document.getElementById('mobile-menu').classList.remove('active');
-            document.getElementById('mobile-menu-overlay').classList.remove('active');
-            handleLogout();
-        });
-    }
-
-    // Mobile menu
-    const mobileMenuBtn      = document.getElementById('mobile-menu-btn');
-    const mobileMenu         = document.getElementById('mobile-menu');
-    const mobileMenuOverlay  = document.getElementById('mobile-menu-overlay');
-    const mobileLoginBtn     = document.getElementById('mobile-login-btn');
-
-    if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', function () {
-            mobileMenu.classList.toggle('active');
-            mobileMenuOverlay.classList.toggle('active');
-        });
-    }
-
-    if (mobileMenuOverlay) {
-        mobileMenuOverlay.addEventListener('click', function () {
-            mobileMenu.classList.remove('active');
-            mobileMenuOverlay.classList.remove('active');
-        });
-    }
-
-    document.querySelectorAll('.mobile-menu nav a').forEach(link => {
-        link.addEventListener('click', function () {
-            mobileMenu.classList.remove('active');
-            mobileMenuOverlay.classList.remove('active');
-        });
+    const mobileMenuBtn     = document.getElementById('mobile-menu-btn');
+    const mobileMenu        = document.getElementById('mobile-menu');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    mobileMenuBtn?.addEventListener('click', () => { mobileMenu.classList.toggle('active'); mobileMenuOverlay.classList.toggle('active'); });
+    mobileMenuOverlay?.addEventListener('click', () => { mobileMenu.classList.remove('active'); mobileMenuOverlay.classList.remove('active'); });
+    document.querySelectorAll('.mobile-menu nav a').forEach(a => a.addEventListener('click', () => { mobileMenu.classList.remove('active'); mobileMenuOverlay.classList.remove('active'); }));
+    document.getElementById('mobile-login-btn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        mobileMenu.classList.remove('active'); mobileMenuOverlay.classList.remove('active');
+        window.location.href = AUTH_LOGIN_URL;
     });
 
-    if (mobileLoginBtn) {
-        mobileLoginBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            mobileMenu.classList.remove('active');
-            mobileMenuOverlay.classList.remove('active');
-            // If already logged in this just goes to account page; auth page handles it
-            window.location.href = AUTH_LOGIN_URL;
-        });
-    }
-
-    // Review modal
-    const leaveReviewBtn      = document.getElementById('leave-review-btn');
-    const reviewModalOverlay  = document.getElementById('review-modal-overlay');
-    const reviewModalClose    = document.getElementById('review-modal-close');
-    const reviewCancelBtn     = document.getElementById('review-cancel-btn');
-    const reviewForm          = document.getElementById('review-form');
-    const starRatingEl        = document.getElementById('star-rating');
-    const reviewRatingInput   = document.getElementById('review-rating');
-    const reviewSubmitBtn     = document.getElementById('review-submit-btn');
-    const reviewSuccessMessage = document.getElementById('review-success-message');
-
-    if (leaveReviewBtn) {
-        leaveReviewBtn.addEventListener('click', function () {
-            reviewModalOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
-    }
-
-    function closeReviewModal() {
-        reviewModalOverlay.classList.remove('active');
-        document.body.style.overflow = '';
-        reviewSuccessMessage.classList.remove('show');
-        reviewForm.reset();
+    const overlay   = document.getElementById('review-modal-overlay');
+    const ratingInp = document.getElementById('review-rating');
+    const success   = document.getElementById('review-success-message');
+    document.getElementById('leave-review-btn')?.addEventListener('click', () => { overlay.classList.add('active'); document.body.style.overflow = 'hidden'; });
+    function closeModal() {
+        overlay.classList.remove('active'); document.body.style.overflow = '';
+        success.classList.remove('show');
+        document.getElementById('review-form').reset();
         document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
-        reviewRatingInput.value = '';
+        ratingInp.value = '';
     }
+    document.getElementById('review-modal-close')?.addEventListener('click', closeModal);
+    document.getElementById('review-cancel-btn')?.addEventListener('click', closeModal);
+    overlay?.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
-    if (reviewModalClose)  reviewModalClose.addEventListener('click', closeReviewModal);
-    if (reviewCancelBtn)   reviewCancelBtn.addEventListener('click', closeReviewModal);
-    if (reviewModalOverlay) {
-        reviewModalOverlay.addEventListener('click', function (e) {
-            if (e.target === reviewModalOverlay) closeReviewModal();
-        });
-    }
-
+    const starRatingEl = document.getElementById('star-rating');
     if (starRatingEl) {
         const stars = starRatingEl.querySelectorAll('.star');
         stars.forEach(star => {
-            star.addEventListener('click', function () {
-                const rating = this.getAttribute('data-rating');
-                reviewRatingInput.value = rating;
-                stars.forEach(s => {
-                    s.classList.toggle('active', s.getAttribute('data-rating') <= rating);
-                });
+            star.addEventListener('click', function() {
+                const r = this.getAttribute('data-rating');
+                ratingInp.value = r;
+                stars.forEach(s => s.classList.toggle('active', s.getAttribute('data-rating') <= r));
             });
-            star.addEventListener('mouseenter', function () {
-                const rating = this.getAttribute('data-rating');
-                stars.forEach(s => {
-                    s.style.color = s.getAttribute('data-rating') <= rating ? '#f59e0b' : '';
-                });
+            star.addEventListener('mouseenter', function() {
+                const r = this.getAttribute('data-rating');
+                stars.forEach(s => { s.style.color = s.getAttribute('data-rating') <= r ? '#f59e0b' : ''; });
             });
         });
-        starRatingEl.addEventListener('mouseleave', function () {
-            const currentRating = reviewRatingInput.value;
-            stars.forEach(s => {
-                if (!currentRating || s.getAttribute('data-rating') > currentRating) {
-                    if (!s.classList.contains('active')) s.style.color = '#ddd';
-                }
-            });
+        starRatingEl.addEventListener('mouseleave', () => {
+            const r = ratingInp.value;
+            stars.forEach(s => { if (!r || s.getAttribute('data-rating') > r) { if (!s.classList.contains('active')) s.style.color = '#ddd'; } });
         });
     }
-
-    // The review form submit is handled by reviews.js (handleReviewSubmit)
-    // so no duplicate handler here.
-
-    document.querySelectorAll('img').forEach(img => {
-        img.addEventListener('error', function () { this.style.display = 'none'; });
-    });
+    document.querySelectorAll('img').forEach(img => img.addEventListener('error', function() { this.style.display = 'none'; }));
 });
 
-// Carousel
 function activateCarousel() {
-    const carousel    = document.getElementById('carousel');
-    const container   = document.getElementById('carousel-container');
-    const initialGrid = document.getElementById('products-initial');
-    const showMoreBtn = document.getElementById('show-more-btn');
-
-    if (!carousel || !container || !initialGrid) return;
-
+    const carousel=document.getElementById('carousel'), container=document.getElementById('carousel-container'),
+          initialGrid=document.getElementById('products-initial'), showMoreBtn=document.getElementById('show-more-btn');
+    if (!carousel||!container||!initialGrid) return;
     carousel.innerHTML = '';
-    allProducts.forEach((p, i) => {
+    allProducts.forEach((p,i) => {
         const card = document.createElement('div');
-        card.className = 'product-card';
-        card.style.animationDelay = `${i * 0.1}s`;
-        card.setAttribute('data-product', p.id);
-        card.innerHTML = `
-            <img src="${p.image}" alt="${p.name}" class="product-image" onerror="this.src='https://via.placeholder.com/350x320/f9a8d4/ffffff?text=${encodeURIComponent(p.name)}'">
-            <div class="product-info">
-                <div class="product-price">£${p.price.toFixed(2)}</div>
-                <div class="product-name">${p.name}</div>
-                <p class="product-description">Click to view details and purchase</p>
-            </div>
-        `;
-        card.addEventListener('click', function () { showProduct(p.id); });
+        card.className = 'product-card'; card.style.animationDelay = `${i*0.1}s`; card.setAttribute('data-product',p.id);
+        card.innerHTML = `<img src="${p.image}" alt="${p.name}" class="product-image" onerror="this.src='https://via.placeholder.com/350x320/f9a8d4/ffffff?text=${encodeURIComponent(p.name)}'">
+            <div class="product-info"><div class="product-price">£${p.price.toFixed(2)}</div><div class="product-name">${p.name}</div><p class="product-description">Click to view details and purchase</p></div>`;
+        card.addEventListener('click', () => showProduct(p.id));
         carousel.appendChild(card);
     });
-
-    initialGrid.style.opacity = '0';
-    initialGrid.style.transform = 'scale(0.95)';
+    initialGrid.style.opacity = '0'; initialGrid.style.transform = 'scale(0.95)';
     if (showMoreBtn) showMoreBtn.style.opacity = '0';
-
-    setTimeout(() => {
-        initialGrid.style.display = 'none';
-        if (showMoreBtn) showMoreBtn.style.display = 'none';
-        container.style.display = 'block';
-        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 400);
+    setTimeout(() => { initialGrid.style.display='none'; if(showMoreBtn) showMoreBtn.style.display='none'; container.style.display='block'; container.scrollIntoView({behavior:'smooth',block:'nearest'}); }, 400);
 }
+function dismissImportantMessage() { const m=document.getElementById('important-message'); if(m){m.classList.remove('show');m.style.display='none';} }
 
-function dismissImportantMessage() {
-    const message = document.getElementById('important-message');
-    if (message) { message.classList.remove('show'); message.style.display = 'none'; }
+let currentSlide=0; const slides=document.querySelectorAll('.slide-image');
+function showNextSlide() { if(!slides.length)return; slides[currentSlide].classList.remove('active'); currentSlide=(currentSlide+1)%slides.length; slides[currentSlide].classList.add('active'); }
+setInterval(showNextSlide,6000);
+
+const header=document.getElementById('header');
+window.addEventListener('scroll',()=>header.classList.toggle('scrolled',window.scrollY>100));
+
+const observer=new IntersectionObserver(entries=>{ entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('revealed');}); },{threshold:0.15,rootMargin:'0px 0px -100px 0px'});
+document.querySelectorAll('.scroll-reveal,.scroll-reveal-left,.scroll-reveal-right,.scale-in').forEach(el=>observer.observe(el));
+
+const reviewsContainer=document.getElementById('reviews-container'); let scrollPos=0,isHovering=false;
+if(reviewsContainer){
+    reviewsContainer.addEventListener('mouseenter',()=>isHovering=true);
+    reviewsContainer.addEventListener('mouseleave',()=>isHovering=false);
+    setInterval(()=>{ if(!isHovering){scrollPos+=0.5; if(scrollPos>=reviewsContainer.scrollWidth-reviewsContainer.clientWidth)scrollPos=0; reviewsContainer.scrollTo({left:scrollPos,behavior:'smooth'});} },30);
 }
-
-// Slideshow
-let currentSlide = 0;
-const slides = document.querySelectorAll('.slide-image');
-function showNextSlide() {
-    if (!slides.length) return;
-    slides[currentSlide].classList.remove('active');
-    currentSlide = (currentSlide + 1) % slides.length;
-    slides[currentSlide].classList.add('active');
-}
-setInterval(showNextSlide, 6000);
-
-// Scroll header effect
-const header = document.getElementById('header');
-window.addEventListener('scroll', () => {
-    header.classList.toggle('scrolled', window.scrollY > 100);
-});
-
-// Scroll reveal
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('revealed');
-    });
-}, { threshold: 0.15, rootMargin: '0px 0px -100px 0px' });
-
-document.querySelectorAll('.scroll-reveal, .scroll-reveal-left, .scroll-reveal-right, .scale-in').forEach(el => {
-    observer.observe(el);
-});
-
-// Auto-scroll reviews
-const reviewsContainer = document.getElementById('reviews-container');
-let scrollPosition = 0;
-let isHovering = false;
-if (reviewsContainer) {
-    reviewsContainer.addEventListener('mouseenter', () => isHovering = true);
-    reviewsContainer.addEventListener('mouseleave', () => isHovering = false);
-    setInterval(() => {
-        if (!isHovering && reviewsContainer) {
-            scrollPosition += 0.5;
-            if (scrollPosition >= reviewsContainer.scrollWidth - reviewsContainer.clientWidth) {
-                scrollPosition = 0;
-            }
-            reviewsContainer.scrollTo({ left: scrollPosition, behavior: 'smooth' });
-        }
-    }, 30);
-}
-
-console.log('✨ A&M - Smooth Animations Loaded!');
+console.log('✨ A&M Loaded!');
 </script>
 
 <script nonce="A2Fc45" src="reviews.js"></script>
-
 </body>
 </html>

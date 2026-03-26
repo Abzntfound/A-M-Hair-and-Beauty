@@ -1,53 +1,64 @@
-// A&M Hair and Beauty - Main Website User Authentication
-// home-auth.js — fully synced with auth.amhairandbeauty.com
+// A&M Hair and Beauty - Main Website User Authentication (WITH COOKIE SUPPORT)
+// home-auth.js
 
 const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzyQsEQCkZ_UaRF9g_h_w3UHVAM4h8V7mEBy3euBlvOZvvAf2KtB9iF4j_GH8LXy1Iw5A/exec';
 
 let currentUser = null;
 
-// ── Cookie helpers ────────────────────────────────────────
+// ========================================
+// COOKIE HELPERS
+// ========================================
 
 function getCookie(name) {
-    const nameEQ = name + '=';
+    const nameEQ = name + "=";
     const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i].trim();
-        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) {
+            return decodeURIComponent(c.substring(nameEQ.length, c.length));
+        }
     }
     return null;
 }
 
 function setCookie(name, value, days) {
     const expires = new Date();
-    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
     document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires.toUTCString()}; path=/; domain=.amhairandbeauty.com; SameSite=Lax`;
 }
 
-// ── Data access ───────────────────────────────────────────
+// ========================================
+// DATA ACCESS (Cookie + localStorage)
+// ========================================
 
 function getUserData() {
-    // Check all three storages — same as auth.js
+    // Try localStorage first
     let userData = localStorage.getItem('amUserData');
+    
+    // If not in localStorage, check cookie
     if (!userData) {
         userData = getCookie('amUserData');
-        if (userData) localStorage.setItem('amUserData', userData);
+        if (userData) {
+            // Sync to localStorage
+            localStorage.setItem('amUserData', userData);
+            console.log('📱 User data loaded from cookie');
+        }
     }
-    if (!userData) {
-        userData = sessionStorage.getItem('amUserData');
-    }
+    
     return userData ? JSON.parse(userData) : null;
 }
 
 function saveUserData(user) {
-    const json = JSON.stringify(user);
-    localStorage.setItem('amUserData', json);
-    setCookie('amUserData', json, 30);
-    sessionStorage.setItem('amUserData', json);
+    localStorage.setItem('amUserData', JSON.stringify(user));
+    setCookie('amUserData', JSON.stringify(user), 30);
 }
 
-// ── Init ──────────────────────────────────────────────────
+// ========================================
+// INITIALIZATION
+// ========================================
 
-console.log('home-auth.js loading...');
+console.log('🚀 home-auth.js loading...');
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeUserAuth);
@@ -56,87 +67,157 @@ if (document.readyState === 'loading') {
 }
 
 async function initializeUserAuth() {
+    console.log('🚀 Initializing auth system...');
+    
     try {
         const userData = getUserData();
-
+        
         if (userData) {
+            console.log('✅ User data found:', {
+                email: userData.email,
+                name: userData.name,
+                darkMode: userData.darkMode
+            });
+            
+            // IMMEDIATE: Apply theme and show name from cache
             if (userData.darkMode !== undefined) {
-                applyTheme(userData.darkMode ? 'dark' : 'light');
+                const theme = userData.darkMode ? 'dark' : 'light';
+                console.log('🎨 Applying cached theme:', theme);
+                applyTheme(theme);
             }
+            
             showLoggedInState(userData);
             currentUser = userData;
-
-            // Verify in background without logging out on failure
-            verifyUserSession(userData.email).catch(() => {
-                console.log('Background verify failed, keeping cached data');
-            });
+            
+            // THEN: Verify with database in background
+            console.log('🔄 Verifying with database...');
+            await verifyUserSession(userData.email);
+            
         } else {
+            console.log('ℹ️ No user data found');
             showLoggedOutState();
             loadDefaultTheme();
         }
-
-        setTimeout(checkAndShowImportantMessage, 800);
-
+        
+        setTimeout(() => {
+            checkAndShowImportantMessage();
+        }, 800);
+        
     } catch (error) {
-        console.error('Initialization error:', error);
+        console.error('❌ Initialization error:', error);
         showLoggedOutState();
         loadDefaultTheme();
     }
 }
 
-// ── API ───────────────────────────────────────────────────
+// ========================================
+// API COMMUNICATION
+// ========================================
 
 async function verifyUserSession(email) {
+    console.log('🔍 Verifying user with database...');
+    
     try {
-        const result = await makeGoogleSheetsRequest('GET_USER', { email });
+        const result = await makeGoogleSheetsRequest('GET_USER', { email: email });
+        
         if (result.success && result.user) {
+            console.log('✅ User verified from database:', result.user);
+            
             currentUser = result.user;
             saveUserData(result.user);
-            if (result.user.darkMode !== undefined) applyTheme(result.user.darkMode ? 'dark' : 'light');
+            
+            // Update theme if changed
+            if (result.user.darkMode !== undefined) {
+                const dbTheme = result.user.darkMode ? 'dark' : 'light';
+                console.log('🎨 Theme from DB:', dbTheme);
+                applyTheme(dbTheme);
+            }
+            
             showLoggedInState(result.user);
+        } else {
+            console.warn('⚠️ Verification failed, using cached data');
         }
     } catch (error) {
-        console.log('Session verify error (non-fatal):', error);
+        console.error('❌ Verification error:', error);
+        console.log('📱 Using cached data (offline mode)');
     }
 }
 
 async function makeGoogleSheetsRequest(action, data) {
-    const params = new URLSearchParams({ action, data: JSON.stringify(data) });
-    const response = await fetch(`${GOOGLE_SHEETS_URL}?${params}`, { method: 'GET', redirect: 'follow' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return JSON.parse(await response.text());
+    try {
+        const params = new URLSearchParams({
+            action: action,
+            data: JSON.stringify(data)
+        });
+        
+        const url = `${GOOGLE_SHEETS_URL}?${params.toString()}`;
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            redirect: 'follow'
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const text = await response.text();
+        return JSON.parse(text);
+        
+    } catch (error) {
+        console.error('❌ API request failed:', error);
+        throw error;
+    }
 }
 
-// ── UI ────────────────────────────────────────────────────
+// ========================================
+// UI UPDATES
+// ========================================
 
 function showLoggedInState(user) {
+    console.log('👤 Showing logged-in state for:', user.name);
+    
     const userDisplayName = document.getElementById('user-display-name');
     if (userDisplayName) {
-        userDisplayName.innerHTML = `<span class="user-name">${user.name.split(' ')[0]}</span>`;
+        const firstName = user.name.split(' ')[0];
+        userDisplayName.innerHTML = `<span class="user-name">${firstName}</span>`;
+        console.log('✅ Header updated:', firstName);
+    } else {
+        console.error('❌ #user-display-name element not found!');
     }
-
+    
     const nameInput = document.getElementById('name');
-    if (nameInput && user.name) nameInput.value = user.name;
-
+    if (nameInput && user.name) {
+        nameInput.value = user.name;
+    }
+    
     currentUser = user;
 }
 
 function showLoggedOutState() {
+    console.log('👋 Showing logged-out state');
+    
     const userDisplayName = document.getElementById('user-display-name');
-    if (userDisplayName) userDisplayName.textContent = 'Sign In';
+    if (userDisplayName) {
+        userDisplayName.textContent = 'Log In';
+    }
+    
     currentUser = null;
 }
 
-// FIXED: clicking the header always goes to auth page
-// No more accidental sign outs
 function handleUserHeaderClick() {
     window.location.href = 'https://auth.amhairandbeauty.com';
 }
 
-// ── Theme ─────────────────────────────────────────────────
+// ========================================
+// THEME FUNCTIONS
+// ========================================
 
 function applyTheme(theme) {
     const html = document.documentElement;
+    
+    console.log('🎨 Applying theme:', theme);
+    
     if (theme === 'dark') {
         html.setAttribute('data-theme', 'dark');
         localStorage.setItem('amTheme', 'dark');
@@ -149,57 +230,113 @@ function applyTheme(theme) {
 }
 
 function loadDefaultTheme() {
-    const theme = localStorage.getItem('amTheme') || getCookie('amTheme') || 'light';
-    applyTheme(theme);
+    let savedTheme = localStorage.getItem('amTheme');
+    
+    if (!savedTheme) {
+        savedTheme = getCookie('amTheme') || 'light';
+    }
+    
+    console.log('🎨 Loading default theme:', savedTheme);
+    applyTheme(savedTheme);
 }
 
-// ── Important message ─────────────────────────────────────
+// ========================================
+// IMPORTANT MESSAGE
+// ========================================
 
 function checkAndShowImportantMessage() {
     const user = getUserData();
+    
     if (!user) return;
-    const messageEl = document.getElementById('important-message');
-    if (messageEl && !localStorage.getItem(`amImportantMessageSeen_${user.email}`)) {
-        messageEl.classList.add('show');
+    
+    try {
+        const messageKey = `amImportantMessageSeen_${user.email}`;
+        const hasSeenMessage = localStorage.getItem(messageKey);
+        
+        if (!hasSeenMessage) {
+            const messageEl = document.getElementById('important-message');
+            if (messageEl) {
+                messageEl.classList.add('show');
+            }
+        }
+    } catch (e) {
+        console.error('❌ Error with message:', e);
     }
 }
 
 function dismissImportantMessage() {
     const user = getUserData();
-    if (user) localStorage.setItem(`amImportantMessageSeen_${user.email}`, 'true');
+    
+    if (user) {
+        const messageKey = `amImportantMessageSeen_${user.email}`;
+        localStorage.setItem(messageKey, 'true');
+    }
+    
     const messageEl = document.getElementById('important-message');
     if (messageEl) {
         messageEl.classList.remove('show');
+        messageEl.classList.add('hidden');
         setTimeout(() => messageEl.style.display = 'none', 300);
     }
 }
 
-// ── Utility ───────────────────────────────────────────────
+// ========================================
+// UTILITY FUNCTIONS
+// ========================================
 
 function logoutUser() {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('amUserData');
-        sessionStorage.removeItem('amUserData');
-        document.cookie = 'amUserData=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.amhairandbeauty.com;';
         currentUser = null;
         showLoggedOutState();
         loadDefaultTheme();
+        alert('✅ Logged out successfully');
         window.location.reload();
     }
 }
 
-function getCurrentUser() { return currentUser; }
-function isUserLoggedIn() { return currentUser !== null; }
-async function refreshUserData() {
-    if (currentUser?.email) await verifyUserSession(currentUser.email);
+function getCurrentUser() {
+    return currentUser;
 }
 
-// Make globally available
+function isUserLoggedIn() {
+    return currentUser !== null;
+}
+
+async function refreshUserData() {
+    if (currentUser && currentUser.email) {
+        await verifyUserSession(currentUser.email);
+    }
+}
+
+function debugAuthState() {
+    console.log('=== 🔍 AUTH DEBUG INFO ===');
+    console.log('Current User:', currentUser);
+    console.log('localStorage amUserData:', localStorage.getItem('amUserData'));
+    console.log('Cookie amUserData:', getCookie('amUserData'));
+    console.log('localStorage amTheme:', localStorage.getItem('amTheme'));
+    console.log('Cookie amTheme:', getCookie('amTheme'));
+    console.log('Is Logged In:', isUserLoggedIn());
+    console.log('HTML theme:', document.documentElement.getAttribute('data-theme') || 'light');
+    
+    const user = getUserData();
+    if (user) {
+        console.log('User Data:');
+        console.log('  Email:', user.email);
+        console.log('  Name:', user.name);
+        console.log('  darkMode:', user.darkMode);
+    }
+    
+    console.log('========================');
+}
+
+// Make functions globally available
 window.handleUserHeaderClick = handleUserHeaderClick;
 window.dismissImportantMessage = dismissImportantMessage;
 window.logoutUser = logoutUser;
 window.getCurrentUser = getCurrentUser;
 window.isUserLoggedIn = isUserLoggedIn;
 window.refreshUserData = refreshUserData;
+window.debugAuthState = debugAuthState;
 
-console.log('home-auth.js loaded!');
+console.log('✅ home-auth.js loaded successfully!');

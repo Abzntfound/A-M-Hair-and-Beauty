@@ -171,6 +171,11 @@
             align-items: center;
         }
 
+        /* ── User dropdown ── */
+        .user-dropdown-wrapper {
+            position: relative;
+        }
+
         .user-info {
             display: flex;
             align-items: center;
@@ -179,6 +184,7 @@
             padding: 0.6rem 1.2rem;
             border-radius: 50px;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
         }
 
         .user-info:hover {
@@ -190,6 +196,71 @@
             font-weight: 600;
             color: #d946a6;
         }
+
+        /* The dropdown panel itself */
+        .user-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            min-width: 180px;
+            z-index: 2000;
+            overflow: hidden;
+            border: 1px solid rgba(217,70,166,0.15);
+            animation: dropdownFadeIn 0.2s ease;
+        }
+
+        .user-dropdown-menu.open {
+            display: block;
+        }
+
+        @keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-dropdown-menu a,
+        .user-dropdown-menu button {
+            display: block;
+            width: 100%;
+            padding: 0.85rem 1.3rem;
+            text-align: left;
+            background: none;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #444;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .user-dropdown-menu a:hover,
+        .user-dropdown-menu button:hover {
+            background: rgba(217,70,166,0.08);
+            color: #d946a6;
+        }
+
+        .user-dropdown-menu .dropdown-divider {
+            height: 1px;
+            background: #f0f0f0;
+            margin: 0.3rem 0;
+        }
+
+        .user-dropdown-menu .sign-out-btn {
+            color: #e53935;
+        }
+
+        .user-dropdown-menu .sign-out-btn:hover {
+            background: rgba(229,57,53,0.08);
+            color: #e53935;
+        }
+
+        /* END user dropdown */
 
         .btn-primary {
             background: linear-gradient(135deg, #d946a6 0%, #ec4899 100%);
@@ -791,6 +862,29 @@
             box-shadow: 0 6px 25px rgba(217, 70, 166, 0.4);
         }
 
+        /* Mobile sign-out button in mobile menu */
+        .mobile-signout-btn {
+            margin-top: 0.8rem;
+            background: none;
+            border: 2px solid #e53935;
+            color: #e53935;
+            padding: 0.9rem 2rem;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            display: none; /* shown only when logged in */
+            width: 100%;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-signout-btn:hover {
+            background: #e53935;
+            color: white;
+        }
+
         /* Mobile */
         @media (max-width: 768px) {
             nav { display: none; }
@@ -1108,10 +1202,21 @@
             <span></span>
             <span></span>
         </button>
-        <div class="user-info" id="user-header">
-            <img src="user.png" alt="User" width="24" height="24">
-            <span id="user-display-name" class="user-name">Sign In</span>
+
+        <!-- FIX: Wrapped user-info in a dropdown wrapper -->
+        <div class="user-dropdown-wrapper" id="user-dropdown-wrapper">
+            <div class="user-info" id="user-header">
+                <img src="user.png" alt="User" width="24" height="24">
+                <span id="user-display-name" class="user-name">Sign In</span>
+            </div>
+            <!-- Dropdown: only visible when logged in -->
+            <div class="user-dropdown-menu" id="user-dropdown-menu">
+                <a href="https://auth.amhairandbeauty.com">My Account</a>
+                <div class="dropdown-divider"></div>
+                <button class="sign-out-btn" id="sign-out-btn">Sign Out</button>
+            </div>
         </div>
+
         <a href="https://shop.amhairandbeauty.com/cart/" class="btn-primary">Basket</a>
     </div>
 </header>
@@ -1126,6 +1231,8 @@
         <a href="https://shop.amhairandbeauty.com">Shop</a>
     </nav>
     <a href="#" class="mobile-login-btn" id="mobile-login-btn">Sign In</a>
+    <!-- FIX: Mobile sign-out button (shown only when logged in) -->
+    <button class="mobile-signout-btn" id="mobile-signout-btn">Sign Out</button>
 </div>
 
 <!-- Hero Section -->
@@ -1312,234 +1419,181 @@ const AUTH_API_URL = 'https://auth.amhairandbeauty.com/api';
 const AUTH_LOGIN_URL = 'https://auth.amhairandbeauty.com';
 
 // ===== THEME SYSTEM =====
-// Load theme from user preferences or cookies
 function loadTheme() {
-    // Check multiple sources for theme preference
     let theme = null;
     
-    // 1. Check localStorage (from auth subdomain)
     const userData = localStorage.getItem('amUserData');
     if (userData) {
         try {
             const user = JSON.parse(userData);
             if (user.darkMode !== undefined) {
                 theme = user.darkMode ? 'dark' : 'light';
-                console.log('📱 Theme from user data:', theme);
             }
-        } catch (e) {
-            console.error('Error parsing user data:', e);
-        }
+        } catch (e) {}
     }
     
-    // 2. Check cookie (cross-subdomain)
     if (!theme) {
         const cookieTheme = getCookie('amTheme');
-        if (cookieTheme) {
-            theme = cookieTheme;
-            console.log('🍪 Theme from cookie:', theme);
-        }
+        if (cookieTheme) theme = cookieTheme;
     }
     
-    // 3. Check localStorage direct theme setting
     if (!theme) {
         theme = localStorage.getItem('amTheme') || 'light';
-        console.log('💾 Theme from localStorage:', theme);
     }
     
-    // Apply theme
     applyTheme(theme);
 }
 
 function applyTheme(theme) {
     const html = document.documentElement;
-    
     if (theme === 'dark') {
         html.setAttribute('data-theme', 'dark');
     } else {
         html.removeAttribute('data-theme');
     }
-    
-    console.log('🎨 Applied theme:', theme);
 }
 
 function getCookie(name) {
     const nameEQ = name + "=";
     const ca = document.cookie.split(';');
-    for(let i = 0; i < ca.length; i++) {
+    for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        while (c.charAt(0) === ' ') c = c.substring(1);
         if (c.indexOf(nameEQ) === 0) {
-            return decodeURIComponent(c.substring(nameEQ.length, c.length));
+            return decodeURIComponent(c.substring(nameEQ.length));
         }
     }
     return null;
 }
 
+// ── FIX: Single unified logout that clears EVERY storage location ──
+function handleLogout() {
+    // Clear localStorage keys
+    localStorage.removeItem('amUserData');
+    localStorage.removeItem('amToken');
+    localStorage.removeItem('amSession');
+    localStorage.removeItem('amTheme');
+
+    // Expire cookie with AND without domain (covers both set scenarios)
+    const expiry = 'expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'amUserData=; ' + expiry;
+    document.cookie = 'amUserData=; ' + expiry + ' domain=.amhairandbeauty.com;';
+    document.cookie = 'amUserData=; ' + expiry + ' domain=amhairandbeauty.com;';
+
+    // Refresh UI
+    updateUIForLoggedOutUser();
+
+    // Tell reviews.js to re-render (hides dev reply buttons)
+    if (typeof displayReviews === 'function') displayReviews();
+}
+
+// Expose so reviews.js / other scripts can call it too
+window.handleLogout = handleLogout;
+
 // Check if user is logged in
 async function checkAuthStatus() {
-    console.log('🔐 Checking auth status...');
-    
     try {
-        // IMPORTANT: Auth system uses 'amUserData' not 'userData'
-        const userData = localStorage.getItem('amUserData');
-        
-        console.log('User data in localStorage:', userData ? 'Present' : 'Not found');
-        
-        // Also check cookie for cross-subdomain data
+        const userData    = localStorage.getItem('amUserData');
         const cookieUserData = getCookie('amUserData');
-        console.log('User data in cookie:', cookieUserData ? 'Present' : 'Not found');
-        
-        // Try localStorage first
+
         if (userData) {
             try {
                 const user = JSON.parse(userData);
-                console.log('✅ User found in localStorage:', user);
-                updateUIForLoggedInUser(user);
-                
-                // Apply user's theme preference
-                if (user.darkMode !== undefined) {
-                    applyTheme(user.darkMode ? 'dark' : 'light');
+                if (user && user.email) {
+                    updateUIForLoggedInUser(user);
+                    if (user.darkMode !== undefined) applyTheme(user.darkMode ? 'dark' : 'light');
+                    return user;
                 }
-                
-                return user;
-            } catch (e) {
-                console.error('Error parsing localStorage user data:', e);
-            }
+            } catch (e) {}
         }
-        
-        // Try cookie if localStorage doesn't have user data
+
         if (!userData && cookieUserData) {
             try {
                 const user = JSON.parse(cookieUserData);
-                console.log('✅ User found in cookie:', user);
-                // Save to localStorage for faster access next time
-                localStorage.setItem('amUserData', JSON.stringify(user));
-                updateUIForLoggedInUser(user);
-                
-                if (user.darkMode !== undefined) {
-                    applyTheme(user.darkMode ? 'dark' : 'light');
+                if (user && user.email) {
+                    localStorage.setItem('amUserData', JSON.stringify(user));
+                    updateUIForLoggedInUser(user);
+                    if (user.darkMode !== undefined) applyTheme(user.darkMode ? 'dark' : 'light');
+                    return user;
                 }
-                
-                return user;
-            } catch (e) {
-                console.error('Error parsing cookie user data:', e);
-            }
+            } catch (e) {}
         }
-        
-        console.log('ℹ️ No user logged in');
+
         updateUIForLoggedOutUser();
         return null;
     } catch (error) {
-        console.error('❌ Auth check error:', error);
         updateUIForLoggedOutUser();
         return null;
     }
 }
 
-// Update UI for logged in user
+// Update UI for logged-in user
 function updateUIForLoggedInUser(user) {
-    console.log('👤 Updating UI for logged in user:', user);
-    
-    const userDisplayName = document.getElementById('user-display-name');
-    const mobileLoginBtn = document.getElementById('mobile-login-btn');
-    
-    console.log('User display element:', userDisplayName);
-    console.log('Mobile login button:', mobileLoginBtn);
-    
     const displayName = user.name || user.firstName || user.email?.split('@')[0] || 'Account';
-    console.log('Display name will be:', displayName);
-    
-    if (userDisplayName) {
-        userDisplayName.textContent = displayName;
-        userDisplayName.classList.add('user-name');
-        console.log('✅ Desktop header updated to:', displayName);
-    } else {
-        console.error('❌ Could not find user-display-name element!');
-    }
-    
-    if (mobileLoginBtn) {
-        mobileLoginBtn.textContent = displayName;
-        console.log('✅ Mobile button updated to:', displayName);
-    } else {
-        console.error('❌ Could not find mobile-login-btn element!');
+
+    const userDisplayName = document.getElementById('user-display-name');
+    if (userDisplayName) userDisplayName.textContent = displayName;
+
+    const mobileLoginBtn = document.getElementById('mobile-login-btn');
+    if (mobileLoginBtn) mobileLoginBtn.textContent = displayName;
+
+    // Show mobile sign-out button
+    const mobileSignoutBtn = document.getElementById('mobile-signout-btn');
+    if (mobileSignoutBtn) mobileSignoutBtn.style.display = 'block';
+
+    // FIX: Clicking the user-info now toggles the dropdown (not a redirect)
+    const userHeader = document.getElementById('user-header');
+    if (userHeader) {
+        userHeader.onclick = function (e) {
+            e.stopPropagation();
+            const menu = document.getElementById('user-dropdown-menu');
+            if (menu) menu.classList.toggle('open');
+        };
     }
 }
 
-// Update UI for logged out user
+// Update UI for logged-out user
 function updateUIForLoggedOutUser() {
     const userDisplayName = document.getElementById('user-display-name');
+    if (userDisplayName) userDisplayName.textContent = 'Sign In';
+
     const mobileLoginBtn = document.getElementById('mobile-login-btn');
-    
-    if (userDisplayName) {
-        userDisplayName.textContent = 'Sign In';
-        userDisplayName.classList.add('user-name');
+    if (mobileLoginBtn) mobileLoginBtn.textContent = 'Sign In';
+
+    // Hide mobile sign-out button
+    const mobileSignoutBtn = document.getElementById('mobile-signout-btn');
+    if (mobileSignoutBtn) mobileSignoutBtn.style.display = 'none';
+
+    // Clicking user-info when logged out goes to auth page
+    const userHeader = document.getElementById('user-header');
+    if (userHeader) {
+        userHeader.onclick = function () {
+            window.location.href = AUTH_LOGIN_URL;
+        };
     }
-    
-    if (mobileLoginBtn) {
-        mobileLoginBtn.textContent = 'Sign In';
-    }
 }
 
-// Handle user header/login button click
-function handleUserHeaderClick() {
-    window.location.href = 'https://auth.amhairandbeauty.com';
-}
+// Close dropdown when clicking anywhere outside it
+document.addEventListener('click', function () {
+    const menu = document.getElementById('user-dropdown-menu');
+    if (menu) menu.classList.remove('open');
+});
 
-// Handle logout
-function handleLogout() {
-    console.log('🚪 Logging out...');
-    
-    // Clear all storage
-    localStorage.removeItem('amUserData');
-    sessionStorage.removeItem('amUserData');
-    
-    // Clear cookie
-    document.cookie = 'amUserData=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.amhairandbeauty.com;';
-    
-    updateUIForLoggedOutUser();
-    
-    alert('You have been signed out successfully.');
-}
-
-// Initialize auth on page load
+// Initialize
 checkAuthStatus();
-
-// Initialize theme on page load
 loadTheme();
 
-// Add a manual check function for debugging (can be called from console)
-window.debugAuth = function() {
-    console.log('=== AUTH DEBUG INFO ===');
+// Debug helpers
+window.debugAuth = function () {
     console.log('amUserData (localStorage):', localStorage.getItem('amUserData'));
     console.log('amUserData (cookie):', getCookie('amUserData'));
-    console.log('amTheme (localStorage):', localStorage.getItem('amTheme'));
-    console.log('amTheme (cookie):', getCookie('amTheme'));
-    
-    const userData = localStorage.getItem('amUserData') || getCookie('amUserData');
-    if (userData) {
-        try {
-            const user = JSON.parse(userData);
-            console.log('Parsed user:', user);
-            console.log('Attempting to update UI...');
-            updateUIForLoggedInUser(user);
-        } catch (e) {
-            console.error('Error parsing user data:', e);
-        }
-    } else {
-        console.log('❌ No user data found!');
-    }
+    console.log('amTheme:', localStorage.getItem('amTheme'), '|', getCookie('amTheme'));
 };
-
-// Also check cookies for cross-subdomain data
-window.debugCookies = function() {
-    console.log('=== COOKIES DEBUG ===');
+window.debugCookies = function () {
     console.log('All cookies:', document.cookie);
-    console.log('amUserData cookie:', getCookie('amUserData'));
-    console.log('amTheme cookie:', getCookie('amTheme'));
 };
 
-console.log('💡 Debug helpers available: debugAuth() and debugCookies()');
-
+console.log('💡 Debug helpers: debugAuth() and debugCookies()');
 </script>
 
 <script nonce="A2Fc45">
@@ -1555,216 +1609,155 @@ const allProducts = [
     {id:'product8', name:'Tumeric Soap', price:3.49, image:'tumeric.jpg', url:'https://shop.amhairandbeauty.com/products/tumeric-soap'},
 ];
 
-// Product navigation function
 function showProduct(productId) {
     const product = allProducts.find(p => p.id === productId);
-    if (product) {
-        window.location.href = product.url;
-    }
+    if (product) window.location.href = product.url;
 }
 
-// Add click listeners to all product cards
-document.addEventListener('DOMContentLoaded', function() {
-    const productCards = document.querySelectorAll('.product-card');
-    productCards.forEach(card => {
-        card.addEventListener('click', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    // Product card clicks
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function () {
             const productId = this.getAttribute('data-product');
-            if (productId) {
-                showProduct(productId);
-            }
+            if (productId) showProduct(productId);
         });
     });
 
     const showMoreBtn = document.getElementById('show-more-btn');
-    if (showMoreBtn) {
-        showMoreBtn.addEventListener('click', activateCarousel);
-    }
-
-    const userHeader = document.getElementById('user-header');
-    if (userHeader) {
-        userHeader.addEventListener('click', handleUserHeaderClick);
-    }
+    if (showMoreBtn) showMoreBtn.addEventListener('click', activateCarousel);
 
     const dismissBtn = document.getElementById('dismiss-message-btn');
-    if (dismissBtn) {
-        dismissBtn.addEventListener('click', dismissImportantMessage);
+    if (dismissBtn) dismissBtn.addEventListener('click', dismissImportantMessage);
+
+    // Sign-out buttons (desktop dropdown + mobile)
+    const signOutBtn = document.getElementById('sign-out-btn');
+    if (signOutBtn) signOutBtn.addEventListener('click', handleLogout);
+
+    const mobileSignoutBtn = document.getElementById('mobile-signout-btn');
+    if (mobileSignoutBtn) {
+        mobileSignoutBtn.addEventListener('click', function () {
+            document.getElementById('mobile-menu').classList.remove('active');
+            document.getElementById('mobile-menu-overlay').classList.remove('active');
+            handleLogout();
+        });
     }
 
-    // Handle mobile menu
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-    const mobileLoginBtn = document.getElementById('mobile-login-btn');
-    
+    // Mobile menu
+    const mobileMenuBtn      = document.getElementById('mobile-menu-btn');
+    const mobileMenu         = document.getElementById('mobile-menu');
+    const mobileMenuOverlay  = document.getElementById('mobile-menu-overlay');
+    const mobileLoginBtn     = document.getElementById('mobile-login-btn');
+
     if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', function() {
+        mobileMenuBtn.addEventListener('click', function () {
             mobileMenu.classList.toggle('active');
             mobileMenuOverlay.classList.toggle('active');
         });
     }
-    
+
     if (mobileMenuOverlay) {
-        mobileMenuOverlay.addEventListener('click', function() {
+        mobileMenuOverlay.addEventListener('click', function () {
             mobileMenu.classList.remove('active');
             mobileMenuOverlay.classList.remove('active');
         });
     }
-    
-    const mobileNavLinks = document.querySelectorAll('.mobile-menu nav a');
-    mobileNavLinks.forEach(link => {
-        link.addEventListener('click', function() {
+
+    document.querySelectorAll('.mobile-menu nav a').forEach(link => {
+        link.addEventListener('click', function () {
             mobileMenu.classList.remove('active');
             mobileMenuOverlay.classList.remove('active');
         });
     });
-    
+
     if (mobileLoginBtn) {
-        mobileLoginBtn.addEventListener('click', function(e) {
+        mobileLoginBtn.addEventListener('click', function (e) {
             e.preventDefault();
             mobileMenu.classList.remove('active');
             mobileMenuOverlay.classList.remove('active');
-            handleUserHeaderClick();
+            // If already logged in this just goes to account page; auth page handles it
+            window.location.href = AUTH_LOGIN_URL;
         });
     }
 
-    // Handle review modal
-    const leaveReviewBtn = document.getElementById('leave-review-btn');
-    const reviewModalOverlay = document.getElementById('review-modal-overlay');
-    const reviewModalClose = document.getElementById('review-modal-close');
-    const reviewCancelBtn = document.getElementById('review-cancel-btn');
-    const reviewForm = document.getElementById('review-form');
-    const starRating = document.getElementById('star-rating');
-    const reviewRatingInput = document.getElementById('review-rating');
-    const reviewSubmitBtn = document.getElementById('review-submit-btn');
+    // Review modal
+    const leaveReviewBtn      = document.getElementById('leave-review-btn');
+    const reviewModalOverlay  = document.getElementById('review-modal-overlay');
+    const reviewModalClose    = document.getElementById('review-modal-close');
+    const reviewCancelBtn     = document.getElementById('review-cancel-btn');
+    const reviewForm          = document.getElementById('review-form');
+    const starRatingEl        = document.getElementById('star-rating');
+    const reviewRatingInput   = document.getElementById('review-rating');
+    const reviewSubmitBtn     = document.getElementById('review-submit-btn');
     const reviewSuccessMessage = document.getElementById('review-success-message');
-    
+
     if (leaveReviewBtn) {
-        leaveReviewBtn.addEventListener('click', function() {
+        leaveReviewBtn.addEventListener('click', function () {
             reviewModalOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
         });
     }
-    
+
     function closeReviewModal() {
         reviewModalOverlay.classList.remove('active');
         document.body.style.overflow = '';
         reviewSuccessMessage.classList.remove('show');
         reviewForm.reset();
-        document.querySelectorAll('.star').forEach(star => {
-            star.classList.remove('active');
-        });
+        document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
         reviewRatingInput.value = '';
     }
-    
-    if (reviewModalClose) {
-        reviewModalClose.addEventListener('click', closeReviewModal);
-    }
-    
-    if (reviewCancelBtn) {
-        reviewCancelBtn.addEventListener('click', closeReviewModal);
-    }
-    
+
+    if (reviewModalClose)  reviewModalClose.addEventListener('click', closeReviewModal);
+    if (reviewCancelBtn)   reviewCancelBtn.addEventListener('click', closeReviewModal);
     if (reviewModalOverlay) {
-        reviewModalOverlay.addEventListener('click', function(e) {
-            if (e.target === reviewModalOverlay) {
-                closeReviewModal();
-            }
+        reviewModalOverlay.addEventListener('click', function (e) {
+            if (e.target === reviewModalOverlay) closeReviewModal();
         });
     }
-    
-    if (starRating) {
-        const stars = starRating.querySelectorAll('.star');
+
+    if (starRatingEl) {
+        const stars = starRatingEl.querySelectorAll('.star');
         stars.forEach(star => {
-            star.addEventListener('click', function() {
+            star.addEventListener('click', function () {
                 const rating = this.getAttribute('data-rating');
                 reviewRatingInput.value = rating;
-                
                 stars.forEach(s => {
-                    const starRating = s.getAttribute('data-rating');
-                    if (starRating <= rating) {
-                        s.classList.add('active');
-                    } else {
-                        s.classList.remove('active');
-                    }
+                    s.classList.toggle('active', s.getAttribute('data-rating') <= rating);
                 });
             });
-            
-            star.addEventListener('mouseenter', function() {
+            star.addEventListener('mouseenter', function () {
                 const rating = this.getAttribute('data-rating');
                 stars.forEach(s => {
-                    const starRating = s.getAttribute('data-rating');
-                    if (starRating <= rating) {
-                        s.style.color = '#f59e0b';
-                    }
+                    s.style.color = s.getAttribute('data-rating') <= rating ? '#f59e0b' : '';
                 });
             });
         });
-        
-        starRating.addEventListener('mouseleave', function() {
+        starRatingEl.addEventListener('mouseleave', function () {
             const currentRating = reviewRatingInput.value;
             stars.forEach(s => {
-                const starRating = s.getAttribute('data-rating');
-                if (!currentRating || starRating > currentRating) {
-                    if (!s.classList.contains('active')) {
-                        s.style.color = '#ddd';
-                    }
+                if (!currentRating || s.getAttribute('data-rating') > currentRating) {
+                    if (!s.classList.contains('active')) s.style.color = '#ddd';
                 }
             });
         });
     }
-    
-    if (reviewForm) {
-        reviewForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = {
-                name: document.getElementById('review-name').value,
-                email: document.getElementById('review-email').value,
-                rating: reviewRatingInput.value,
-                review: document.getElementById('review-text').value,
-                timestamp: new Date().toISOString()
-            };
-            
-            if (!formData.rating) {
-                alert('Please select a star rating');
-                return;
-            }
-            
-            reviewSubmitBtn.disabled = true;
-            reviewSubmitBtn.textContent = 'Submitting...';
-            
-            console.log('Review submitted:', formData);
-            
-            setTimeout(() => {
-                reviewSuccessMessage.classList.add('show');
-                reviewSubmitBtn.disabled = false;
-                reviewSubmitBtn.textContent = 'Submit Review';
-                
-                setTimeout(() => {
-                    closeReviewModal();
-                }, 2000);
-                
-            }, 1000);
-        });
-    }
 
-    const images = document.querySelectorAll('img');
-    images.forEach(img => {
-        img.addEventListener('error', function() {
-            this.style.display = 'none';
-        });
+    // The review form submit is handled by reviews.js (handleReviewSubmit)
+    // so no duplicate handler here.
+
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('error', function () { this.style.display = 'none'; });
     });
 });
 
-// Carousel activation function
+// Carousel
 function activateCarousel() {
-    const carousel = document.getElementById('carousel');
-    const container = document.getElementById('carousel-container');
+    const carousel    = document.getElementById('carousel');
+    const container   = document.getElementById('carousel-container');
     const initialGrid = document.getElementById('products-initial');
     const showMoreBtn = document.getElementById('show-more-btn');
-    
+
     if (!carousel || !container || !initialGrid) return;
-    
+
     carousel.innerHTML = '';
     allProducts.forEach((p, i) => {
         const card = document.createElement('div');
@@ -1779,89 +1772,62 @@ function activateCarousel() {
                 <p class="product-description">Click to view details and purchase</p>
             </div>
         `;
-        
-        card.addEventListener('click', function() {
-            showProduct(p.id);
-        });
-        
+        card.addEventListener('click', function () { showProduct(p.id); });
         carousel.appendChild(card);
     });
-    
+
     initialGrid.style.opacity = '0';
     initialGrid.style.transform = 'scale(0.95)';
-    if (showMoreBtn) {
-        showMoreBtn.style.opacity = '0';
-    }
-    
+    if (showMoreBtn) showMoreBtn.style.opacity = '0';
+
     setTimeout(() => {
         initialGrid.style.display = 'none';
-        if (showMoreBtn) {
-            showMoreBtn.style.display = 'none';
-        }
+        if (showMoreBtn) showMoreBtn.style.display = 'none';
         container.style.display = 'block';
         container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 400);
 }
 
-// Dismiss important message
 function dismissImportantMessage() {
     const message = document.getElementById('important-message');
-    if (message) {
-        message.classList.remove('show');
-        message.style.display = 'none';
-    }
+    if (message) { message.classList.remove('show'); message.style.display = 'none'; }
 }
 
 // Slideshow
 let currentSlide = 0;
 const slides = document.querySelectorAll('.slide-image');
-
 function showNextSlide() {
-    if (slides.length === 0) return;
+    if (!slides.length) return;
     slides[currentSlide].classList.remove('active');
     currentSlide = (currentSlide + 1) % slides.length;
     slides[currentSlide].classList.add('active');
 }
-
 setInterval(showNextSlide, 6000);
 
-// Scroll Header Effect
+// Scroll header effect
 const header = document.getElementById('header');
 window.addEventListener('scroll', () => {
-    if (window.scrollY > 100) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-    }
+    header.classList.toggle('scrolled', window.scrollY > 100);
 });
 
-// Scroll Reveal Animation
-const observerOptions = {
-    threshold: 0.15,
-    rootMargin: '0px 0px -100px 0px'
-};
-
+// Scroll reveal
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-        }
+        if (entry.isIntersecting) entry.target.classList.add('revealed');
     });
-}, observerOptions);
+}, { threshold: 0.15, rootMargin: '0px 0px -100px 0px' });
 
-document.querySelectorAll('.scroll-reveal, .scroll-reveal-left, .scroll-reveal-right, .scale-in').forEach((el) => {
+document.querySelectorAll('.scroll-reveal, .scroll-reveal-left, .scroll-reveal-right, .scale-in').forEach(el => {
     observer.observe(el);
 });
 
-// Smooth Reviews Scroll
+// Auto-scroll reviews
 const reviewsContainer = document.getElementById('reviews-container');
 let scrollPosition = 0;
 let isHovering = false;
-
 if (reviewsContainer) {
     reviewsContainer.addEventListener('mouseenter', () => isHovering = true);
     reviewsContainer.addEventListener('mouseleave', () => isHovering = false);
-
     setInterval(() => {
         if (!isHovering && reviewsContainer) {
             scrollPosition += 0.5;
@@ -1880,6 +1846,3 @@ console.log('✨ A&M - Smooth Animations Loaded!');
 
 </body>
 </html>
-
-
-

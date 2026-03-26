@@ -51,19 +51,6 @@ function getCurrentUser() {
     return null;
 }
 
-// ── FIX 1: Logout clears BOTH localStorage and cookie ────
-function logoutUser() {
-    localStorage.removeItem('amUserData');
-    // Expire the cookie by setting it in the past
-    document.cookie = 'amUserData=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    // Also clear any other auth keys your system might use
-    localStorage.removeItem('amToken');
-    localStorage.removeItem('amSession');
-    displayReviews(); // Refresh UI to hide dev controls
-}
-
-// Expose globally so your logout button can call window.logoutUser()
-window.logoutUser = logoutUser;
 
 function isDevUser() {
     const user = getCurrentUser();

@@ -382,7 +382,7 @@ async function handleReviewSubmit(event) {
             box-shadow: 0 4px 15px rgba(217,70,166,0.4);
         }
 
-        .review-card:hover .review-reply-btn {
+        .review-reply-btn {
             display: inline-block;
         }
 

@@ -1,5 +1,4 @@
-// Reviews Management System using Google Sheets API
-// FREE shared reviews visible to ALL users — with profile picture suppor
+
 
 const SHEET_ID = '12Q0Kp1-K4PnA5SsMQNovmcIAKdqVJsV_BKqItwMNFy4';
 const API_KEY = 'AIzaSyAfvqiFKatwdVPvuNyDDGEgCnbnafo779c';

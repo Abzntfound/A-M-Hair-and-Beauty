@@ -32,17 +32,42 @@ function isRealEmail(email) {
 
 function getCurrentUser() {
     try {
+        // Try localStorage first
         const raw = localStorage.getItem('amUserData');
-        if (raw) return JSON.parse(raw);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            // Make sure it's a valid object with at least an email
+            if (parsed && parsed.email) return parsed;
+        }
+        // Fall back to cookie
         const cookieMatch = document.cookie.split('; ').find(r => r.startsWith('amUserData='));
-        if (cookieMatch) return JSON.parse(decodeURIComponent(cookieMatch.split('=').slice(1).join('=')));
-    } catch (e) {}
+        if (cookieMatch) {
+            const parsed = JSON.parse(decodeURIComponent(cookieMatch.split('=').slice(1).join('=')));
+            if (parsed && parsed.email) return parsed;
+        }
+    } catch (e) {
+        console.warn('getCurrentUser error:', e);
+    }
     return null;
 }
 
+// ── FIX 1: Logout clears BOTH localStorage and cookie ────
+function logoutUser() {
+    localStorage.removeItem('amUserData');
+    // Expire the cookie by setting it in the past
+    document.cookie = 'amUserData=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    // Also clear any other auth keys your system might use
+    localStorage.removeItem('amToken');
+    localStorage.removeItem('amSession');
+    displayReviews(); // Refresh UI to hide dev controls
+}
+
+// Expose globally so your logout button can call window.logoutUser()
+window.logoutUser = logoutUser;
+
 function isDevUser() {
     const user = getCurrentUser();
-    return user && DEV_EMAILS.includes(user.email.toLowerCase());
+    return !!(user && user.email && DEV_EMAILS.includes(user.email.toLowerCase()));
 }
 
 function getCurrentUserPfp() {
@@ -85,10 +110,10 @@ function buildAvatar(pfp, name) {
 
 function getDefaultReviews() {
     return [
-        { name: "Sarah M.", rating: 5, review: "The hair growth oil is amazing! My hair has never felt so healthy and strong. I've noticed significant growth in just 3 weeks!", date: new Date(Date.now() - 14 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" },
-        { name: "Jessica T.", rating: 5, review: "Best satin bonnet I've ever owned! Keeps my hair protected all night and the quality is outstanding.", date: new Date(Date.now() - 7 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" },
-        { name: "Maria L.", rating: 5, review: "Natural ingredients, visible results! My hair is shinier and healthier. Highly recommend A&M products!", date: new Date(Date.now() - 3 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" },
-        { name: "Aisha K.", rating: 5, review: "This rosemary oil is a game changer! My edges are filling in and my scalp feels so nourished.", date: new Date(Date.now() - 5 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" }
+        { sheetRowIndex: null, name: "Sarah M.", rating: 5, review: "The hair growth oil is amazing! My hair has never felt so healthy and strong. I've noticed significant growth in just 3 weeks!", date: new Date(Date.now() - 14 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" },
+        { sheetRowIndex: null, name: "Jessica T.", rating: 5, review: "Best satin bonnet I've ever owned! Keeps my hair protected all night and the quality is outstanding.", date: new Date(Date.now() - 7 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" },
+        { sheetRowIndex: null, name: "Maria L.", rating: 5, review: "Natural ingredients, visible results! My hair is shinier and healthier. Highly recommend A&M products!", date: new Date(Date.now() - 3 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" },
+        { sheetRowIndex: null, name: "Aisha K.", rating: 5, review: "This rosemary oil is a game changer! My edges are filling in and my scalp feels so nourished.", date: new Date(Date.now() - 5 * 86400000).toISOString(), pfp: "", reply: "", replyAuthor: "" }
     ];
 }
 
@@ -102,7 +127,9 @@ async function getReviews() {
             const data = await response.json();
             const rows = data.values;
             if (!rows || rows.length <= 1) return getDefaultReviews();
-            return rows.slice(1).map(row => ({
+            // FIX 2: Store the real sheet row index (1-based header = row 1, data starts at row 2)
+            return rows.slice(1).map((row, i) => ({
+                sheetRowIndex: i + 2, // actual row number in Google Sheet
                 name: row[0] || '',
                 rating: parseInt(row[1]) || 5,
                 review: row[2] || '',
@@ -141,16 +168,22 @@ async function saveReview(review) {
 
 // ── Save reply ────────────────────────────────────────────
 
-async function saveReply(reviewIndex, replyText, replyAuthor) {
+// FIX 2: Now receives the real sheetRowIndex instead of a sorted forEach index
+async function saveReply(sheetRowIndex, replyText, replyAuthor) {
     if (APPS_SCRIPT_URL) {
         try {
             const response = await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'ADD_REPLY', reviewIndex, reply: replyText, replyAuthor })
+                body: JSON.stringify({
+                    action: 'ADD_REPLY',
+                    reviewIndex: sheetRowIndex, // real row number the Apps Script needs
+                    reply: replyText,
+                    replyAuthor
+                })
             });
             if (response.ok) {
-                console.log('Reply saved');
+                console.log('Reply saved to row', sheetRowIndex);
                 return true;
             }
         } catch (error) {
@@ -176,9 +209,8 @@ async function displayReviews() {
     }
 
     const devUser = isDevUser();
-    const user = getCurrentUser();
 
-    reviews.forEach((review, index) => {
+    reviews.forEach((review) => {
         const card = document.createElement('div');
         card.className = 'review-card';
 
@@ -260,7 +292,6 @@ async function displayReviews() {
 
         container.appendChild(card);
 
-        // Attach events directly to this card's elements right after appending
         if (devUser && !review.reply) {
             const replyBtn = card.querySelector('.am-reply-btn');
             const replyForm = card.querySelector('.am-reply-form');
@@ -268,21 +299,21 @@ async function displayReviews() {
             const submitBtn = card.querySelector('.am-reply-submit');
             const cancelBtn = card.querySelector('.am-reply-cancel');
 
-            replyBtn.addEventListener('click', function(e) {
+            replyBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 replyForm.style.display = 'block';
                 replyBtn.style.display = 'none';
                 replyInput.focus();
             });
 
-            cancelBtn.addEventListener('click', function(e) {
+            cancelBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 replyForm.style.display = 'none';
                 replyBtn.style.display = 'inline-block';
                 replyInput.value = '';
             });
 
-            submitBtn.addEventListener('click', async function(e) {
+            submitBtn.addEventListener('click', async function (e) {
                 e.stopPropagation();
                 const replyText = replyInput.value.trim();
 
@@ -295,13 +326,15 @@ async function displayReviews() {
                 const devUserData = getCurrentUser();
                 const replyAuthor = devUserData ? devUserData.name.split(' ')[0] : 'Dev';
 
-                const saved = await saveReply(index, replyText, replyAuthor);
+                // FIX 2: Pass sheetRowIndex, not a forEach loop index
+                const saved = await saveReply(review.sheetRowIndex, replyText, replyAuthor);
 
                 if (saved) {
                     await displayReviews();
                 } else {
                     // Show reply locally even if save failed
                     replyForm.style.display = 'none';
+                    replyBtn.style.display = 'none';
                     card.insertAdjacentHTML('beforeend', `
                         <div class="review-reply">
                             <span class="review-reply-author">${sanitizeHTML(replyAuthor)} - Dev</span>

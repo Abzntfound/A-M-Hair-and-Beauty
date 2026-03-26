@@ -1482,25 +1482,7 @@ function updateUIForLoggedOutUser() {
 
 // Handle user header/login button click
 function handleUserHeaderClick() {
-    // IMPORTANT: Check using 'amUserData' not 'userData'
-    const userData = localStorage.getItem('amUserData') || getCookie('amUserData');
-    
-    if (userData) {
-        try {
-            const user = JSON.parse(userData);
-            const userChoice = confirm(`Logged in as ${user.name || user.email}\n\nClick OK to sign out, or Cancel to stay logged in.`);
-            
-            if (userChoice) {
-                handleLogout();
-            }
-        } catch (e) {
-            console.error('Error parsing user data:', e);
-            window.location.href = AUTH_LOGIN_URL;
-        }
-    } else {
-        // Not logged in - redirect to auth
-        window.location.href = AUTH_LOGIN_URL;
-    }
+    window.location.href = 'https://auth.amhairandbeauty.com';
 }
 
 // Handle logout

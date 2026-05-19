@@ -6,7 +6,7 @@
 const SHEET_ID        = '12Q0Kp1-K4PnA5SsMQNovmcIAKdqVJsV_BKqItwMNFy4';
 const API_KEY         = 'AIzaSyAfvqiFKatwdVPvuNyDDGEgCnbnafo779c';
 const SHEET_NAME      = 'Sheet1';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5c0TS4jt2ebmKeKdPrrNTgMVxfSHmB_RzUvyEzLKth4DkoIq4Xfly3lS4EhQDdoNAMw/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLszqsnIRKPythAG0KlygMiWicU-csUDOwWriVrBxlUEIVrD-89ZyEJ7V0bjLRh3UrDg/exec';
 
 // ---- Profanity filter ----
 const BAD_WORDS = ['damn','hell','crap','shit','fuck','ass','bitch','bastard','dick','piss','cock','pussy','whore','slut','fag','nigger','cunt','asshole','motherfucker'];

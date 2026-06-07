@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed — A&M Hair & Beauty</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fff9fb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      text-align: center;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 8px 40px rgba(217,70,166,0.1);
+    }
+    .icon { font-size: 4rem; margin-bottom: 1rem; }
+    h1 { color: #1a1a2e; font-size: 1.8rem; margin-bottom: 0.75rem; }
+    p { color: #666; line-height: 1.6; margin-bottom: 1.5rem; }
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #d946a6, #9333ea);
+      color: white;
+      padding: 0.85rem 2rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0.4rem;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid #d946a6;
+      color: #d946a6;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🎉</div>
+    <h1>Order Confirmed!</h1>
+    <p>Thank you for your purchase. You'll receive a confirmation email shortly with your order details.</p>
+    <p style="font-size:0.9rem;color:#aaa">Your A&M Hair & Beauty products are on their way! 🌿</p>
+    <div>
+      <a href="products.html" class="btn">Continue Shopping</a>
+      <a href="index.html" class="btn btn-outline">Back to Home</a>
+    </div>
+  </div>
+  <script>
+    // Clear cart on successful payment
+    try { localStorage.removeItem('amCart'); } catch(e) {}
+  </script>
+</body>
+</html>

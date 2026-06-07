@@ -9,7 +9,7 @@
 // You can create one at: https://dashboard.stripe.com/payment-links
 // Example URL: https://buy.stripe.com/test_XXXXXXXX
 const AM_CONFIG = {
-    stripeLinkBase: 'https://buy.stripe.com/test_9B67sM14M0bN0fz7pMaAw00',
+    stripeLinkBase: 'https://buy.stripe.com/14A28seVp07E1ta8mZ6Zy04',
     // Currency code for display
     currency: 'GBP',
     currencySymbol: '£',

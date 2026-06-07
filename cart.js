@@ -1,6 +1,6 @@
 /* ============================================================
    A&M Hair & Beauty — cart.js
-   Cart state management + Stripe Payment Link checkout.
+   Cart state management + Stripe checkout.
    ============================================================ */
 
 // ============================================================
@@ -70,51 +70,15 @@ function getOrderTotal() {
 }
 
 // ============================================================
-// STRIPE CHECKOUT
+// STRIPE CHECKOUT (NO BACKEND / NO NETLIFY FUNCTIONS)
 // ============================================================
-/*
-  HOW THE TOTAL IS PASSED TO STRIPE:
-  ------------------------------------
-  Stripe Payment Links support ?prefilled_amount=XXXX ONLY when the
-  Payment Link is set to "flexible / customer chooses amount" mode.
+function redirectToStripeCheckout() {
+    const total = getOrderTotal();
+    const amountInPence = Math.round(total * 100);
 
-  To make the correct total show on Stripe checkout:
+    const url = `${AM_CONFIG.stripeLinkBase}?prefilled_amount=${amountInPence}`;
 
-  STEP 1 — Create a flexible Payment Link in Stripe:
-    1. Go to https://dashboard.stripe.com/payment-links
-    2. Click "New payment link"
-    3. Under "Products", choose "Let customers choose what to pay"
-       (this creates a flexible/donation-style link)
-    4. Set currency to GBP, give it a name like "A&M Order"
-    5. Copy the URL (e.g. https://buy.stripe.com/XXXXXXXX)
-    6. Paste it into AM_CONFIG.stripeLinkBase in data.js
-
-  STEP 2 — The ?prefilled_amount param (in pence) will then
-  correctly pre-fill the total on the Stripe checkout page,
-  including shipping, and the customer won't be able to change it
-  if you also set a minimum amount equal to the order total.
-
-  Your current Payment Link (https://buy.stripe.com/14A28seVp07E1ta8mZ6Zy04)
-  appears to be a FIXED-price link, which ignores prefilled_amount.
-  You need to recreate it as a flexible-amount link for this to work.
-*/
-
-async function redirectToStripeCheckout(cart) {
-    const shipping = getShipping();
-
-    const res = await fetch('/.netlify/functions/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cart, shipping }),
-    });
-
-    const data = await res.json();
-
-    if (data.url) {
-        window.location.href = data.url;
-    } else {
-        throw new Error(data.error || 'Failed to create checkout session');
-    }
+    window.location.href = url;
 }
 
 // ============================================================
@@ -149,7 +113,9 @@ function renderCartPage() {
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
         <div class="cart-item-price">${AM_CONFIG.currencySymbol}${(item.price * item.qty).toFixed(2)}</div>
-        <div style="font-size:0.8rem;color:#aaa;margin-top:0.2rem">${AM_CONFIG.currencySymbol}${item.price.toFixed(2)} each</div>
+        <div style="font-size:0.8rem;color:#aaa;margin-top:0.2rem">
+          ${AM_CONFIG.currencySymbol}${item.price.toFixed(2)} each
+        </div>
       </div>
       <div class="qty-control">
         <button class="qty-btn" data-action="dec" data-id="${item.id}">−</button>
@@ -159,12 +125,10 @@ function renderCartPage() {
       <button class="cart-item-remove" data-id="${item.id}" title="Remove">✕</button>
     </div>`).join('');
 
-    const stripeAvailable = AM_CONFIG.stripeLinkBase && !AM_CONFIG.stripeLinkBase.includes('YOUR_STRIPE');
-
     container.innerHTML = `
     <div class="cart-layout">
       <div class="cart-items-section">
-        <h2>Your Cart (${cart.reduce((s,i)=>s+(i.qty||1),0)} item${cart.reduce((s,i)=>s+(i.qty||1),0)===1?'':'s'})</h2>
+        <h2>Your Cart (${cart.reduce((s,i)=>s+(i.qty||1),0)} items)</h2>
         ${itemsHTML}
         <div style="margin-top:1.5rem">
           <a href="products.html" class="btn btn-outline btn-sm">← Continue Shopping</a>
@@ -173,54 +137,52 @@ function renderCartPage() {
 
       <div class="cart-summary">
         <h3>Order Summary</h3>
+
         <div class="summary-row">
           <span>Subtotal</span>
           <span>${AM_CONFIG.currencySymbol}${subtotal.toFixed(2)}</span>
         </div>
+
         <div class="summary-row">
           <span>Shipping</span>
           <span>${shipping === 0 ? '<strong style="color:#10b981">FREE</strong>' : AM_CONFIG.currencySymbol + shipping.toFixed(2)}</span>
         </div>
-        ${shipping > 0 ? `<div style="font-size:0.78rem;color:#aaa;margin-bottom:0.5rem">Free shipping on orders over ${AM_CONFIG.currencySymbol}30</div>` : ''}
+
+        ${shipping > 0 ? `<div style="font-size:0.78rem;color:#aaa;margin-bottom:0.5rem">
+          Free shipping on orders over ${AM_CONFIG.currencySymbol}30
+        </div>` : ''}
+
         <div class="summary-row total">
           <span>Total</span>
           <span>${AM_CONFIG.currencySymbol}${total.toFixed(2)}</span>
         </div>
 
         <div class="stripe-info">
-          <strong>🔒 Secure Checkout via Stripe</strong>
-          You'll be taken to Stripe's secure payment page. Your total of
-          <strong>${AM_CONFIG.currencySymbol}${total.toFixed(2)}</strong> will be prefilled.
+          <strong>🔒 Secure Checkout via Stripe</strong><br>
+          You’ll be redirected to Stripe to complete your payment.
         </div>
 
-        ${stripeAvailable
-            ? `<button class="btn btn-primary" style="width:100%" id="checkout-btn" onclick="proceedToCheckout()">
-                 Checkout — ${AM_CONFIG.currencySymbol}${total.toFixed(2)}
-               </button>`
-            : `<div style="background:#fff3cd;border:1.5px solid #ffc107;border-radius:12px;padding:1rem;font-size:0.82rem;color:#856404;margin-bottom:1rem">
-                 ⚙️ <strong>Setup needed:</strong> Add your Stripe Payment Link URL to <code>AM_CONFIG.stripeLinkBase</code> in <code>data.js</code>. See instructions in cart.js for how to create a flexible-amount link.
-               </div>
-               <a href="${AM_CONFIG.shopUrl}/cart" class="btn btn-primary" style="width:100%;text-align:center">
-                 Checkout via Shop →
-               </a>`
-        }
+        <button class="btn btn-primary" style="width:100%" id="checkout-btn" onclick="proceedToCheckout()">
+          Checkout — ${AM_CONFIG.currencySymbol}${total.toFixed(2)}
+        </button>
 
         <p class="checkout-note">
           Payments are securely handled by <a href="https://stripe.com" target="_blank">Stripe</a>.
-          We never store your card details.
         </p>
       </div>
     </div>`;
 
-    // Event listeners for qty + remove
+    // Event listeners
     container.querySelectorAll('.qty-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const id = btn.dataset.id;
             const action = btn.dataset.action;
             const current = getCart().find(i => i.id === id);
             if (!current) return;
+
             if (action === 'inc') updateQty(id, current.qty + 1);
             if (action === 'dec') updateQty(id, current.qty - 1);
+
             renderCartPage();
         });
     });
@@ -238,14 +200,21 @@ async function proceedToCheckout() {
     if (cart.length === 0) return;
 
     const btn = document.getElementById('checkout-btn');
-    if (btn) { btn.textContent = 'Redirecting to Stripe...'; btn.disabled = true; }
+    if (btn) {
+        btn.textContent = 'Redirecting...';
+        btn.disabled = true;
+    }
 
     try {
-        await redirectToStripeCheckout(cart);
+        redirectToStripeCheckout();
     } catch (err) {
-        console.error('Checkout error:', err.message);
-        alert('Something went wrong starting checkout. Please try again.');
-        if (btn) { btn.textContent = `Checkout — ${AM_CONFIG.currencySymbol}${getOrderTotal().toFixed(2)}`; btn.disabled = false; }
+        console.error('Checkout error:', err);
+        alert('Something went wrong. Please try again.');
+
+        if (btn) {
+            btn.textContent = `Checkout — ${AM_CONFIG.currencySymbol}${getOrderTotal().toFixed(2)}`;
+            btn.disabled = false;
+        }
     }
 }
 
@@ -263,4 +232,4 @@ window.getOrderTotal     = getOrderTotal;
 window.proceedToCheckout = proceedToCheckout;
 window.renderCartPage    = renderCartPage;
 
-console.log('✅ cart.js loaded');
+console.log('✅ cart.js loaded (Netlify removed)');

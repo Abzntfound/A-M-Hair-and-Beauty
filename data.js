@@ -5,7 +5,7 @@
 
 // ---- STRIPE CONFIG ----
 const AM_CONFIG = {
-    stripeLinkBase: 'https://buy.stripe.com/9B66oI9B54nU2xe6eR6Zy05', // flexible "customer chooses" link
+    stripeLinkBase: 'https://buy.stripe.com/28E8wQ28DcUqefWdHj6Zy06', // flexible "customer chooses" link
     currency: 'GBP',
     currencySymbol: '£',
     shopUrl: 'https://shop.amhairandbeauty.com',

@@ -82,16 +82,16 @@ async function fetchReviews() {
 // ---- Save review ----
 async function saveReview(review) {
     try {
-        const res = await fetch(APPS_SCRIPT_URL, {
+        // Sending Content-Type: application/json triggers a CORS preflight that
+        // Apps Script rejects. Fix: no custom headers + no-cors mode.
+        // no-cors gives an opaque response so we can't read it back — but if
+        // no exception is thrown the request got through to the script.
+        await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'ADD_REVIEW', ...review }), // FIX: action field added
+            mode:   'no-cors',
+            body:   JSON.stringify({ action: 'ADD_REVIEW', ...review }),
         });
-        if (res.ok) {
-            const data = await res.json();
-            if (data.success) return true;
-            console.warn('Apps Script returned error:', data.message);
-        }
+        return true;
     } catch (e) { console.warn('Apps Script save failed:', e.message); }
 
     // localStorage fallback

@@ -6,7 +6,7 @@
 const SHEET_ID        = '12Q0Kp1-K4PnA5SsMQNovmcIAKdqVJsV_BKqItwMNFy4';
 const API_KEY         = 'AIzaSyAfvqiFKatwdVPvuNyDDGEgCnbnafo779c';
 const SHEET_NAME      = 'Sheet1';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLszqsnIRKPythAG0KlygMiWicU-csUDOwWriVrBxlUEIVrD-89ZyEJ7V0bjLRh3UrDg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzGKkcwwUq_Sk8Xo-icXpqoBHr-d3W4NeQ2CAm8jK80_GIb19dhiv-O326ili6C1HiVdw/exec';
 
 // ---- Profanity filter ----
 const BAD_WORDS = ['damn','hell','crap','shit','fuck','ass','bitch','bastard','dick','piss','cock','pussy','whore','slut','fag','nigger','cunt','asshole','motherfucker'];
@@ -85,9 +85,13 @@ async function saveReview(review) {
         const res = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(review),
+            body: JSON.stringify({ action: 'ADD_REVIEW', ...review }), // FIX: action field added
         });
-        if (res.ok) return true;
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success) return true;
+            console.warn('Apps Script returned error:', data.message);
+        }
     } catch (e) { console.warn('Apps Script save failed:', e.message); }
 
     // localStorage fallback

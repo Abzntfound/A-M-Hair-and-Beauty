@@ -3,7 +3,7 @@
    Cart state management + Stripe Payment Link checkout.
    ============================================================ */
 
-// ===========================================================
+// ============================================================
 // CART STATE
 // ============================================================
 function getCart() {
@@ -61,49 +61,58 @@ function getCartTotal() {
     return getCart().reduce((sum, i) => sum + i.price * (i.qty || 1), 0);
 }
 
+function getShipping() {
+    return getCartTotal() >= 30 ? 0 : 3.99;
+}
+
+function getOrderTotal() {
+    return getCartTotal() + getShipping();
+}
+
 // ============================================================
 // STRIPE CHECKOUT
 // ============================================================
 /*
-  HOW THIS WORKS:
-  ---------------
-  Stripe Payment Links support a ?prefilled_amount= query parameter
-  when you create a flexible-amount Payment Link (also called a
-  "donation" or "customer-chooses-amount" link).
+  HOW THE TOTAL IS PASSED TO STRIPE:
+  ------------------------------------
+  Stripe Payment Links support ?prefilled_amount=XXXX ONLY when the
+  Payment Link is set to "flexible / customer chooses amount" mode.
 
-  Steps to set up:
-  1. Go to https://dashboard.stripe.com/payment-links
-  2. Click "New" → choose "Let customer choose amount" OR
-     set it to a fixed product and use the Stripe API to create
-     a line-item-based session (server needed).
-  3. For a no-server approach, the simplest method is a
-     "flexible amount" Payment Link. Set the base URL in AM_CONFIG.
-  4. The prefilled_amount is in the SMALLEST CURRENCY UNIT
-     (pence for GBP, cents for USD).
+  To make the correct total show on Stripe checkout:
 
-  ALTERNATIVE (recommended for real stores):
-  -------------------------------------------
-  Use Stripe Checkout Sessions via a small serverless function
-  (Vercel/Netlify) that creates a session with line items and
-  redirects to Stripe hosted checkout. This gives full line-item
-  detail on the Stripe dashboard.
+  STEP 1 — Create a flexible Payment Link in Stripe:
+    1. Go to https://dashboard.stripe.com/payment-links
+    2. Click "New payment link"
+    3. Under "Products", choose "Let customers choose what to pay"
+       (this creates a flexible/donation-style link)
+    4. Set currency to GBP, give it a name like "A&M Order"
+    5. Copy the URL (e.g. https://buy.stripe.com/XXXXXXXX)
+    6. Paste it into AM_CONFIG.stripeLinkBase in data.js
 
-  For now, this file uses the Payment Link approach so no
-  server is required.
+  STEP 2 — The ?prefilled_amount param (in pence) will then
+  correctly pre-fill the total on the Stripe checkout page,
+  including shipping, and the customer won't be able to change it
+  if you also set a minimum amount equal to the order total.
+
+  Your current Payment Link (https://buy.stripe.com/14A28seVp07E1ta8mZ6Zy04)
+  appears to be a FIXED-price link, which ignores prefilled_amount.
+  You need to recreate it as a flexible-amount link for this to work.
 */
 
 function buildStripeUrl(cart) {
-    const totalPence = Math.round(getCartTotal() * 100); // pence/cents
+    const subtotal     = getCartTotal();
+    const shipping     = getShipping();
+    const orderTotal   = subtotal + shipping;
+    const totalPence   = Math.round(orderTotal * 100); // convert £ to pence
+
     const base = AM_CONFIG.stripeLinkBase;
 
-    // Build a readable description for the payment
+    // Build a readable order summary for Stripe's reference
     const itemDesc = cart.map(i => `${i.qty}x ${i.name}`).join(', ');
 
-    // Stripe Payment Link params
     const params = new URLSearchParams({
-        prefilled_amount: totalPence,
-        // Some Stripe Payment Links support client_reference_id
-        client_reference_id: `am_${Date.now()}`,
+        prefilled_amount:     totalPence,                          // passes full total incl. shipping
+        client_reference_id:  `am_${Date.now()}`,                  // unique order ref
     });
 
     return `${base}?${params.toString()}`;
@@ -131,8 +140,8 @@ function renderCartPage() {
     }
 
     const subtotal = getCartTotal();
-    const shipping = subtotal >= 30 ? 0 : 3.99;
-    const total    = subtotal + shipping;
+    const shipping = getShipping();
+    const total    = getOrderTotal();
 
     const itemsHTML = cart.map(item => `
     <div class="cart-item" data-id="${item.id}">
@@ -190,7 +199,7 @@ function renderCartPage() {
                  Checkout — ${AM_CONFIG.currencySymbol}${total.toFixed(2)}
                </button>`
             : `<div style="background:#fff3cd;border:1.5px solid #ffc107;border-radius:12px;padding:1rem;font-size:0.82rem;color:#856404;margin-bottom:1rem">
-                 ⚙️ <strong>Setup needed:</strong> Add your Stripe Payment Link URL to <code>AM_CONFIG.stripeLinkBase</code> in <code>data.js</code>.
+                 ⚙️ <strong>Setup needed:</strong> Add your Stripe Payment Link URL to <code>AM_CONFIG.stripeLinkBase</code> in <code>data.js</code>. See instructions in cart.js for how to create a flexible-amount link.
                </div>
                <a href="${AM_CONFIG.shopUrl}/cart" class="btn btn-primary" style="width:100%;text-align:center">
                  Checkout via Shop →
@@ -239,13 +248,15 @@ function proceedToCheckout() {
 // ============================================================
 // EXPOSE GLOBALS
 // ============================================================
-window.addToCart       = addToCart;
-window.removeFromCart  = removeFromCart;
-window.updateQty       = updateQty;
-window.clearCart       = clearCart;
-window.getCart         = getCart;
-window.getCartTotal    = getCartTotal;
+window.addToCart         = addToCart;
+window.removeFromCart    = removeFromCart;
+window.updateQty         = updateQty;
+window.clearCart         = clearCart;
+window.getCart           = getCart;
+window.getCartTotal      = getCartTotal;
+window.getShipping       = getShipping;
+window.getOrderTotal     = getOrderTotal;
 window.proceedToCheckout = proceedToCheckout;
-window.renderCartPage  = renderCartPage;
+window.renderCartPage    = renderCartPage;
 
 console.log('✅ cart.js loaded');

@@ -4,16 +4,10 @@
    ============================================================ */
 
 // ---- STRIPE CONFIG ----
-// Replace YOUR_STRIPE_PAYMENT_LINK with your actual Stripe Payment Link.
-// Stripe Payment Links support ?prefilled_amount=XXXX (in pence/cents).
-// You can create one at: https://dashboard.stripe.com/payment-links
-// Example URL: https://buy.stripe.com/test_XXXXXXXX
 const AM_CONFIG = {
-    stripeLinkBase: 'https://buy.stripe.com/14A28seVp07E1ta8mZ6Zy04',
-    // Currency code for display
+    stripeLinkBase: 'https://buy.stripe.com/9B66oI9B54nU2xe6eR6Zy05', // flexible "customer chooses" link
     currency: 'GBP',
     currencySymbol: '£',
-    // Shop fallback URL
     shopUrl: 'https://shop.amhairandbeauty.com',
     authUrl: 'https://auth.amhairandbeauty.com',
     siteUrl: 'https://amhairandbeauty.com',
@@ -305,11 +299,11 @@ const AM_FOOTER = {
 };
 
 // Expose globally
-window.AM_CONFIG   = AM_CONFIG;
-window.AM_PRODUCTS = AM_PRODUCTS;
+window.AM_CONFIG     = AM_CONFIG;
+window.AM_PRODUCTS   = AM_PRODUCTS;
 window.AM_CATEGORIES = AM_CATEGORIES;
-window.AM_ABOUT    = AM_ABOUT;
-window.AM_NAV      = AM_NAV;
-window.AM_FOOTER   = AM_FOOTER;
+window.AM_ABOUT      = AM_ABOUT;
+window.AM_NAV        = AM_NAV;
+window.AM_FOOTER     = AM_FOOTER;
 
-console.log('Data.js loaded✅');
+console.log('✅ data.js loaded');

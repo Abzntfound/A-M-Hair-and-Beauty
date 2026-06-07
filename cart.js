@@ -99,26 +99,22 @@ function getOrderTotal() {
   You need to recreate it as a flexible-amount link for this to work.
 */
 
-function buildStripeUrl(cart) {
-    const subtotal     = getCartTotal();
-    const shipping     = getShipping();
-    const orderTotal   = subtotal + shipping;
-    const totalPence   = Math.round(orderTotal * 100); // convert £ to pence
+async function redirectToStripeCheckout(cart) {
+    const shipping = getShipping();
 
-    const base = AM_CONFIG.stripeLinkBase;
-
-    // Build a readable order summary for Stripe's reference
-    const itemDesc = cart.map(i => `${i.qty}x ${i.name}`).join(', ');
-
-    // Stripe flexible links use prefilled_amount (pence). We also pass amount
-    // as a fallback since some newer link versions use a different param name.
-    const params = new URLSearchParams({
-        prefilled_amount:    totalPence,
-        amount:              totalPence,
-        client_reference_id: `am_${Date.now()}`,
+    const res = await fetch('/.netlify/functions/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cart, shipping }),
     });
 
-    return `${base}?${params.toString()}`;
+    const data = await res.json();
+
+    if (data.url) {
+        window.location.href = data.url;
+    } else {
+        throw new Error(data.error || 'Failed to create checkout session');
+    }
 }
 
 // ============================================================
@@ -237,15 +233,20 @@ function renderCartPage() {
     });
 }
 
-function proceedToCheckout() {
+async function proceedToCheckout() {
     const cart = getCart();
     if (cart.length === 0) return;
 
     const btn = document.getElementById('checkout-btn');
     if (btn) { btn.textContent = 'Redirecting to Stripe...'; btn.disabled = true; }
 
-    const url = buildStripeUrl(cart);
-    window.location.href = url;
+    try {
+        await redirectToStripeCheckout(cart);
+    } catch (err) {
+        console.error('Checkout error:', err.message);
+        alert('Something went wrong starting checkout. Please try again.');
+        if (btn) { btn.textContent = `Checkout — ${AM_CONFIG.currencySymbol}${getOrderTotal().toFixed(2)}`; btn.disabled = false; }
+    }
 }
 
 // ============================================================

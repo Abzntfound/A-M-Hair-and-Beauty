@@ -110,9 +110,12 @@ function buildStripeUrl(cart) {
     // Build a readable order summary for Stripe's reference
     const itemDesc = cart.map(i => `${i.qty}x ${i.name}`).join(', ');
 
+    // Stripe flexible links use prefilled_amount (pence). We also pass amount
+    // as a fallback since some newer link versions use a different param name.
     const params = new URLSearchParams({
-        prefilled_amount:     totalPence,                          // passes full total incl. shipping
-        client_reference_id:  `am_${Date.now()}`,                  // unique order ref
+        prefilled_amount:    totalPence,
+        amount:              totalPence,
+        client_reference_id: `am_${Date.now()}`,
     });
 
     return `${base}?${params.toString()}`;

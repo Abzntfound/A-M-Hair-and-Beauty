@@ -1,194 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product — A&M Hair & Beauty</title>
-  <link rel="icon" href="https://amhairandbeauty.com/A&M.ico">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://amhairandbeauty.com/styles.css">
-  <style>
-    .detail-section { padding: 120px 5% 80px; }
-    .detail-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; max-width: 1200px; margin: 0 auto; }
-    .img-wrap { border-radius: 24px; overflow: hidden; }
-    .img-wrap img { width: 100%; height: 500px; object-fit: cover; display: block; }
-    .detail-price { font-size: 2.6rem; font-weight: 900; color: #d946a6; margin-bottom: .5rem; }
-    .detail-name { font-size: 2rem; font-weight: 800; line-height: 1.2; margin-bottom: .4rem; }
-    .detail-subtitle { font-size: 1rem; color: #aaa; margin-bottom: 1.5rem; }
-    .detail-desc { font-size: 1rem; color: #666; line-height: 1.9; margin-bottom: 2rem; }
-    .qty-row { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 2rem; }
-    .qty-row label { font-weight: 600; font-size: .9rem; }
-    .qty-control { display: flex; align-items: center; border: 1.5px solid #eee; border-radius: 50px; overflow: hidden; }
-    .qty-btn { background: none; border: none; width: 36px; height: 36px; cursor: pointer; font-size: 1.1rem; transition: background .2s; }
-    .qty-btn:hover { background: #fdf2f8; color: #d946a6; }
-    .qty-num { width: 36px; text-align: center; font-weight: 600; }
-    .detail-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
-    .feature-section { border-top: 1.5px solid #f0f0f0; padding-top: 2rem; }
-    .feature-section h4 { font-weight: 700; margin-bottom: 1rem; }
-    .feature-list { list-style: none; }
-    .feature-list li { display: flex; gap: .7rem; padding: .45rem 0; font-size: .93rem; color: #555; }
-    .feature-list li::before { content: '✓'; color: #d946a6; font-weight: 700; flex-shrink: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    .related-section { padding: 60px 5% 100px; background: #fdf2f8; }
-    .related-section h2 { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 2rem; }
+<title>Product — A&M Hair & Beauty</title>
 
-    .discontinued-notice {
-      background: #f9f9f9; border: 1.5px solid #eee;
-      border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;
-      font-size: .9rem; color: #999;
-    }
+<link rel="stylesheet" href="/styles.css">
+<script src="/data.js" defer></script>
+<script src="/nav.js" defer></script>
+<script src="/cart.js" defer></script>
 
-    .back-link { display: inline-flex; align-items: center; gap: .4rem; color: #d946a6; text-decoration: none; font-size: .88rem; font-weight: 600; margin-bottom: 1.5rem; transition: gap .2s ease; }
-    .back-link:hover { gap: .7rem; }
+<style>
+.detail-section { padding:120px 5% 80px; }
+.detail-layout { display:grid; grid-template-columns:1fr 1fr; gap:3rem; max-width:1200px; margin:auto; }
+.img-wrap img { width:100%; height:500px; object-fit:cover; border-radius:20px; }
 
-    @media (max-width: 768px) {
-      .detail-layout { grid-template-columns: 1fr; gap: 2rem; }
-      .detail-section { padding: 100px 5% 60px; }
-      .img-wrap img { height: 320px; }
-      .detail-name { font-size: 1.6rem; }
-      .detail-price { font-size: 2rem; }
-    }
-  </style>
+.detail-price { font-size:2.4rem; font-weight:800; color:#d946a6; }
+.detail-name { font-size:2rem; font-weight:700; }
+.detail-desc { color:#666; line-height:1.7; }
+
+.qty { display:flex; gap:10px; align-items:center; }
+.qty button { width:30px; height:30px; }
+
+@media(max-width:768px){
+  .detail-layout { grid-template-columns:1fr; }
+}
+</style>
 </head>
+
 <body>
 
 <div id="header-placeholder"></div>
 
 <section class="detail-section">
-  <div style="max-width:1200px;margin:0 auto">
-    <div class="breadcrumb scroll-reveal">
-      <a href="https://amhairandbeauty.com/">Home</a> /
-      <a href="https://amhairandbeauty.com/products">Products</a> /
-      <span id="breadcrumb-name">Product</span>
-    </div>
-    <a href="products.html" class="back-link">← Back to Products</a>
-  </div>
+<a href="/products/">← Back to Products</a>
 
-  <div class="detail-layout scroll-reveal" id="product-detail">
-    <!-- Filled by JS -->
-    <div style="text-align:center;padding:4rem;color:#aaa;grid-column:1/-1">Loading product…</div>
-  </div>
-</section>
-
-<!-- Related products -->
-<section class="related-section scroll-reveal" id="related-section" style="display:none">
-  <div style="max-width:1200px;margin:0 auto">
-    <h2>You Might Also Like</h2>
-    <div class="products-grid" id="related-grid"></div>
-  </div>
+<div id="product-detail" class="detail-layout">
+  <p>Loading product...</p>
+</div>
 </section>
 
 <div id="footer-placeholder"></div>
 
-<script src="https://amhairandbeauty.com/data.js"></script>
-<script src="https://amhairandbeauty.com/nav.js"></script>
-<script src="https://amhairandbeauty.com/cart.js"></script>
 <script>
-  AM.renderHeader('Products');
-  AM.renderFooter();
+document.addEventListener("DOMContentLoaded", () => {
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const id = new URLSearchParams(window.location.search).get('id');
-    const product = AM_PRODUCTS.find(p => p.id === id);
-    const detail = document.getElementById('product-detail');
+    AM.renderHeader("Products");
+    AM.renderFooter();
+
+    if (!window.AM_PRODUCTS) {
+        document.getElementById("product-detail").innerHTML =
+            "<h2>Products failed to load</h2>";
+        return;
+    }
+
+    const id = new URLSearchParams(location.search).get("id");
+
+    const product = AM_PRODUCTS.find(p => String(p.id) === String(id));
 
     if (!product) {
-      detail.innerHTML = `
-        <div style="text-align:center;padding:4rem;grid-column:1/-1">
-          <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
-          <h2>Product not found</h2>
-          <a href="products.html" class="btn btn-primary" style="margin-top:1.5rem">Browse All Products</a>
-        </div>`;
-      return;
+        document.getElementById("product-detail").innerHTML =
+            "<h2>Product not found</h2>";
+        return;
     }
 
-    // Update page title & breadcrumb
-    document.title = `${product.name} — A&M Hair & Beauty`;
-    document.getElementById('breadcrumb-name').textContent = product.name;
-
-    // Quantity stat
     let qty = 1;
 
-    const featuresHTML = product.features.map(f => `<li>${f}</li>`).join('');
-
-    const discontinuedNote = product.discontinued
-      ? `<div class="discontinued-notice">⚠️ This product has been <strong>discontinued</strong> and is no longer available to purchase.</div>`
-      : '';
-
-    const actionsHTML = product.discontinued
-      ? `<div class="btn btn-outline" style="cursor:default;opacity:.5">No longer available</div>`
-      : `<button class="btn btn-primary btn-lg" id="add-cart-btn">Add to Cart 🛒</button>
-         <a href="${product.shopUrl}" target="_blank" class="btn btn-secondary btn-lg">Buy in Shop →</a>`;
-
-    detail.innerHTML = `
-      <div class="img-wrap scroll-reveal-left">
-        <img src="${product.image}" alt="${product.name}"
-             onerror="this.src='https://via.placeholder.com/600x500/f9a8d4/fff?text=${encodeURIComponent(product.name)}'">
+    document.getElementById("product-detail").innerHTML = `
+      <div class="img-wrap">
+        <img src="${product.image}" alt="${product.name}">
       </div>
-      <div class="scroll-reveal-right">
-        <div class="detail-price">£${product.price.toFixed(2)}</div>
+
+      <div>
+        <div class="detail-price">£${product.price}</div>
         <div class="detail-name">${product.name}</div>
-        <div class="detail-subtitle">${product.subtitle}</div>
-        ${discontinuedNote}
-        <p class="detail-desc">${product.description}</p>
+        <p class="detail-desc">${product.description || ""}</p>
 
         ${!product.discontinued ? `
-        <div class="qty-row">
-          <label>Quantity</label>
-          <div class="qty-control">
-            <button class="qty-btn" id="qty-dec">−</button>
-            <span class="qty-num" id="qty-display">1</span>
-            <button class="qty-btn" id="qty-inc">+</button>
-          </div>
-        </div>` : ''}
-
-        <div class="detail-actions">${actionsHTML}</div>
-
-        <div class="feature-section">
-          <h4>What's Included / Benefits</h4>
-          <ul class="feature-list">${featuresHTML}</ul>
+        <div class="qty">
+          <button id="minus">-</button>
+          <span id="qty">1</span>
+          <button id="plus">+</button>
         </div>
-      </div>`;
 
-    AM.initScrollReveal();
+        <button id="add">Add to Cart</button>
+        ` : `<p>Discontinued</p>`}
+      </div>
+    `;
 
-    // Qty controls
     if (!product.discontinued) {
-      document.getElementById('qty-dec').addEventListener('click', () => {
-        if (qty > 1) { qty--; document.getElementById('qty-display').textContent = qty; }
-      });
-      document.getElementById('qty-inc').addEventListener('click', () => {
-        qty++; document.getElementById('qty-display').textContent = qty;
-      });
-      document.getElementById('add-cart-btn').addEventListener('click', () => {
-        addToCart(product.id, qty);
-        AM.updateCartBadge();
-      });
+        document.getElementById("minus").onclick = () => {
+            if (qty > 1) qty--;
+            document.getElementById("qty").innerText = qty;
+        };
+
+        document.getElementById("plus").onclick = () => {
+            qty++;
+            document.getElementById("qty").innerText = qty;
+        };
+
+        document.getElementById("add").onclick = () => {
+            addToCart(product.id, qty);
+            AM.updateCartBadge();
+        };
     }
 
-    // Related products (same category, not self, not discontinued)
-    const related = AM_PRODUCTS.filter(p => p.category === product.category && p.id !== product.id && !p.discontinued).slice(0, 3);
-    if (related.length) {
-      document.getElementById('related-section').style.display = 'block';
-      document.getElementById('related-grid').innerHTML = related.map(p => `
-        <a href="product-detail.html?id=${p.id}" class="product-card scale-in">
-          <div class="product-image-wrap">
-            <img src="${p.image}" alt="${p.name}" class="product-image"
-                 onerror="this.src='https://via.placeholder.com/300x290/f9a8d4/fff?text=${encodeURIComponent(p.name)}'">
-            ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
-          </div>
-          <div class="product-info">
-            <div class="product-price">£${p.price.toFixed(2)}</div>
-            <div class="product-name">${p.name}</div>
-            <p class="product-description">${p.description.slice(0,80)}…</p>
-            <div class="product-actions">
-              <span class="btn btn-primary btn-sm">View</span>
-              <button class="btn btn-outline btn-sm" onclick="event.preventDefault();addToCart('${p.id}');AM.updateCartBadge()">Add to Cart</button>
-            </div>
-          </div>
-        </a>`).join('');
-    }
-  });
+});
 </script>
+
 </body>
 </html>

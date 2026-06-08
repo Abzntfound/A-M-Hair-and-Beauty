@@ -1,7 +1,8 @@
 /* ============================================================
-   A&M Hair & Beauty — nav.js
-   Renders shared header & footer, handles scroll/mobile/auth.
+   A&M Hair & Beauty — nav.js (FOLDER-SAFE VERSION)
    ============================================================ */
+
+const BASE = "https://amhairandbeauty.com";
 
 // ============================================================
 // COOKIE HELPERS
@@ -26,47 +27,65 @@ function applyTheme(theme) {
 function loadTheme() {
     let theme = null;
     const rawUser = localStorage.getItem('amUserData') || getCookie('amUserData');
+
     if (rawUser) {
         try {
             const u = JSON.parse(rawUser);
             if (u.darkMode !== undefined) theme = u.darkMode ? 'dark' : 'light';
         } catch (e) {}
     }
+
     if (!theme) theme = localStorage.getItem('amTheme') || getCookie('amTheme') || 'light';
     applyTheme(theme);
 }
 loadTheme();
 
 // ============================================================
-// RENDER HEADER
+// HEADER
 // ============================================================
 function renderHeader(activePage) {
     const cartCount = getCartCount();
     const user = getUserData();
-    const displayName = user ? (user.name ? user.name.split(' ')[0] : user.email.split('@')[0]) : 'Sign In';
+    const displayName = user
+        ? (user.name ? user.name.split(' ')[0] : user.email.split('@')[0])
+        : 'Sign In';
 
-    const navLinks = (AM_NAV || []).map(l =>
-        `<a href="${l.href}"${activePage === l.label ? ' class="active"' : ''}>${l.label}</a>`
-    ).join('');
+    const currentPath = window.location.pathname.replace(/\/$/, "");
+
+    const navLinks = (AM_NAV || []).map(l => {
+        const linkPath = new URL(l.href, BASE).pathname.replace(/\/$/, "");
+
+        const isActive = activePage
+            ? activePage === l.label
+            : currentPath === linkPath;
+
+        return `
+            <a href="${l.href}" class="${isActive ? "active" : ""}">
+                ${l.label}
+            </a>
+        `;
+    }).join('');
 
     const html = `
     <header class="site-header" id="site-header">
-      <a href="index.html" class="logo">
-        <img src="A&M.png" alt="A&M" onerror="this.style.display='none'">
+      <a href="/" class="logo">
+        <img src="/A&M.png" alt="A&M" onerror="this.style.display='none'">
         <span>A&amp;M Hair &amp; Beauty</span>
       </a>
 
       <nav>${navLinks}</nav>
 
       <div class="header-right">
-        <a href="https://amhairandbeauty.com/cart/" class="cart-icon-btn" title="Cart">
+        <a href="/cart/" class="cart-icon-btn" title="Cart">
           🛒
           <span class="cart-count" id="header-cart-count">${cartCount || ''}</span>
         </a>
+
         <a href="${AM_CONFIG.authUrl}" class="user-link">
           👤 <span id="user-display-name">${displayName}</span>
         </a>
-        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+
+        <button class="mobile-menu-btn" id="mobile-menu-btn">
           <span></span><span></span><span></span>
         </button>
       </div>
@@ -76,7 +95,7 @@ function renderHeader(activePage) {
     <div class="mobile-menu" id="mobile-menu">
       <nav>
         ${navLinks}
-        <a href="https://amhairandbeauty.com/cart/">Cart (${cartCount})</a>
+        <a href="/cart/">Cart (${cartCount})</a>
         <a href="${AM_CONFIG.authUrl}">${displayName}</a>
       </nav>
     </div>`;
@@ -88,33 +107,29 @@ function renderHeader(activePage) {
     initHeader();
 }
 
+// ============================================================
+// HEADER INIT
+// ============================================================
 function initHeader() {
     const header = document.getElementById('site-header');
     const menuBtn = document.getElementById('mobile-menu-btn');
     const menu = document.getElementById('mobile-menu');
     const overlay = document.getElementById('mobile-overlay');
 
-    // Scroll effect
-    function onScroll() {
-        if (window.scrollY > 80) header.classList.add('scrolled');
-        else header.classList.remove('scrolled');
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    window.addEventListener('scroll', () => {
+        header.classList.toggle('scrolled', window.scrollY > 80);
+    }, { passive: true });
 
-    // Mobile menu
-    if (menuBtn) {
-        menuBtn.addEventListener('click', () => {
-            menu.classList.toggle('open');
-            overlay.classList.toggle('open');
-        });
-    }
-    if (overlay) {
-        overlay.addEventListener('click', () => {
-            menu.classList.remove('open');
-            overlay.classList.remove('open');
-        });
-    }
+    menuBtn?.addEventListener('click', () => {
+        menu.classList.toggle('open');
+        overlay.classList.toggle('open');
+    });
+
+    overlay?.addEventListener('click', () => {
+        menu.classList.remove('open');
+        overlay.classList.remove('open');
+    });
+
     document.querySelectorAll('.mobile-menu nav a').forEach(a =>
         a.addEventListener('click', () => {
             menu.classList.remove('open');
@@ -124,31 +139,34 @@ function initHeader() {
 }
 
 // ============================================================
-// RENDER FOOTER
+// FOOTER
 // ============================================================
 function renderFooter() {
     const f = AM_FOOTER;
+
     const cols = (f.columns || []).map(col => `
         <div class="footer-col">
           <h4>${col.heading}</h4>
           ${col.links.map(l => `<a href="${l.href}">${l.label}</a>`).join('')}
-        </div>`).join('');
+        </div>
+    `).join('');
 
     const html = `
     <footer class="footer">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a href="https://amhairandbeauty.com/" class="logo" style="color:white">
-            <img src="A&M.png" alt="A&M" onerror="this.style.display='none'" style="filter:brightness(0) invert(1)">
+          <a href="/" class="logo">
+            <img src="/A&M.png" alt="A&M" onerror="this.style.display='none'">
             <span>A&amp;M Hair &amp; Beauty</span>
           </a>
           <p>${f.tagline}</p>
         </div>
         ${cols}
       </div>
+
       <div class="footer-bottom">
-        <span>© ${new Date().getFullYear()} <span>A&amp;M Hair &amp; Beauty</span>. All rights reserved.</span>
-        <span>Made with ❤️ for beautiful hair</span>
+        <span>© ${new Date().getFullYear()} A&amp;M Hair &amp; Beauty</span>
+        <span>Made with ❤️</span>
       </div>
     </footer>`;
 
@@ -158,51 +176,30 @@ function renderFooter() {
 }
 
 // ============================================================
-// AUTH
-// ============================================================
-function getUserData() {
-    const raw = localStorage.getItem('amUserData') || getCookie('amUserData');
-    if (!raw) return null;
-    try { return JSON.parse(raw); } catch (e) { return null; }
-}
-
-// ============================================================
 // SCROLL REVEAL
 // ============================================================
 function initScrollReveal() {
     const observer = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('revealed'); });
-    }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
+        entries.forEach(e => {
+            if (e.isIntersecting) e.target.classList.add('revealed');
+        });
+    }, { threshold: 0.12 });
 
-    document.querySelectorAll('.scroll-reveal, .scroll-reveal-left, .scroll-reveal-right, .scale-in')
-        .forEach(el => observer.observe(el));
+    document.querySelectorAll(
+        '.scroll-reveal, .scroll-reveal-left, .scroll-reveal-right, .scale-in'
+    ).forEach(el => observer.observe(el));
 }
 
 // ============================================================
-// TOAST
-// ============================================================
-function showToast(message, icon = '✓', duration = 3000) {
-    let toast = document.getElementById('am-toast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'am-toast';
-        toast.className = 'toast';
-        document.body.appendChild(toast);
-    }
-    toast.innerHTML = `<span class="toast-icon">${icon}</span> ${message}`;
-    toast.classList.add('show');
-    clearTimeout(toast._timeout);
-    toast._timeout = setTimeout(() => toast.classList.remove('show'), duration);
-}
-
-// ============================================================
-// CART COUNT
+// CART
 // ============================================================
 function getCartCount() {
     try {
         const items = JSON.parse(localStorage.getItem('amCart') || '[]');
         return items.reduce((s, i) => s + (i.qty || 1), 0);
-    } catch (e) { return 0; }
+    } catch {
+        return 0;
+    }
 }
 
 function updateCartBadge() {
@@ -210,23 +207,28 @@ function updateCartBadge() {
     if (!el) return;
     const c = getCartCount();
     el.textContent = c || '';
-    if (c) { el.classList.add('bump'); setTimeout(() => el.classList.remove('bump'), 300); }
+    if (c) {
+        el.classList.add('bump');
+        setTimeout(() => el.classList.remove('bump'), 300);
+    }
 }
 
 // ============================================================
-// INIT ON LOAD
+// AUTH
 // ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-    initScrollReveal();
-    // Header/footer are rendered by each page, not here,
-    // so sub-page scripts call renderHeader/renderFooter themselves.
-});
+function getUserData() {
+    const raw = localStorage.getItem('amUserData') || getCookie('amUserData');
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+}
 
+// ============================================================
+// EXPORT
+// ============================================================
 window.AM = {
     renderHeader,
     renderFooter,
     initScrollReveal,
-    showToast,
     getCartCount,
     updateCartBadge,
     getUserData,
@@ -234,4 +236,8 @@ window.AM = {
     applyTheme,
 };
 
-console.log('✅ nav.js loaded');
+document.addEventListener('DOMContentLoaded', () => {
+    initScrollReveal();
+});
+
+console.log("✅ nav.js loaded");

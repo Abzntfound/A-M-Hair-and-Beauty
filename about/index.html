@@ -3,130 +3,204 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Our Story — A&M Hair & Beauty</title>
   <meta name="description" content="Learn about A&M Hair & Beauty — born from personal experience and a passion for natural hair care.">
-  <link rel="icon" href="https://amhairandbeauty.com/A&M.ico">
+
+  <link rel="icon" href="/A&M.ico">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://amhairandbeauty.com/styles.css">
+  <link rel="stylesheet" href="/styles.css">
+
   <style>
     .about-page { padding: 80px 5% 100px; }
-    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; max-width: 1100px; margin: 0 auto 5rem; }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      max-width: 1100px;
+      margin: 0 auto 5rem;
+    }
+
     .about-img { border-radius: 24px; overflow: hidden; }
     .about-img img { width: 100%; height: 520px; object-fit: cover; display: block; }
-    .about-text p { font-size: 1.05rem; color: #555; line-height: 2; margin-bottom: 1.6rem; }
-    .about-text .highlight { font-size: 1.25rem; font-weight: 700; color: #d946a6; line-height: 1.6; }
 
-    .stats-band { background: linear-gradient(135deg,#d946a6 0%,#ec4899 100%); padding: 60px 5%; }
-    .stats-inner { display: flex; justify-content: center; gap: 5rem; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
-    .stat-item { text-align: center; color: white; }
-    .stat-num { font-size: 3.5rem; font-weight: 900; letter-spacing: -2px; display: block; }
-    .stat-label { font-size: .9rem; opacity: .85; }
+    .about-text p {
+      font-size: 1.05rem;
+      color: #555;
+      line-height: 2;
+      margin-bottom: 1.6rem;
+    }
 
-    .values-section { padding: 80px 5%; background: white; }
-    .values-section .section-header { margin-bottom: 3rem; }
-    .values-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 2rem; max-width: 1100px; margin: 0 auto; }
-    .value-card { background: linear-gradient(135deg,#fdf2f8 0%,#fce7f3 100%); border-radius: 20px; padding: 2.2rem; transition: transform .4s ease, box-shadow .4s ease; }
-    .value-card:hover { transform: translateY(-6px); box-shadow: 0 15px 40px rgba(217,70,166,.18); }
-    .value-icon { font-size: 2.4rem; margin-bottom: 1rem; }
-    .value-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .6rem; }
-    .value-card p { font-size: .88rem; color: #666; line-height: 1.75; }
+    .about-text .highlight {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #d946a6;
+    }
 
-    .promise-section { padding: 80px 5%; background: #fdf2f8; text-align: center; }
-    .promise-section h2 { font-size: 2.8rem; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 1.5rem; }
-    .promise-section p { font-size: 1.1rem; color: #666; max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.9; }
+    .stats-band {
+      background: linear-gradient(135deg,#d946a6,#ec4899);
+      padding: 60px 5%;
+    }
+
+    .stats-inner {
+      display: flex;
+      justify-content: center;
+      gap: 5rem;
+      flex-wrap: wrap;
+      max-width: 900px;
+      margin: auto;
+      color: white;
+    }
+
+    .stat-num { font-size: 3.5rem; font-weight: 900; display: block; }
+    .stat-label { opacity: 0.85; font-size: 0.9rem; }
+
+    .values-section { padding: 80px 5%; }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .value-card {
+      background: #fdf2f8;
+      border-radius: 20px;
+      padding: 2rem;
+      transition: 0.3s;
+    }
+
+    .value-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 15px 40px rgba(217,70,166,.18);
+    }
+
+    .value-icon { font-size: 2rem; margin-bottom: 1rem; }
+
+    .promise-section {
+      padding: 80px 5%;
+      background: #fdf2f8;
+      text-align: center;
+    }
+
+    .promise-section h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+    }
+
+    .promise-section p {
+      max-width: 600px;
+      margin: auto;
+      color: #666;
+      line-height: 1.8;
+    }
 
     @media (max-width: 768px) {
-      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .about-grid { grid-template-columns: 1fr; }
       .about-img img { height: 320px; }
-      .stats-inner { gap: 2.5rem; }
-      .stat-num { font-size: 2.5rem; }
+      .stats-inner { gap: 2rem; }
     }
   </style>
 </head>
+
 <body>
 
 <div id="header-placeholder"></div>
 
-<!-- Hero -->
+<!-- HERO -->
 <section class="page-hero">
-  <div class="breadcrumb scroll-reveal"><a href="https://amhairandbeauty.com/">Home</a> / About</div>
+  <div class="breadcrumb scroll-reveal">
+    <a href="/">Home</a> / About
+  </div>
+
   <h1 class="scroll-reveal">Our Story</h1>
-  <p class="scroll-reveal">Born from personal struggle. Built with love. Dedicated to your hair.</p>
+  <p class="scroll-reveal">Born from personal struggle. Built with love.</p>
 </section>
 
-<!-- Story -->
-<section class="about-page" id="about-story">
+<!-- STORY -->
+<section class="about-page">
   <div class="about-grid">
+
     <div class="about-img scroll-reveal-left">
-      <img src="big hair oil.jpg" alt="A&M Hair Oil"
-           onerror="this.src='https://via.placeholder.com/600x520/f9a8d4/fff?text=A%26M+Hair+%26+Beauty'">
+      <img src="/big hair oil.jpg" alt="A&M Hair Oil"
+           onerror="this.src='https://via.placeholder.com/600x520/f9a8d4/fff?text=A%26M'">
     </div>
-    <div class="about-text scroll-reveal-right" id="about-text">
-      <!-- Filled by JS -->
-    </div>
+
+    <div class="about-text scroll-reveal-right" id="about-text"></div>
+
   </div>
 </section>
 
-<!-- Stats band -->
+<!-- STATS -->
 <div class="stats-band">
-  <div class="stats-inner" id="stats-inner">
-    <!-- Filled by JS -->
-  </div>
+  <div class="stats-inner" id="stats-inner"></div>
 </div>
 
-<!-- Values -->
+<!-- VALUES -->
 <section class="values-section">
   <div class="section-header scroll-reveal">
     <h2>What We Stand For</h2>
-    <p>The values that guide every product we create</p>
   </div>
-  <div class="values-grid" id="values-grid">
-    <!-- Filled by JS -->
-  </div>
+
+  <div class="values-grid" id="values-grid"></div>
 </section>
 
-<!-- Promise -->
+<!-- PROMISE -->
 <section class="promise-section scroll-reveal">
-  <h2>Our Promise to You 🌿</h2>
-  <p>Every bottle, every bar, every bonnet is made with the same care we'd want for our own hair. We'll never compromise on ingredients, and we'll never stop improving.</p>
-  <a href="products.html" class="btn btn-primary btn-lg">Shop Our Products</a>
+  <h2>Our Promise 🌿</h2>
+  <p>
+    Every product is made with care, quality, and intention.
+  </p>
+
+  <a href="/products/" class="btn btn-primary btn-lg">Shop Products</a>
 </section>
 
 <div id="footer-placeholder"></div>
 
-<script src="https://amhairandbeauty.com/data.js"></script>
-<script src="https://amhairandbeauty.com/nav.js"></script>
-<script src="https://amhairandbeauty.com/cart.js"></script>
+<!-- SCRIPTS -->
+<script src="/data.js"></script>
+<script src="/nav.js"></script>
+<script src="/cart.js"></script>
+
 <script>
-  AM.renderHeader('About');
+document.addEventListener("DOMContentLoaded", () => {
+
+  AM.renderHeader("About");
   AM.renderFooter();
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const { intro, body, tagline, stats, values } = AM_ABOUT;
+  const { intro, body, tagline, stats, values } = AM_ABOUT;
 
-    // Story text
-    document.getElementById('about-text').innerHTML = `
-      <p>${intro}</p>
-      ${body.map(p => `<p>${p}</p>`).join('')}
-      <p class="highlight">${tagline}</p>`;
+  // STORY
+  document.getElementById("about-text").innerHTML = `
+    <p>${intro}</p>
+    ${(body || []).map(p => `<p>${p}</p>`).join("")}
+    <p class="highlight">${tagline}</p>
+  `;
 
-    // Stats
-    document.getElementById('stats-inner').innerHTML = stats.map(s => `
-      <div class="stat-item scroll-reveal">
-        <span class="stat-num">${s.num}</span>
-        <span class="stat-label">${s.label}</span>
-      </div>`).join('');
+  // STATS
+  document.getElementById("stats-inner").innerHTML = (stats || []).map(s => `
+    <div class="stat-item scroll-reveal">
+      <span class="stat-num">${s.num}</span>
+      <span class="stat-label">${s.label}</span>
+    </div>
+  `).join("");
 
-    // Values
-    document.getElementById('values-grid').innerHTML = values.map((v, i) => `
-      <div class="value-card scale-in" style="animation-delay:${i*0.08}s">
-        <div class="value-icon">${v.icon}</div>
-        <h3>${v.title}</h3>
-        <p>${v.body}</p>
-      </div>`).join('');
+  // VALUES
+  document.getElementById("values-grid").innerHTML = (values || []).map(v => `
+    <div class="value-card scale-in">
+      <div class="value-icon">${v.icon}</div>
+      <h3>${v.title}</h3>
+      <p>${v.body}</p>
+    </div>
+  `).join("");
 
-    AM.initScrollReveal();
-  });
+  AM.initScrollReveal();
+});
 </script>
+
 </body>
 </html>

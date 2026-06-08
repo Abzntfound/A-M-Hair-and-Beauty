@@ -260,8 +260,8 @@ const AM_ABOUT = {
 
 // ---- NAV LINKS ----
 const AM_NAV = [
-    { label: 'Products', href: 'products.html' },
-    { label: 'About', href: 'about.html' },
+    { label: 'Products', href: 'https://amhairandbeauty.com/products/' },
+    { label: 'About', href: 'https://amhairandbeauty.com/about/' },
     { label: 'Reviews', href: 'index.html#reviews' },
     { label: 'Shop', href: AM_CONFIG.shopUrl },
 ];
@@ -273,10 +273,10 @@ const AM_FOOTER = {
         {
             heading: 'Shop',
             links: [
-                { label: 'All Products', href: 'products.html' },
-                { label: 'Hair Oils', href: 'products.html?cat=oils' },
-                { label: 'Hair Care', href: 'products.html?cat=haircare' },
-                { label: 'Accessories', href: 'products.html?cat=accessories' },
+                { label: 'All Products', href: 'https://amhairandbeauty.com/products/' },
+                { label: 'Hair Oils', href: 'https://amhairandbeauty.com/products/?cat=oils' },
+                { label: 'Hair Care', href: 'https://amhairandbeauty.com/products/?cat=haircare' },
+                { label: 'Accessories', href: 'https://amhairandbeauty.com/products/?cat=accessories' },
             ],
         },
         {
@@ -290,7 +290,7 @@ const AM_FOOTER = {
         {
             heading: 'Help',
             links: [
-                { label: 'Shopping Cart', href: 'cart.html' },
+                { label: 'Shopping Cart', href: 'https://amhairandbeauty.com/cart/' },
                 { label: 'Sign In', href: AM_CONFIG.authUrl },
                 { label: 'Online Shop', href: AM_CONFIG.shopUrl },
             ],

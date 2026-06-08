@@ -72,49 +72,6 @@ function getOrderTotal() {
 // ============================================================
 // STRIPE CHECKOUT (NO BACKEND / NO NETLIFY FUNCTIONS)
 // ============================================================
-async function proceedToCheckout() {
-    const cart = getCart();
-
-    if (cart.length === 0) return;
-
-    const btn = document.getElementById('checkout-btn');
-
-    if (btn) {
-        btn.disabled = true;
-        btn.textContent = 'Redirecting...';
-    }
-
-    try {
-        const response = await fetch(
-            '/.netlify/functions/create-checkout',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(cart),
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error);
-        }
-
-        window.location.href = data.url;
-    } catch (err) {
-        console.error(err);
-
-        alert('Checkout failed.');
-
-        if (btn) {
-            btn.disabled = false;
-            btn.textContent =
-                `Checkout — ${AM_CONFIG.currencySymbol}${getOrderTotal().toFixed(2)}`;
-        }
-    }
-}
 
 // ============================================================
 // CART PAGE RENDERER
@@ -232,23 +189,44 @@ function renderCartPage() {
 
 async function proceedToCheckout() {
     const cart = getCart();
+
     if (cart.length === 0) return;
 
     const btn = document.getElementById('checkout-btn');
+
     if (btn) {
-        btn.textContent = 'Redirecting...';
         btn.disabled = true;
+        btn.textContent = 'Redirecting...';
     }
 
     try {
-        redirectToStripeCheckout();
+        const response = await fetch(
+            '/.netlify/functions/create-checkout',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(cart),
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error);
+        }
+
+        window.location.href = data.url;
     } catch (err) {
-        console.error('Checkout error:', err);
-        alert('Something went wrong. Please try again.');
+        console.error(err);
+
+        alert('Checkout failed.');
 
         if (btn) {
-            btn.textContent = `Checkout — ${AM_CONFIG.currencySymbol}${getOrderTotal().toFixed(2)}`;
             btn.disabled = false;
+            btn.textContent =
+                `Checkout — ${AM_CONFIG.currencySymbol}${getOrderTotal().toFixed(2)}`;
         }
     }
 }

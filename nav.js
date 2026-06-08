@@ -59,7 +59,7 @@ function renderHeader(activePage) {
       <nav>${navLinks}</nav>
 
       <div class="header-right">
-        <a href="cart.html" class="cart-icon-btn" title="Cart">
+        <a href="https://amhairandbeauty.com/cart/" class="cart-icon-btn" title="Cart">
           🛒
           <span class="cart-count" id="header-cart-count">${cartCount || ''}</span>
         </a>

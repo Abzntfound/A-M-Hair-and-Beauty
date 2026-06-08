@@ -76,7 +76,7 @@ function renderHeader(activePage) {
     <div class="mobile-menu" id="mobile-menu">
       <nav>
         ${navLinks}
-        <a href="cart.html">Cart (${cartCount})</a>
+        <a href="https://amhairandbeauty.com/cart/">Cart (${cartCount})</a>
         <a href="${AM_CONFIG.authUrl}">${displayName}</a>
       </nav>
     </div>`;
@@ -138,7 +138,7 @@ function renderFooter() {
     <footer class="footer">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a href="index.html" class="logo" style="color:white">
+          <a href="https://amhairandbeauty.com/" class="logo" style="color:white">
             <img src="A&M.png" alt="A&M" onerror="this.style.display='none'" style="filter:brightness(0) invert(1)">
             <span>A&amp;M Hair &amp; Beauty</span>
           </a>

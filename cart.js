@@ -72,13 +72,48 @@ function getOrderTotal() {
 // ============================================================
 // STRIPE CHECKOUT (NO BACKEND / NO NETLIFY FUNCTIONS)
 // ============================================================
-function redirectToStripeCheckout() {
-    const total = getOrderTotal();
-    const amountInPence = Math.round(total * 100);
+async function proceedToCheckout() {
+    const cart = getCart();
 
-    const url = `${AM_CONFIG.stripeLinkBase}?prefilled_amount=${amountInPence}`;
+    if (cart.length === 0) return;
 
-    window.location.href = url;
+    const btn = document.getElementById('checkout-btn');
+
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Redirecting...';
+    }
+
+    try {
+        const response = await fetch(
+            '/.netlify/functions/create-checkout',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(cart),
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error);
+        }
+
+        window.location.href = data.url;
+    } catch (err) {
+        console.error(err);
+
+        alert('Checkout failed.');
+
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent =
+                `Checkout — ${AM_CONFIG.currencySymbol}${getOrderTotal().toFixed(2)}`;
+        }
+    }
 }
 
 // ============================================================

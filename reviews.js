@@ -54,10 +54,10 @@ function defaultReviews() {
 // ---- Fetch from Google Sheets ----
 async function fetchReviews() {
     try {
-        const res = await fetch('/.netlify/functions/getReviews');
-        const data = await res.json();
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1`;
 
-        console.log("RAW DATA:", data);
+        const res = await fetch(url);
+        const data = await res.json();
 
         const values = data.values;
 
@@ -65,16 +65,13 @@ async function fetchReviews() {
             return defaultReviews();
         }
 
-        return values.slice(1).map((row, index) => ({
-            id: index + 2, // sheet row number (important for replies)
-
+        return values.slice(1).map((row, i) => ({
+            id: i + 2,
             name: row[0] || 'Anonymous',
             rating: parseInt(row[1]) || 5,
             review: row[2] || '',
             date: row[3] || new Date().toISOString(),
             pfp: row[4] || '',
-
-            // 🟢 NEW: replies
             reply: row[5] || '',
             replyAuthor: row[6] || ''
         }));
@@ -87,7 +84,7 @@ async function fetchReviews() {
 // ---- Save review ----
 async function saveReview(review) {
     try {
-        const res = await fetch('/.netlify/functions/saveReview', {
+        const res = await fetch('/.netlify/functions/reviews', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -96,13 +93,11 @@ async function saveReview(review) {
             })
         });
 
-        const text = await res.text();
-        const data = JSON.parse(text || '{}');
-
+        const data = await res.json();
         return data.success;
 
     } catch (e) {
-        console.warn('Save failed:', e.message);
+        console.warn(e);
         return false;
     }
 }

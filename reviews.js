@@ -8,11 +8,6 @@ const supabase = (() => {
         console.error("Supabase CDN not loaded");
         return null;
     }
-
-    return window.supabase.createClient(
-        "https://bipejrjipvoqvkwuzftz.supabase.co",
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpcGVqcmppcHZvcXZrd3V6ZnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzYzMjMsImV4cCI6MjA5NzIxMjMyM30.Z8V7chc-UOK2UU5dxBydgLbT0u1DUv2_DGtisLmZWq4"
-    );
 })();
 
 // ===================== ADMIN =====================

@@ -57,18 +57,30 @@ async function fetchReviews() {
         const res = await fetch('/.netlify/functions/getReviews');
         const data = await res.json();
 
-        if (!data.values) return defaultReviews();
+        console.log("RAW DATA:", data);
 
-        return data.values.slice(1).map(row => ({
+        const values = data.values;
+
+        if (!values || values.length <= 1) {
+            return defaultReviews();
+        }
+
+        return values.slice(1).map((row, index) => ({
+            id: index + 2, // sheet row number (important for replies)
+
             name: row[0] || 'Anonymous',
             rating: parseInt(row[1]) || 5,
             review: row[2] || '',
             date: row[3] || new Date().toISOString(),
             pfp: row[4] || '',
+
+            // 🟢 NEW: replies
+            reply: row[5] || '',
+            replyAuthor: row[6] || ''
         }));
 
     } catch (e) {
-        console.warn('Failed:', e.message);
+        console.warn("Fetch failed:", e.message);
         return defaultReviews();
     }
 }
@@ -119,6 +131,13 @@ async function displayReviews(containerId = 'reviews-container') {
         </div>
       </div>
       <p class="review-text">"${safe(r.review)}"</p>
+
+      ${r.reply ? `
+        <div class="review-reply">
+          <strong>${safe(r.replyAuthor || 'Owner')} replied:</strong>
+          <p>${safe(r.reply)}</p>
+        </div>
+      ` : ''}
       <p class="review-date">${timeAgo(r.date)}</p>
     </div>`).join('');
 }

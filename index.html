@@ -246,10 +246,16 @@
 
 <!-- Scripts — order matters: data → nav → cart → reviews -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://amhairandbeauty.com/data.js"></script>
-<script src="https://amhairandbeauty.com/nav.js"></script>
-<script src="https://amhairandbeauty.com/cart.js"></script>
-<script src="https://amhairandbeauty.com/reviews.js"></script>
+<script>
+  window.supabaseClient = supabase.createClient(
+    "https://bipejrjipvoqvkwuzftz.supabase.co",
+    "YOUR_ANON_KEY"
+  );
+</script>
+<script src="data.js"></script>
+<script src="nav.js"></script>
+<script src="cart.js"></script>
+<script src="reviews.js"></script>
 <script>
   // ---- Render shared UI ----
   AM.renderHeader('Home');

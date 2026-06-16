@@ -77,17 +77,20 @@ async function saveReview(review) {
     try {
         const res = await fetch('/.netlify/functions/saveReview', {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'ADD_REVIEW',
                 ...review
             })
         });
 
-        const data = await res.json();
+        const text = await res.text();
+        const data = JSON.parse(text || '{}');
+
         return data.success;
 
     } catch (e) {
-        console.warn(e);
+        console.warn('Save failed:', e.message);
         return false;
     }
 }

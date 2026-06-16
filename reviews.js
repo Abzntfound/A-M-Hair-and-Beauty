@@ -3,10 +3,17 @@
    ============================================================ */
 
 // ===================== SUPABASE =====================
-const supabase = window.supabase.createClient(
-    "https://bipejrjipvoqvkwuzftz.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpcGVqcmppcHZvcXZrd3V6ZnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzYzMjMsImV4cCI6MjA5NzIxMjMyM30.Z8V7chc-UOK2UU5dxBydgLbT0u1DUv2_DGtisLmZWq4"
-);
+const supabase = (() => {
+    if (!window.supabase) {
+        console.error("Supabase CDN not loaded");
+        return null;
+    }
+
+    return window.supabase.createClient(
+        "https://bipejrjipvoqvkwuzftz.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpcGVqcmppcHZvcXZrd3V6ZnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzYzMjMsImV4cCI6MjA5NzIxMjMyM30.Z8V7chc-UOK2UU5dxBydgLbT0u1DUv2_DGtisLmZWq4"
+    );
+})();
 
 // ===================== ADMIN =====================
 const ADMIN_EMAILS = ["adube6113@outlook.com"];
@@ -134,6 +141,8 @@ async function getStats() {
 
 // ===================== REALTIME =====================
 function subscribeToReviews(onUpdate) {
+    if (!supabase) return;
+
     supabase
         .channel('reviews')
         .on(
@@ -143,7 +152,10 @@ function subscribeToReviews(onUpdate) {
                 schema: 'public',
                 table: 'reviews'
             },
-            () => onUpdate()
+            (payload) => {
+                console.log("Realtime update:", payload);
+                onUpdate(payload);
+            }
         )
         .subscribe();
 }
@@ -238,8 +250,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initStarRating();
     initReviewScroll();
 
+    let refreshTimeout;
+
     subscribeToReviews(() => {
-        displayReviews(); // LIVE UPDATES
+        clearTimeout(refreshTimeout);
+        refreshTimeout = setTimeout(() => {
+            displayReviews();
+        }, 200);
     });
 
     document.getElementById('review-form')

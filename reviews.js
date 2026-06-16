@@ -54,40 +54,29 @@ function defaultReviews() {
 // ---- Fetch from Google Sheets ----
 async function fetchReviews() {
     try {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=YOUR_NEW_RESTRICTED_KEY`;
-        const res = await fetch(url);
+        const res = await fetch('/.netlify/functions/getReviews');
+        const data = await res.json();
 
-        if (res.ok) {
-            const { values } = await res.json();
+        if (!data.values) return defaultReviews();
 
-            if (!values || values.length <= 1) return defaultReviews();
+        return data.values.slice(1).map(row => ({
+            name: row[0] || 'Anonymous',
+            rating: parseInt(row[1]) || 5,
+            review: row[2] || '',
+            date: row[3] || new Date().toISOString(),
+            pfp: row[4] || '',
+        }));
 
-            return values.slice(1).map(row => ({
-                name: row[0] || 'Anonymous',
-                rating: parseInt(row[1]) || 5,
-                review: row[2] || '',
-                date: row[3] || new Date().toISOString(),
-                pfp: row[4] || '',
-            }));
-        }
     } catch (e) {
-        console.warn('Fetch failed:', e.message);
+        console.warn('Failed:', e.message);
+        return defaultReviews();
     }
-
-    const stored = localStorage.getItem('amReviews');
-    if (stored) return JSON.parse(stored);
-
-    return defaultReviews();
 }
-
 // ---- Save review ----
 async function saveReview(review) {
     try {
-        const res = await fetch(FUNCTION_URL, {
+        const res = await fetch('/.netlify/functions/saveReview', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify({
                 action: 'ADD_REVIEW',
                 ...review
@@ -95,21 +84,11 @@ async function saveReview(review) {
         });
 
         const data = await res.json();
-
-        if (!data.success) {
-            throw new Error(data.message || 'Failed to save');
-        }
-
-        return true;
+        return data.success;
 
     } catch (e) {
-        console.warn('Save failed:', e.message);
-
-        const reviews = await fetchReviews();
-        reviews.unshift(review);
-        localStorage.setItem('amReviews', JSON.stringify(reviews));
-
-        return true;
+        console.warn(e);
+        return false;
     }
 }
 

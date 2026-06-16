@@ -3,10 +3,9 @@
    Loads from Google Sheets, falls back to defaults.
    ============================================================ */
 
-const SHEET_ID        = '12Q0Kp1-K4PnA5SsMQNovmcIAKdqVJsV_BKqItwMNFy4';
-const API_KEY         = 'AIzaSyAfvqiFKatwdVPvuNyDDGEgCnbnafo779c';
-const SHEET_NAME      = 'Sheet1';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzGKkcwwUq_Sk8Xo-icXpqoBHr-d3W4NeQ2CAm8jK80_GIb19dhiv-O326ili6C1HiVdw/exec';
+const FUNCTION_URL = '/.netlify/functions/reviews';
+const SHEET_ID = '12Q0Kp1-K4PnA5SsMQNovmcIAKdqVJsV_BKqItwMNFy4';
+const SHEET_NAME = 'Sheet1';
 
 // ---- Profanity filter ----
 const BAD_WORDS = ['damn','hell','crap','shit','fuck','ass','bitch','bastard','dick','piss','cock','pussy','whore','slut','fag','nigger','cunt','asshole','motherfucker'];
@@ -55,26 +54,28 @@ function defaultReviews() {
 // ---- Fetch from Google Sheets ----
 async function fetchReviews() {
     try {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=YOUR_NEW_RESTRICTED_KEY`;
         const res = await fetch(url);
+
         if (res.ok) {
             const { values } = await res.json();
+
             if (!values || values.length <= 1) return defaultReviews();
+
             return values.slice(1).map(row => ({
-                name:   row[0] || 'Anonymous',
+                name: row[0] || 'Anonymous',
                 rating: parseInt(row[1]) || 5,
                 review: row[2] || '',
-                date:   row[3] || new Date().toISOString(),
-                pfp:    row[4] || '',
+                date: row[3] || new Date().toISOString(),
+                pfp: row[4] || '',
             }));
         }
-    } catch (e) { console.warn('Sheets read failed:', e.message); }
+    } catch (e) {
+        console.warn('Fetch failed:', e.message);
+    }
 
-    // localStorage fallback
-    try {
-        const stored = localStorage.getItem('amReviews');
-        if (stored) return JSON.parse(stored);
-    } catch (e) {}
+    const stored = localStorage.getItem('amReviews');
+    if (stored) return JSON.parse(stored);
 
     return defaultReviews();
 }
@@ -82,23 +83,34 @@ async function fetchReviews() {
 // ---- Save review ----
 async function saveReview(review) {
     try {
-        // Sending Content-Type: application/json triggers a CORS preflight that
-        // Apps Script rejects. Fix: no custom headers + no-cors mode.
-        // no-cors gives an opaque response so we can't read it back — but if
-        // no exception is thrown the request got through to the script.
-        await fetch(APPS_SCRIPT_URL, {
+        const res = await fetch(FUNCTION_URL, {
             method: 'POST',
-            mode:   'no-cors',
-            body:   JSON.stringify({ action: 'ADD_REVIEW', ...review }),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'ADD_REVIEW',
+                ...review
+            })
         });
-        return true;
-    } catch (e) { console.warn('Apps Script save failed:', e.message); }
 
-    // localStorage fallback
-    const reviews = await fetchReviews();
-    reviews.unshift(review);
-    localStorage.setItem('amReviews', JSON.stringify(reviews));
-    return true;
+        const data = await res.json();
+
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to save');
+        }
+
+        return true;
+
+    } catch (e) {
+        console.warn('Save failed:', e.message);
+
+        const reviews = await fetchReviews();
+        reviews.unshift(review);
+        localStorage.setItem('amReviews', JSON.stringify(reviews));
+
+        return true;
+    }
 }
 
 // ---- Render ----

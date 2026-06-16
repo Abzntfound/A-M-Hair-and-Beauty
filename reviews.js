@@ -3,12 +3,7 @@
    ============================================================ */
 
 // ===================== SUPABASE =====================
-const supabase = (() => {
-    if (!window.supabase) {
-        console.error("Supabase CDN not loaded");
-        return null;
-    }
-})();
+const supabase = window.supabaseClient;
 
 // ===================== ADMIN =====================
 const ADMIN_EMAILS = ["adube6113@outlook.com"];

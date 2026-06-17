@@ -1,6 +1,5 @@
 /* ============================================================
-   A&M Hair & Beauty — cart.js (SHOPIFY STYLE CLEAN VERSION)
-   Persistent + Supabase + Orders + Abandoned + Promo
+   A&M Hair & Beauty — cart.js (FIXED + PROMO + CLEAN)
    ============================================================ */
 
 /* =========================
@@ -28,7 +27,7 @@ function getUserId() {
 }
 
 /* =========================
-   CART
+   CART STORAGE
 ========================= */
 
 function safeParse(json, fallback) {
@@ -50,7 +49,7 @@ function getSupabase() {
 }
 
 /* =========================
-   PROMO SYSTEM
+   PROMO SYSTEM (FIXED)
 ========================= */
 
 const PROMO_CODES = [
@@ -59,18 +58,29 @@ const PROMO_CODES = [
 
 let activePromo = null;
 
+/* Load saved promo */
+function loadPromo() {
+    try {
+        activePromo = JSON.parse(localStorage.getItem("amPromo")) || null;
+    } catch {
+        activePromo = null;
+    }
+}
+
+/* Save promo */
+function savePromo() {
+    localStorage.setItem("amPromo", JSON.stringify(activePromo));
+}
+
+/* Apply promo */
 function applyPromo(code) {
     const promo = PROMO_CODES.find(
-        p => p.code.toUpperCase() === code.toUpperCase()
+        p => p.code.toUpperCase() === (code || "").toUpperCase()
     );
 
-    if (!promo) {
-        activePromo = null;
-        return false;
-    }
-
-    activePromo = promo;
-    return true;
+    activePromo = promo || null;
+    savePromo();
+    renderCartPage();
 }
 
 /* =========================
@@ -155,10 +165,7 @@ function clearCart() {
 ========================= */
 
 function getCartTotal() {
-    return getCart().reduce(
-        (sum, i) => sum + i.price * i.qty,
-        0
-    );
+    return getCart().reduce((sum, i) => sum + i.price * i.qty, 0);
 }
 
 function getShipping() {
@@ -171,7 +178,7 @@ function getOrderTotal() {
 }
 
 /* =========================
-   SHOPIFY STYLE RENDER
+   RENDER CART PAGE
 ========================= */
 
 function renderCartPage() {
@@ -233,7 +240,7 @@ function renderCartPage() {
 
             <div class="line">
                 <span>Shipping</span>
-                <span>${shipping === 0 ? "FREE" : config.currencySymbol + shipping}</span>
+                <span>${shipping === 0 ? "FREE" : config.currencySymbol + shipping.toFixed(2)}</span>
             </div>
 
             <div class="line total">
@@ -254,11 +261,10 @@ function renderCartPage() {
 
     </div>`;
 
-    // EVENTS
+    /* EVENTS */
     container.querySelector('#apply-promo').onclick = () => {
         const val = document.getElementById('promo-input').value;
         applyPromo(val);
-        renderCartPage();
     };
 
     container.querySelectorAll('.inc').forEach(b =>
@@ -288,7 +294,7 @@ function renderCartPage() {
 }
 
 /* =========================
-   CHECKOUT
+   CHECKOUT (IMPORTANT FIX)
 ========================= */
 
 async function proceedToCheckout() {
@@ -298,7 +304,10 @@ async function proceedToCheckout() {
     const res = await fetch('/.netlify/functions/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cart)
+        body: JSON.stringify({
+            cart,
+            promo: activePromo
+        })
     });
 
     const data = await res.json();
@@ -312,7 +321,7 @@ async function proceedToCheckout() {
 }
 
 /* =========================
-   ABANDONED + ORDERS (SAFE)
+   ABANDONED CART
 ========================= */
 
 async function saveAbandonedCart(cart) {
@@ -327,25 +336,13 @@ async function saveAbandonedCart(cart) {
     });
 }
 
-async function getPreviousOrders() {
-    const supabase = getSupabase();
-    const userId = getUserId();
-    if (!supabase || !userId) return [];
-
-    const { data } = await supabase
-        .from('user_orders')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-    return data || [];
-}
-
 /* =========================
    INIT
 ========================= */
 
 (async function init() {
+    loadPromo();
+
     if (getSupabase()) {
         const userId = getUserId();
         if (!userId) return;
@@ -377,6 +374,5 @@ window.getCart = getCart;
 window.renderCartPage = renderCartPage;
 window.proceedToCheckout = proceedToCheckout;
 window.applyPromo = applyPromo;
-window.getPreviousOrders = getPreviousOrders;
 
-console.log("cart.js loaded (SHOPIFY STYLE FIXED)");
+console.log("cart.js FIXED + PROMO READY");

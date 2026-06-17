@@ -22,23 +22,21 @@ export const handler = async (event) => {
         };
     }
 
-    // PAYMENT SUCCESS
     if (stripeEvent.type === "checkout.session.completed") {
         const session = stripeEvent.data.object;
 
-        const email = session.customer_details?.email;
-        const amount = session.amount_total / 100;
+        const email = session.customer_details?.email || "unknown";
+        const amount = (session.amount_total || 0) / 100;
 
-        // EMAIL TO YOU
         await resend.emails.send({
-            from: "orders@yourdomain.com",
-            to: "your-email@gmail.com",
-            subject: "New Order Paid",
+            from: "A&M Orders <onboarding@resend.dev>",
+            to: "adube6113@outlook.com",
+            subject: "New Paid Order - A&M Hair & Beauty",
             html: `
                 <h2>New Order Paid</h2>
-                <p><b>Email:</b> ${email}</p>
-                <p><b>Amount:</b> £${amount}</p>
-                <p><b>Session ID:</b> ${session.id}</p>
+                <p><b>Customer Email:</b> ${email}</p>
+                <p><b>Total Paid:</b> £${amount}</p>
+                <p><b>Stripe Session:</b> ${session.id}</p>
             `
         });
     }

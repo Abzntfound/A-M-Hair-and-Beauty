@@ -128,18 +128,18 @@
     }
 
     .review-reply {
-    margin-top: 10px;
-    padding: 10px;
-    border-left: 3px solid #d946a6;
-    background: #f9f9f9;
-    font-size: 0.9rem;
-}
+      margin-top: 10px;
+      padding: 10px;
+      border-left: 3px solid #d946a6;
+      background: #f9f9f9;
+      font-size: 0.9rem;
+    }
 
-.review-reply strong {
-    display: block;
-    margin-bottom: 5px;
-    color: #d946a6;
-}
+    .review-reply strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #d946a6;
+    }
   </style>
 </head>
 <body>
@@ -244,10 +244,11 @@
 
 <div id="footer-placeholder"></div>
 
-<!-- Scripts — order matters: data → nav → cart → reviews -->
+<!-- Scripts — order matters: supabase cdn → init client → data → nav → cart → reviews -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  window.supabaseClient = supabase.createClient(
+  // FIX: use window.supabase to avoid re-declaring the 'supabase' identifier
+  window.supabaseClient = window.supabase.createClient(
     "https://bipejrjipvoqvkwuzftz.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpcGVqcmppcHZvcXZrd3V6ZnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzYzMjMsImV4cCI6MjA5NzIxMjMyM30.Z8V7chc-UOK2UU5dxBydgLbT0u1DUv2_DGtisLmZWq4"
   );

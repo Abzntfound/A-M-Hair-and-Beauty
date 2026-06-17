@@ -1,9 +1,15 @@
 /* ============================================================
-   A&M Hair & Beauty — reviews.js (SUPABASE VERSION FIXED)
+   A&M Hair & Beauty — reviews.js (FIXED SAFE VERSION)
    ============================================================ */
 
 // ===================== SUPABASE =====================
-const supabase = window.supabaseClient;
+// renamed to avoid ANY global collisions
+const sb = window.supabaseClient;
+
+// safety check (helps debugging)
+if (!sb) {
+    console.error("Supabase client not found. Check window.supabaseClient");
+}
 
 // ===================== ADMIN =====================
 const ADMIN_EMAILS = ["adube6113@outlook.com"];
@@ -22,7 +28,11 @@ function isAdmin() {
 }
 
 // ===================== PROFANITY FILTER =====================
-const BAD_WORDS = ['damn','hell','crap','shit','fuck','ass','bitch','bastard','dick','piss','cock','pussy','whore','slut','fag','nigger','cunt','asshole','motherfucker'];
+const BAD_WORDS = [
+    'damn','hell','crap','shit','fuck','ass','bitch','bastard',
+    'dick','piss','cock','pussy','whore','slut','fag','nigger',
+    'cunt','asshole','motherfucker'
+];
 
 function hasProfanity(text) {
     return BAD_WORDS.some(w => new RegExp(`\\b${w}\\b`, 'i').test(text));
@@ -30,7 +40,7 @@ function hasProfanity(text) {
 
 // ===================== HELPERS =====================
 function stars(n) {
-    return Array.from({length:5},(_,i)=>i<n?'★':'☆').join('');
+    return Array.from({ length: 5 }, (_, i) => i < n ? '★' : '☆').join('');
 }
 
 function timeAgo(dateStr) {
@@ -39,9 +49,9 @@ function timeAgo(dateStr) {
     if (d === 1) return '1 day ago';
     if (d < 7) return `${d} days ago`;
     if (d < 14) return '1 week ago';
-    if (d < 30) return `${Math.floor(d/7)} weeks ago`;
+    if (d < 30) return `${Math.floor(d / 7)} weeks ago`;
     if (d < 60) return '1 month ago';
-    return `${Math.floor(d/30)} months ago`;
+    return `${Math.floor(d / 30)} months ago`;
 }
 
 function safe(str) {
@@ -54,12 +64,12 @@ function avatar(pfp, name) {
     if (pfp && pfp.startsWith('data:image')) {
         return `<img src="${pfp}" class="review-avatar-img">`;
     }
-    return `<div class="review-avatar">${(name||'?').charAt(0).toUpperCase()}</div>`;
+    return `<div class="review-avatar">${(name || '?').charAt(0).toUpperCase()}</div>`;
 }
 
 // ===================== FETCH REVIEWS =====================
 async function fetchReviews() {
-    const { data, error } = await supabase
+    const { data, error } = await sb
         .from('reviews')
         .select('*')
         .order('id', { ascending: false });
@@ -74,7 +84,7 @@ async function fetchReviews() {
 
 // ===================== SAVE REVIEW =====================
 async function saveReview(review) {
-    const { error } = await supabase
+    const { error } = await sb
         .from('reviews')
         .insert([{
             name: review.name,
@@ -92,14 +102,14 @@ async function saveReview(review) {
     return true;
 }
 
-// ===================== ADD REPLY (ADMIN ONLY) =====================
+// ===================== ADD REPLY =====================
 async function addReply(id, reply, author) {
     if (!isAdmin()) {
         alert("Not allowed");
         return;
     }
 
-    const { error } = await supabase
+    const { error } = await sb
         .from('reviews')
         .update({
             reply,
@@ -112,7 +122,7 @@ async function addReply(id, reply, author) {
 
 // ===================== ANALYTICS =====================
 async function getStats() {
-    const { data } = await supabase
+    const { data } = await sb
         .from('reviews')
         .select('rating');
 
@@ -121,7 +131,7 @@ async function getStats() {
     }
 
     const ratings = data.map(r => r.rating);
-    const avg = ratings.reduce((a,b)=>a+b,0) / ratings.length;
+    const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
 
     return {
         total: ratings.length,
@@ -131,9 +141,9 @@ async function getStats() {
 
 // ===================== REALTIME =====================
 function subscribeToReviews(onUpdate) {
-    if (!supabase) return;
+    if (!sb) return;
 
-    supabase
+    sb
         .channel('reviews')
         .on(
             'postgres_changes',
@@ -304,4 +314,4 @@ function initReviewScroll() {
     document.head.appendChild(s);
 })();
 
-console.log("✅ Supabase reviews system loaded");
+console.log("✅ Supabase reviews system loaded (SAFE VERSION)");

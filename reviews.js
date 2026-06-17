@@ -1,19 +1,17 @@
 /* ============================================================
-   A&M Hair & Beauty — reviews.js (FIXED SAFE VERSION)
+   A&M Hair & Beauty — reviews.js (FULL FIXED VERSION)
    ============================================================ */
 
 // ===================== SUPABASE =====================
-// renamed to avoid ANY global collisions
 const sb = window.supabaseClient;
-
-// safety check (helps debugging)
-if (!sb) {
-    console.error("Supabase client not found. Check window.supabaseClient");
-}
 
 // ===================== ADMIN =====================
 const ADMIN_EMAILS = ["adube6113@outlook.com"];
 
+// ===================== STATE =====================
+let lastReviewTime = 0;
+
+// ===================== USER =====================
 function getUser() {
     try {
         return JSON.parse(localStorage.getItem('amUserData') || '{}');
@@ -24,7 +22,7 @@ function getUser() {
 
 function isAdmin() {
     const user = getUser();
-    return ADMIN_EMAILS.includes(user.email);
+    return user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
 }
 
 // ===================== PROFANITY FILTER =====================
@@ -35,12 +33,16 @@ const BAD_WORDS = [
 ];
 
 function hasProfanity(text) {
-    return BAD_WORDS.some(w => new RegExp(`\\b${w}\\b`, 'i').test(text));
+    return BAD_WORDS.some(w =>
+        new RegExp(`\\b${w}\\b`, 'i').test(text)
+    );
 }
 
 // ===================== HELPERS =====================
 function stars(n) {
-    return Array.from({ length: 5 }, (_, i) => i < n ? '★' : '☆').join('');
+    return Array.from({ length: 5 }, (_, i) =>
+        i < n ? '★' : '☆'
+    ).join('');
 }
 
 function timeAgo(dateStr) {
@@ -60,14 +62,11 @@ function safe(str) {
     return d.innerHTML;
 }
 
-function avatar(pfp, name) {
-    if (pfp && pfp.startsWith('data:image')) {
-        return `<img src="${pfp}" class="review-avatar-img">`;
-    }
-    return `<div class="review-avatar">${(name || '?').charAt(0).toUpperCase()}</div>`;
+function canPostReview() {
+    return Date.now() - lastReviewTime > 30000; // 30 sec cooldown
 }
 
-// ===================== FETCH REVIEWS =====================
+// ===================== FETCH =====================
 async function fetchReviews() {
     const { data, error } = await sb
         .from('reviews')
@@ -82,17 +81,11 @@ async function fetchReviews() {
     return data || [];
 }
 
-// ===================== SAVE REVIEW =====================
+// ===================== SAVE =====================
 async function saveReview(review) {
     const { error } = await sb
         .from('reviews')
-        .insert([{
-            name: review.name,
-            rating: review.rating,
-            review: review.review,
-            date: new Date().toISOString(),
-            pfp: review.pfp || ''
-        }]);
+        .insert([review]);
 
     if (error) {
         console.error(error);
@@ -102,12 +95,9 @@ async function saveReview(review) {
     return true;
 }
 
-// ===================== ADD REPLY =====================
+// ===================== REPLY =====================
 async function addReply(id, reply, author) {
-    if (!isAdmin()) {
-        alert("Not allowed");
-        return;
-    }
+    if (!isAdmin()) return;
 
     const { error } = await sb
         .from('reviews')
@@ -120,44 +110,62 @@ async function addReply(id, reply, author) {
     if (error) console.error(error);
 }
 
-// ===================== ANALYTICS =====================
-async function getStats() {
-    const { data } = await sb
+// ===================== DELETE (ADMIN) =====================
+async function deleteReview(id) {
+    if (!isAdmin()) return;
+
+    const { error } = await sb
         .from('reviews')
-        .select('rating');
+        .delete()
+        .eq('id', id);
 
-    if (!data || data.length === 0) {
-        return { total: 0, average: 0 };
-    }
-
-    const ratings = data.map(r => r.rating);
-    const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
-
-    return {
-        total: ratings.length,
-        average: avg.toFixed(1)
-    };
+    if (error) console.error(error);
+    displayReviews();
 }
 
-// ===================== REALTIME =====================
-function subscribeToReviews(onUpdate) {
-    if (!sb) return;
+// ===================== STAR UI =====================
+function initStarRating() {
+    const wrap = document.getElementById('star-rating');
+    const input = document.getElementById('review-rating');
+    if (!wrap || !input) return;
 
-    sb
-        .channel('reviews')
-        .on(
-            'postgres_changes',
-            {
-                event: '*',
-                schema: 'public',
-                table: 'reviews'
-            },
-            (payload) => {
-                console.log("Realtime update:", payload);
-                onUpdate(payload);
-            }
-        )
-        .subscribe();
+    const starsEl = wrap.querySelectorAll('.star');
+
+    function update(value) {
+        starsEl.forEach(star => {
+            star.style.color =
+                star.dataset.rating <= value ? '#fbbf24' : '#ddd';
+        });
+    }
+
+    starsEl.forEach(star => {
+        star.addEventListener('click', () => {
+            input.value = star.dataset.rating;
+            update(star.dataset.rating);
+        });
+
+        star.addEventListener('mouseover', () => {
+            update(star.dataset.rating);
+        });
+    });
+
+    wrap.addEventListener('mouseleave', () => {
+        update(input.value || 0);
+    });
+}
+
+// ===================== AUTO SCROLL =====================
+function initReviewScroll() {
+    const el = document.getElementById('reviews-container');
+    if (!el) return;
+
+    let pos = 0;
+
+    setInterval(() => {
+        pos += 0.3;
+        if (pos > el.scrollWidth) pos = 0;
+        el.scrollLeft = pos;
+    }, 30);
 }
 
 // ===================== RENDER =====================
@@ -165,19 +173,22 @@ async function displayReviews(containerId = 'reviews-container') {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    container.innerHTML = '<div style="text-align:center;padding:2rem;color:#aaa">Loading reviews…</div>';
+    container.innerHTML = `<div style="text-align:center;padding:2rem;color:#aaa">Loading reviews…</div>`;
 
     const reviews = await fetchReviews();
 
     if (!reviews.length) {
-        container.innerHTML = '<p style="text-align:center;color:#aaa">No reviews yet. Be the first!</p>';
+        container.innerHTML = `<p style="text-align:center;color:#aaa">No reviews yet. Be the first!</p>`;
         return;
     }
 
     container.innerHTML = reviews.map(r => `
         <div class="review-card">
             <div class="review-header">
-                ${avatar(r.pfp, r.name)}
+                <div class="review-avatar">
+                    ${(r.name || '?')[0].toUpperCase()}
+                </div>
+
                 <div class="review-info">
                     <h3>${safe(r.name)}</h3>
                     <div class="review-rating">${stars(r.rating)}</div>
@@ -194,11 +205,29 @@ async function displayReviews(containerId = 'reviews-container') {
             ` : ''}
 
             <p class="review-date">${timeAgo(r.date)}</p>
+
+            ${isAdmin() ? `
+                <div style="margin-top:10px;display:flex;gap:10px">
+                    <button onclick="openReply(${r.id})">Reply</button>
+                    <button onclick="deleteReview(${r.id})">Delete</button>
+                </div>
+            ` : ''}
         </div>
     `).join('');
 }
 
-// ===================== SUBMIT REVIEW =====================
+// ===================== ADMIN ACTIONS =====================
+window.openReply = function(id) {
+    const reply = prompt("Write admin reply:");
+    if (!reply) return;
+
+    const user = getUser();
+
+    addReply(id, reply, user.email || "Admin")
+        .then(() => displayReviews());
+};
+
+// ===================== SUBMIT =====================
 async function handleReviewSubmit(e) {
     e.preventDefault();
 
@@ -206,10 +235,14 @@ async function handleReviewSubmit(e) {
     const textEl = document.getElementById('review-text');
     const ratingEl = document.getElementById('review-rating');
     const submitBtn = document.getElementById('review-submit-btn');
-    const successEl = document.getElementById('review-success-message');
 
-    if (!nameEl.value.trim() || !textEl.value.trim() || !ratingEl.value) {
+    if (!nameEl.value || !textEl.value || !ratingEl.value) {
         alert("Fill all fields");
+        return;
+    }
+
+    if (!canPostReview()) {
+        alert("Please wait before posting again");
         return;
     }
 
@@ -221,27 +254,27 @@ async function handleReviewSubmit(e) {
     submitBtn.disabled = true;
     submitBtn.textContent = "Submitting...";
 
-    const pfp = getUser().pfp || '';
+    const user = getUser();
 
     await saveReview({
         name: nameEl.value.trim(),
         rating: parseInt(ratingEl.value),
         review: textEl.value.trim(),
-        pfp
+        date: new Date().toISOString(),
+        pfp: user.pfp || ''
     });
+
+    lastReviewTime = Date.now();
 
     await displayReviews();
 
-    if (successEl) successEl.classList.add('show');
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Review";
 
-    setTimeout(() => {
-        document.getElementById('review-modal-overlay')?.classList.remove('active');
-        document.body.style.overflow = '';
-        e.target.reset();
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Submit Review";
-        successEl?.classList.remove('show');
-    }, 1500);
+    document.getElementById('review-modal-overlay')
+        ?.classList.remove('active');
+
+    e.target.reset();
 }
 
 // ===================== INIT =====================
@@ -249,15 +282,6 @@ document.addEventListener('DOMContentLoaded', () => {
     displayReviews();
     initStarRating();
     initReviewScroll();
-
-    let refreshTimeout;
-
-    subscribeToReviews(() => {
-        clearTimeout(refreshTimeout);
-        refreshTimeout = setTimeout(() => {
-            displayReviews();
-        }, 200);
-    });
 
     document.getElementById('review-form')
         ?.addEventListener('submit', handleReviewSubmit);
@@ -278,40 +302,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ===================== STAR RATING =====================
-function initStarRating() {
-    const wrap = document.getElementById('star-rating');
-    const input = document.getElementById('review-rating');
-    if (!wrap || !input) return;
-
-    wrap.querySelectorAll('.star').forEach(star => {
-        star.addEventListener('click', () => {
-            input.value = star.dataset.rating;
-        });
-    });
-}
-
-// ===================== AUTO SCROLL =====================
-function initReviewScroll() {
-    const el = document.getElementById('reviews-container');
-    if (!el) return;
-
-    let pos = 0;
-    setInterval(() => {
-        pos += 0.3;
-        if (pos > el.scrollWidth) pos = 0;
-        el.scrollLeft = pos;
-    }, 30);
-}
-
-// ===================== STYLE INJECT =====================
+// ===================== STYLE =====================
 (() => {
     const s = document.createElement('style');
     s.textContent = `
-    .review-avatar-img{width:50px;height:50px;border-radius:50%;object-fit:cover}
-    .review-reply{margin-top:10px;padding:10px;border-left:3px solid #d946a6;background:#f7f7f7}
+        .review-avatar{
+            width:50px;height:50px;border-radius:50%;
+            display:flex;align-items:center;justify-content:center;
+            background:#eee;font-weight:700;
+        }
+
+        .review-reply{
+            margin-top:10px;
+            padding:10px;
+            border-left:3px solid #d946a6;
+            background:#f7f7f7;
+        }
     `;
     document.head.appendChild(s);
 })();
 
-console.log("✅ Supabase reviews system loaded (SAFE VERSION)");
+console.log("✅ reviews.js fully loaded");

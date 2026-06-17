@@ -1,143 +1,96 @@
 /* ============================================================
-   A&M Hair & Beauty — cart.js (FULL FIXED VERSION)
-   Persistent cart + Supabase sync + Orders + Recovery
+   A&M Hair & Beauty — cart.js (FIXED FINAL)
    ============================================================ */
-
-// ============================================================
-// CONFIG
-// ============================================================
 
 function getConfig() {
     return window.AM_CONFIG || { currencySymbol: "£" };
 }
 
-// ============================================================
-// USER
-// ============================================================
+// -----------------------------
+// SUPABASE
+// -----------------------------
+function getSupabase() {
+    return window.supabaseClient || null;
+}
 
-function getUserId() {
+// -----------------------------
+// USER (FIXED)
+// -----------------------------
+async function getUserId() {
+    const supabase = getSupabase();
+    if (!supabase) return null;
+
     try {
-        const raw = localStorage.getItem('amUserData');
-        if (!raw) return null;
-
-        const user = JSON.parse(raw);
-        return user?.email || user?.id || null;
+        const { data } = await supabase.auth.getUser();
+        return data?.user?.id || null;
     } catch {
         return null;
     }
 }
 
-// ============================================================
-// SAFE STORAGE
-// ============================================================
-
+// -----------------------------
+// CART
+// -----------------------------
 function safeParse(json, fallback) {
     try { return JSON.parse(json); }
     catch { return fallback; }
 }
 
-// ============================================================
-// CART CORE
-// ============================================================
-
 function getCart() {
-    const cart = safeParse(localStorage.getItem('amCart'), []);
-    return Array.isArray(cart) ? cart : [];
+    return safeParse(localStorage.getItem('amCart'), []);
 }
 
-// ============================================================
-// SUPABASE HELPERS
-// ============================================================
-
-function getSupabase() {
-    return window.supabaseClient || null;
-}
-
-// ============================================================
-// LOAD CART FROM SERVER
-// ============================================================
-
-async function loadCartFromServer() {
-    const userId = getUserId();
-    const supabase = getSupabase();
-    if (!userId || !supabase) return;
-
-    try {
-        const { data } = await supabase
-            .from('user_carts')
-            .select('*')
-            .eq('user_id', userId)
-            .single();
-
-        if (data?.cart) {
-            localStorage.setItem('amCart', JSON.stringify(data.cart));
-            window.dispatchEvent(new CustomEvent('amCartUpdated'));
-        }
-    } catch (e) {
-        console.warn("Cart load failed:", e);
-    }
-}
-
-// ============================================================
-// SAVE CART (LOCAL + CLOUD + ABANDONED)
-// ============================================================
-
+// -----------------------------
+// SAVE CART
+// -----------------------------
 function saveCart(items) {
     localStorage.setItem('amCart', JSON.stringify(items));
 
     window.dispatchEvent(new CustomEvent('amCartUpdated'));
     window.AM?.updateCartBadge?.();
 
-    const supabase = getSupabase();
-    if (supabase) {
-        saveCartToServer(items);
-        saveAbandonedCart(items);
-    }
+    syncCartToServer(items);
+    saveAbandonedCart(items);
 }
 
-async function saveCartToServer(cart) {
-    const userId = getUserId();
+// -----------------------------
+// SYNC CART
+// -----------------------------
+async function syncCartToServer(cart) {
     const supabase = getSupabase();
-    if (!userId || !supabase) return;
+    const userId = await getUserId();
+    if (!supabase || !userId) return;
 
-    try {
-        await supabase.from('user_carts').upsert({
-            user_id: userId,
-            cart,
-            updated_at: new Date().toISOString()
-        });
-    } catch (e) {
-        console.warn("Cart sync failed:", e);
-    }
+    await supabase.from('user_carts').upsert({
+        user_id: userId,
+        cart,
+        updated_at: new Date().toISOString()
+    });
 }
 
-// ============================================================
+// -----------------------------
 // CART ACTIONS
-// ============================================================
-
+// -----------------------------
 function addToCart(productId, qty = 1) {
     qty = Math.max(1, Number(qty) || 1);
 
     const product = (window.AM_PRODUCTS || []).find(p => p.id === productId);
-    if (!product || product.discontinued) return false;
+    if (!product) return false;
 
     const cart = getCart();
-    const existing = cart.find(i => i.id === productId);
+    const item = cart.find(i => i.id === productId);
 
-    if (existing) {
-        existing.qty += qty;
-    } else {
-        cart.push({
-            id: product.id,
-            name: product.name,
-            price: Number(product.price) || 0,
-            image: product.image,
-            qty
-        });
-    }
+    if (item) item.qty += qty;
+    else cart.push({
+        id: product.id,
+        name: product.name,
+        price: Number(product.price) || 0,
+        image: product.image,
+        qty
+    });
 
     saveCart(cart);
-    window.AM?.showToast?.(`${product.name} added to cart 🛒`);
+    window.AM?.showToast?.("Added to cart");
     return true;
 }
 
@@ -146,10 +99,8 @@ function removeFromCart(id) {
 }
 
 function updateQty(id, qty) {
-    qty = Number(qty);
     const cart = getCart();
     const item = cart.find(i => i.id === id);
-
     if (!item) return;
 
     if (qty < 1) return removeFromCart(id);
@@ -162,13 +113,13 @@ function clearCart() {
     saveCart([]);
 }
 
-// ============================================================
+// -----------------------------
 // TOTALS
-// ============================================================
-
+// -----------------------------
 function getCartTotal() {
-    return getCart().reduce((sum, i) =>
-        sum + (Number(i.price) || 0) * (Number(i.qty) || 1), 0
+    return getCart().reduce(
+        (s, i) => s + (i.price * i.qty),
+        0
     );
 }
 
@@ -180,77 +131,53 @@ function getOrderTotal() {
     return getCartTotal() + getShipping();
 }
 
-// ============================================================
-// CART RENDER
-// ============================================================
-
+// -----------------------------
+// RENDER CART
+// -----------------------------
 function renderCartPage() {
-    const container = document.getElementById('cart-content');
-    if (!container) return;
+    const el = document.getElementById('cart-content');
+    if (!el) return;
 
     const cart = getCart();
-    const config = getConfig();
+    const c = getConfig();
 
     if (!cart.length) {
-        container.innerHTML = `
-        <div class="empty-cart">
-            <h3>Your cart is empty</h3>
-            <p>Start shopping to add items.</p>
-            <a href="/products/">Browse Products</a>
-        </div>`;
+        el.innerHTML = "<p>Cart empty</p>";
         return;
     }
 
-    const subtotal = getCartTotal();
-    const shipping = getShipping();
-    const total = getOrderTotal();
+    el.innerHTML = `
+        ${cart.map(i => `
+            <div>
+                ${i.name} - ${c.currencySymbol}${i.price * i.qty}
+                <button class="dec" data-id="${i.id}">-</button>
+                <span>${i.qty}</span>
+                <button class="inc" data-id="${i.id}">+</button>
+                <button class="remove" data-id="${i.id}">x</button>
+            </div>
+        `).join('')}
 
-    container.innerHTML = `
-    <div class="cart-layout">
-        <div class="items">
-            ${cart.map(item => `
-                <div class="cart-item">
-                    <img src="${item.image}">
-                    <div>${item.name}</div>
-                    <div>${config.currencySymbol}${item.price * item.qty}</div>
+        <h3>Total: ${c.currencySymbol}${getOrderTotal()}</h3>
+        <button onclick="proceedToCheckout()">Checkout</button>
+    `;
 
-                    <button data-id="${item.id}" class="dec">-</button>
-                    <span>${item.qty}</span>
-                    <button data-id="${item.id}" class="inc">+</button>
-                    <button data-id="${item.id}" class="remove">✕</button>
-                </div>
-            `).join('')}
-        </div>
-
-        <div class="summary">
-            <h3>Summary</h3>
-            <p>Subtotal: ${config.currencySymbol}${subtotal.toFixed(2)}</p>
-            <p>Shipping: ${shipping === 0 ? "FREE" : config.currencySymbol + shipping}</p>
-            <h2>Total: ${config.currencySymbol}${total.toFixed(2)}</h2>
-
-            <button onclick="proceedToCheckout()">Checkout</button>
-        </div>
-    </div>`;
-
-    container.querySelectorAll('.inc').forEach(b =>
+    el.querySelectorAll('.inc').forEach(b =>
         b.onclick = () => {
-            const id = b.dataset.id;
-            const item = getCart().find(i => i.id === id);
-            updateQty(id, item.qty + 1);
+            const i = cart.find(x => x.id === b.dataset.id);
+            updateQty(i.id, i.qty + 1);
             renderCartPage();
         }
     );
 
-    container.querySelectorAll('.dec').forEach(b =>
+    el.querySelectorAll('.dec').forEach(b =>
         b.onclick = () => {
-            const id = b.dataset.id;
-            const item = getCart().find(i => i.id === id);
-            updateQty(id, item.qty - 1);
+            const i = cart.find(x => x.id === b.dataset.id);
+            updateQty(i.id, i.qty - 1);
             renderCartPage();
         }
     );
 
-    container.querySelectorAll('.remove').forEach(b =>
+    el.querySelectorAll('.remove').forEach(b =>
         b.onclick = () => {
             removeFromCart(b.dataset.id);
             renderCartPage();
@@ -258,121 +185,101 @@ function renderCartPage() {
     );
 }
 
-// ============================================================
+// -----------------------------
 // CHECKOUT
-// ============================================================
-
+// -----------------------------
 async function proceedToCheckout() {
     const cart = getCart();
     if (!cart.length) return;
 
-    try {
-        const res = await fetch('/.netlify/functions/create-checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(cart)
-        });
+    const res = await fetch('/.netlify/functions/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cart)
+    });
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-
-        window.location.href = data.url;
-    } catch (e) {
-        console.error(e);
-        alert("Checkout failed");
-    }
+    const data = await res.json();
+    if (data?.url) window.location.href = data.url;
 }
 
-// ============================================================
-// ORDERS (PREVIOUS ORDERS)
-// ============================================================
-
-async function getPreviousOrders() {
-    const userId = getUserId();
-    const supabase = getSupabase();
-    if (!userId || !supabase) return [];
-
-    try {
-        const { data } = await supabase
-            .from('user_orders')
-            .select('*')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
-
-        return data || [];
-    } catch {
-        return [];
-    }
-}
-
-// ============================================================
+// -----------------------------
 // ABANDONED CART
-// ============================================================
-
+// -----------------------------
 async function saveAbandonedCart(cart) {
-    const userId = getUserId();
     const supabase = getSupabase();
-    if (!userId || !supabase) return;
+    const userId = await getUserId();
+    if (!supabase || !userId) return;
 
-    try {
-        await supabase.from('abandoned_carts').upsert({
-            user_id: userId,
-            cart,
-            updated_at: new Date().toISOString()
-        });
-    } catch (e) {
-        console.warn("Abandoned cart failed:", e);
-    }
+    await supabase.from('abandoned_carts').upsert({
+        user_id: userId,
+        cart,
+        updated_at: new Date().toISOString()
+    });
 }
 
-async function getAbandonedCart() {
-    const userId = getUserId();
+async function restoreAbandonedCart() {
     const supabase = getSupabase();
-    if (!userId || !supabase) return [];
+    const userId = await getUserId();
+    if (!supabase || !userId) return;
 
-    try {
+    const { data } = await supabase
+        .from('abandoned_carts')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+    if (!data?.cart?.length) return;
+
+    saveCart(data.cart);
+    alert("Cart restored");
+}
+
+// -----------------------------
+// ORDERS
+// -----------------------------
+async function getPreviousOrders() {
+    const supabase = getSupabase();
+    const userId = await getUserId();
+    if (!supabase || !userId) return [];
+
+    const { data } = await supabase
+        .from('user_orders')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    return data || [];
+}
+
+// -----------------------------
+// INIT
+// -----------------------------
+(async function () {
+    // optional preload cart
+    const supabase = getSupabase();
+    const userId = await getUserId();
+
+    if (supabase && userId) {
         const { data } = await supabase
-            .from('abandoned_carts')
+            .from('user_carts')
             .select('*')
             .eq('user_id', userId)
             .single();
 
-        return data?.cart || [];
-    } catch {
-        return [];
-    }
-}
-
-async function restoreAbandonedCart() {
-    const cart = await getAbandonedCart();
-    if (!cart.length) return;
-
-    saveCart(cart);
-    alert("Previous cart restored 🛒");
-}
-
-// ============================================================
-// INIT
-// ============================================================
-
-(async function init() {
-    if (getSupabase()) {
-        await loadCartFromServer();
+        if (data?.cart) {
+            localStorage.setItem('amCart', JSON.stringify(data.cart));
+        }
     }
 })();
 
-// ============================================================
-// EXPORTS
-// ============================================================
-
+// -----------------------------
 window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.updateQty = updateQty;
 window.clearCart = clearCart;
-window.getCart = getCart;
 window.renderCartPage = renderCartPage;
 window.proceedToCheckout = proceedToCheckout;
 window.getPreviousOrders = getPreviousOrders;
 window.restoreAbandonedCart = restoreAbandonedCart;
 
-console.log("✅ cart.js loaded (FIXED + PERSISTENT + ORDERS + ABANDONED)");
+console.log("cart.js fixed");

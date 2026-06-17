@@ -48,7 +48,7 @@ exports.handler = async (event) => {
       });
     }
 
-    // only add shipping if not free
+    // only add shipping if not fre
     if (shipping > 0) {
       line_items.push({
         price_data: {

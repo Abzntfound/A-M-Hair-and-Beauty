@@ -1,116 +1,548 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - A&M Hair & Beauty</title>
+  <link rel="icon" href="/A&M.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
 
-<title>Product - A&M Hair & Beauty</title>
+  <style>
+    /* ===== SHARED PAGE CHROME ===== */
+    .page-hero {
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+      padding: 130px 5% 60px;
+      text-align: center;
+      border-bottom: 1px solid #fce7f3;
+    }
+    .page-hero h1 {
+      font-size: 3.2rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      color: #1a1a1a;
+      margin-bottom: .5rem;
+    }
+    .page-hero p { color: #777; font-size: 1.05rem; }
 
-<link rel="icon" href="/A&M.ico">
+    /* ===== PRODUCT GRID VIEW ===== */
+    .products-section { padding: 60px 5% 100px; }
 
-<link rel="stylesheet" href="/styles.css">
+    .filter-bar {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
+    .filter-btn {
+      padding: .5rem 1.2rem;
+      border-radius: 50px;
+      border: 1.5px solid #e5e7eb;
+      background: white;
+      font-family: 'Poppins', sans-serif;
+      font-size: .82rem;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: #d946a6;
+      border-color: #d946a6;
+      color: white;
+    }
 
-<script src="/data.js" defer></script>
-<script src="/nav.js" defer></script>
-<script src="/cart.js" defer></script>
-  
-<style>
-.detail-section { padding:120px 5% 80px; }
-.detail-layout { display:grid; grid-template-columns:1fr 1fr; gap:3rem; max-width:1200px; margin:auto; }
-.img-wrap img { width:100%; height:500px; object-fit:cover; border-radius:20px; }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-.detail-price { font-size:2.4rem; font-weight:800; color:#d946a6; }
-.detail-name { font-size:2rem; font-weight:700; }
-.detail-desc { color:#666; line-height:1.7; }
+    .product-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid #f0f0f0;
+      box-shadow: 0 4px 20px rgba(0,0,0,.06);
+      transition: transform .25s ease, box-shadow .25s ease;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+    }
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba(217,70,166,.15);
+    }
+    .product-card .product-image-wrap {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      background: #fdf2f8;
+    }
+    .product-card .product-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .4s ease;
+    }
+    .product-card:hover .product-image-wrap img { transform: scale(1.06); }
 
-.qty { display:flex; gap:10px; align-items:center; }
-.qty button { width:30px; height:30px; }
+    .product-badge {
+      position: absolute;
+      top: .8rem;
+      left: .8rem;
+      background: #d946a6;
+      color: white;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: .25rem .7rem;
+      border-radius: 50px;
+    }
+    .product-badge.discontinued { background: #9ca3af; }
 
-@media(max-width:768px){
-  .detail-layout { grid-template-columns:1fr; }
-}
-</style>
+    .product-info {
+      padding: 1.3rem 1.4rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .product-price {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #d946a6;
+      margin-bottom: .2rem;
+    }
+    .product-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: .3rem;
+    }
+    .product-subtitle {
+      font-size: .78rem;
+      color: #aaa;
+      margin-bottom: .6rem;
+    }
+    .product-description {
+      font-size: .85rem;
+      color: #666;
+      line-height: 1.6;
+      flex: 1;
+      margin-bottom: 1.1rem;
+    }
+    .product-actions { display: flex; gap: .6rem; }
+    .product-actions .btn { flex: 1; text-align: center; font-size: .82rem; padding: .6rem .8rem; }
+
+    .discontinued-tag {
+      font-size: .8rem;
+      color: #9ca3af;
+      font-style: italic;
+      margin-top: auto;
+      padding-top: .5rem;
+    }
+
+    /* ===== PRODUCT DETAIL VIEW ===== */
+    #detail-view { display: none; }
+
+    .detail-section { padding: 120px 5% 80px; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      color: #d946a6;
+      font-weight: 600;
+      font-size: .9rem;
+      text-decoration: none;
+      margin-bottom: 2.5rem;
+      transition: gap .2s ease;
+    }
+    .back-link:hover { gap: .7rem; }
+
+    .detail-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .detail-img-wrap img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.1);
+    }
+
+    .detail-badge {
+      display: inline-block;
+      background: #fce7f3;
+      color: #d946a6;
+      font-size: .78rem;
+      font-weight: 700;
+      padding: .3rem .9rem;
+      border-radius: 50px;
+      margin-bottom: 1rem;
+    }
+
+    .detail-name {
+      font-size: 2.4rem;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      color: #1a1a1a;
+      line-height: 1.1;
+      margin-bottom: .4rem;
+    }
+
+    .detail-subtitle {
+      font-size: 1rem;
+      color: #aaa;
+      margin-bottom: 1.2rem;
+    }
+
+    .detail-price {
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: #d946a6;
+      margin-bottom: 1.4rem;
+    }
+
+    .detail-desc {
+      color: #555;
+      line-height: 1.8;
+      font-size: .97rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .detail-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+    }
+    .detail-features li {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      font-size: .9rem;
+      color: #444;
+    }
+    .detail-features li::before {
+      content: '✓';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: #fce7f3;
+      color: #d946a6;
+      border-radius: 50%;
+      font-size: .75rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* ===== QTY + ADD TO CART ===== */
+    .purchase-area {
+      background: #fdf2f8;
+      border-radius: 18px;
+      padding: 1.6rem;
+      border: 1px solid #fce7f3;
+    }
+
+    .qty-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .qty-label {
+      font-size: .85rem;
+      font-weight: 600;
+      color: #555;
+      min-width: 55px;
+    }
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: white;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .qty-btn {
+      width: 42px;
+      height: 42px;
+      border: none;
+      background: transparent;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #d946a6;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+    .qty-btn:hover { background: #fce7f3; }
+    .qty-btn:active { background: #fbcfe8; }
+    .qty-display {
+      width: 48px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      border-left: 1.5px solid #e5e7eb;
+      border-right: 1.5px solid #e5e7eb;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .add-to-cart-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #d946a6 0%, #ec4899 100%);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      box-shadow: 0 4px 20px rgba(217,70,166,.3);
+    }
+    .add-to-cart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(217,70,166,.4);
+    }
+    .add-to-cart-btn:active { transform: translateY(0); }
+    .add-to-cart-btn.added {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 4px 20px rgba(16,185,129,.3);
+    }
+
+    .discontinued-notice {
+      background: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 1.2rem 1.5rem;
+      color: #9ca3af;
+      font-size: .9rem;
+      text-align: center;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .page-hero h1 { font-size: 2.2rem; }
+      .detail-layout { grid-template-columns: 1fr; gap: 2rem; }
+      .detail-name { font-size: 1.8rem; }
+      .detail-section { padding: 100px 5% 60px; }
+    }
+  </style>
 </head>
-
 <body>
 
 <div id="header-placeholder"></div>
 
-<section class="detail-section">
-<a href="/products/">← Back to Products</a>
+<!-- ===== GRID VIEW ===== -->
+<div id="grid-view">
+  <div class="page-hero">
+    <h1>Our Products</h1>
+    <p>Natural hair care, handcrafted with love</p>
+  </div>
 
-<div id="product-detail" class="detail-layout">
-  <p>Loading product...</p>
+  <section class="products-section">
+    <!-- Category filters -->
+    <div class="filter-bar" id="filter-bar"></div>
+    <!-- Products grid -->
+    <div class="products-grid" id="products-grid"></div>
+  </section>
 </div>
-</section>
+
+<!-- ===== DETAIL VIEW ===== -->
+<div id="detail-view">
+  <section class="detail-section">
+    <a href="/products/" class="back-link" id="back-btn">← Back to Products</a>
+    <div class="detail-layout" id="product-detail"></div>
+  </section>
+</div>
 
 <div id="footer-placeholder"></div>
-  
+
+<script src="/data.js"></script>
+<script src="/nav.js"></script>
+<script src="/cart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  AM.renderHeader("Products");
+  AM.renderFooter();
 
-    AM.renderHeader("Products");
-    AM.renderFooter();
+  if (!window.AM_PRODUCTS) {
+    document.getElementById("products-grid").innerHTML = "<p>Failed to load products.</p>";
+    return;
+  }
 
-    if (!window.AM_PRODUCTS) {
-        document.getElementById("product-detail").innerHTML =
-            "<h2>Products failed to load</h2>";
-        return;
-    }
+  const id = new URLSearchParams(location.search).get("id");
 
-    const id = new URLSearchParams(location.search).get("id");
+  if (id) {
+    // ---- DETAIL VIEW ----
+    document.getElementById("grid-view").style.display   = "none";
+    document.getElementById("detail-view").style.display = "block";
+    document.title = "Product - A&M Hair & Beauty";
 
     const product = AM_PRODUCTS.find(p => String(p.id) === String(id));
 
     if (!product) {
-        document.getElementById("product-detail").innerHTML =
-            "<h2>Product not found</h2>";
-        return;
+      document.getElementById("product-detail").innerHTML = "<h2 style='color:#999'>Product not found.</h2>";
+      return;
     }
 
-    let qty = 1;
+    document.title = `${product.name} - A&M Hair & Beauty`;
 
     document.getElementById("product-detail").innerHTML = `
-      <div class="img-wrap">
-        <img src="${product.image}" alt="${product.name}">
+      <div class="detail-img-wrap">
+        <img src="${product.image}" alt="${product.name}"
+             onerror="this.src='https://via.placeholder.com/600x600/fce7f3/d946a6?text=${encodeURIComponent(product.name)}'">
       </div>
-
-      <div>
-        <div class="detail-price">£${product.price}</div>
+      <div class="detail-info">
+        ${product.badge ? `<span class="detail-badge">${product.badge}</span>` : ''}
         <div class="detail-name">${product.name}</div>
-        <p class="detail-desc">${product.description || ""}</p>
+        <div class="detail-subtitle">${product.subtitle || ''}</div>
+        <div class="detail-price">£${product.price.toFixed(2)}</div>
+        <p class="detail-desc">${product.description || ''}</p>
+
+        ${product.features && product.features.length ? `
+          <ul class="detail-features">
+            ${product.features.map(f => `<li>${f}</li>`).join('')}
+          </ul>
+        ` : ''}
 
         ${!product.discontinued ? `
-        <div class="qty">
-          <button id="minus">-</button>
-          <span id="qty">1</span>
-          <button id="plus">+</button>
-        </div>
-
-        <button id="add">Add to Cart</button>
-        ` : `<p>Discontinued</p>`}
+          <div class="purchase-area">
+            <div class="qty-row">
+              <span class="qty-label">Quantity</span>
+              <div class="qty-controls">
+                <button class="qty-btn" id="qty-minus">−</button>
+                <div class="qty-display" id="qty-display">1</div>
+                <button class="qty-btn" id="qty-plus">+</button>
+              </div>
+            </div>
+            <button class="add-to-cart-btn" id="add-to-cart-btn">
+              🛒 Add to Cart
+            </button>
+          </div>
+        ` : `
+          <div class="discontinued-notice">
+            This product has been discontinued and is no longer available.
+          </div>
+        `}
       </div>
     `;
 
     if (!product.discontinued) {
-        document.getElementById("minus").onclick = () => {
-            if (qty > 1) qty--;
-            document.getElementById("qty").innerText = qty;
-        };
+      let qty = 1;
+      const qtyDisplay = document.getElementById("qty-display");
+      const addBtn     = document.getElementById("add-to-cart-btn");
 
-        document.getElementById("plus").onclick = () => {
-            qty++;
-            document.getElementById("qty").innerText = qty;
-        };
-
-        document.getElementById("add").onclick = () => {
-            addToCart(product.id, qty);
-            AM.updateCartBadge();
-        };
+      document.getElementById("qty-minus").onclick = () => {
+        if (qty > 1) { qty--; qtyDisplay.textContent = qty; }
+      };
+      document.getElementById("qty-plus").onclick = () => {
+        qty++;
+        qtyDisplay.textContent = qty;
+      };
+      addBtn.onclick = () => {
+        addToCart(product.id, qty);
+        AM.updateCartBadge();
+        addBtn.textContent = "✓ Added!";
+        addBtn.classList.add("added");
+        setTimeout(() => {
+          addBtn.innerHTML = "🛒 Add to Cart";
+          addBtn.classList.remove("added");
+        }, 1800);
+      };
     }
 
+  } else {
+    // ---- GRID VIEW ----
+    document.title = "Products - A&M Hair & Beauty";
+
+    const filterBar = document.getElementById("filter-bar");
+    const grid      = document.getElementById("products-grid");
+
+    let activeCategory = "all";
+
+    // Build filter buttons from AM_CATEGORIES
+    const categories = window.AM_CATEGORIES || [{ id: "all", label: "All Products" }];
+    filterBar.innerHTML = categories.map(cat => `
+      <button class="filter-btn ${cat.id === 'all' ? 'active' : ''}"
+              data-cat="${cat.id}">${cat.label}</button>
+    `).join('');
+
+    filterBar.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        filterBar.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeCategory = btn.dataset.cat;
+        renderGrid();
+      });
+    });
+
+    function renderGrid() {
+      const products = AM_PRODUCTS.filter(p =>
+        !p.discontinued &&
+        (activeCategory === "all" || p.category === activeCategory)
+      );
+
+      if (!products.length) {
+        grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#aaa;padding:3rem">No products in this category yet.</p>`;
+        return;
+      }
+
+      grid.innerHTML = products.map(p => `
+        <a href="/products/?id=${p.id}" class="product-card">
+          <div class="product-image-wrap">
+            <img src="${p.image}" alt="${p.name}"
+                 onerror="this.src='https://via.placeholder.com/350x270/fce7f3/d946a6?text=${encodeURIComponent(p.name)}'">
+            ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
+          </div>
+          <div class="product-info">
+            <div class="product-price">£${p.price.toFixed(2)}</div>
+            <div class="product-name">${p.name}</div>
+            <div class="product-subtitle">${p.subtitle || ''}</div>
+            <p class="product-description">${(p.description || '').slice(0, 90)}…</p>
+            <div class="product-actions">
+              <span class="btn btn-primary btn-sm">View Product</span>
+              <button class="btn btn-outline btn-sm"
+                      onclick="event.preventDefault();event.stopPropagation();addToCart('${p.id}',1);AM.updateCartBadge();this.textContent='✓ Added';setTimeout(()=>this.textContent='Add to Cart',1600)">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    renderGrid();
+  }
 });
 </script>
-
 </body>
 </html>

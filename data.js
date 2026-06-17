@@ -40,7 +40,7 @@ const AM_PRODUCTS = [
         id: 'test1',
         name: 'Hair Growth Oil',
         subtitle: '100ml Premium Formula',
-        price: 0.00,
+        price: 0.01,
         image: '/big hair oil.jpg',
         images: ['/big hair oil.jpg'],
         category: 'oils',

@@ -1,6 +1,6 @@
 /* ============================================================
-   A&M Hair & Beauty — cart.js (FULL FIXED SYSTEM)
-   Persistent cart + Supabase + Orders + Abandoned + Promo
+   A&M Hair & Beauty — cart.js (SHOPIFY STYLE CLEAN VERSION)
+   Persistent + Supabase + Orders + Abandoned + Promo
    ============================================================ */
 
 /* =========================
@@ -28,17 +28,13 @@ function getUserId() {
 }
 
 /* =========================
-   SAFE PARSE
+   CART
 ========================= */
 
 function safeParse(json, fallback) {
     try { return JSON.parse(json); }
     catch { return fallback; }
 }
-
-/* =========================
-   CART STATE
-========================= */
 
 function getCart() {
     const cart = safeParse(localStorage.getItem('amCart'), []);
@@ -58,11 +54,7 @@ function getSupabase() {
 ========================= */
 
 const PROMO_CODES = [
-    {
-        code: "IBMCHURCH",
-        type: "free_shipping",
-        value: true
-    }
+    { code: "IBMCHURCH", type: "free_shipping", value: true }
 ];
 
 let activePromo = null;
@@ -82,48 +74,7 @@ function applyPromo(code) {
 }
 
 /* =========================
-   CART SYNC
-========================= */
-
-async function loadCartFromServer() {
-    const supabase = getSupabase();
-    const userId = getUserId();
-    if (!supabase || !userId) return;
-
-    try {
-        const { data } = await supabase
-            .from('user_carts')
-            .select('*')
-            .eq('user_id', userId)
-            .single();
-
-        if (data?.cart) {
-            localStorage.setItem('amCart', JSON.stringify(data.cart));
-            window.dispatchEvent(new CustomEvent('amCartUpdated'));
-        }
-    } catch (e) {
-        console.warn("Cart load failed:", e);
-    }
-}
-
-async function saveCartToServer(cart) {
-    const supabase = getSupabase();
-    const userId = getUserId();
-    if (!supabase || !userId) return;
-
-    try {
-        await supabase.from('user_carts').upsert({
-            user_id: userId,
-            cart,
-            updated_at: new Date().toISOString()
-        });
-    } catch (e) {
-        console.warn("Cart sync failed:", e);
-    }
-}
-
-/* =========================
-   SAVE CART (MAIN)
+   SAVE CART
 ========================= */
 
 function saveCart(items) {
@@ -136,6 +87,18 @@ function saveCart(items) {
         saveCartToServer(items);
         saveAbandonedCart(items);
     }
+}
+
+async function saveCartToServer(cart) {
+    const supabase = getSupabase();
+    const userId = getUserId();
+    if (!supabase || !userId) return;
+
+    await supabase.from('user_carts').upsert({
+        user_id: userId,
+        cart,
+        updated_at: new Date().toISOString()
+    });
 }
 
 /* =========================
@@ -151,9 +114,8 @@ function addToCart(productId, qty = 1) {
     const cart = getCart();
     const existing = cart.find(i => i.id === productId);
 
-    if (existing) {
-        existing.qty += qty;
-    } else {
+    if (existing) existing.qty += qty;
+    else {
         cart.push({
             id: product.id,
             name: product.name,
@@ -194,7 +156,7 @@ function clearCart() {
 
 function getCartTotal() {
     return getCart().reduce(
-        (sum, i) => sum + (i.price * i.qty),
+        (sum, i) => sum + i.price * i.qty,
         0
     );
 }
@@ -209,7 +171,7 @@ function getOrderTotal() {
 }
 
 /* =========================
-   RENDER CART
+   SHOPIFY STYLE RENDER
 ========================= */
 
 function renderCartPage() {
@@ -221,10 +183,10 @@ function renderCartPage() {
 
     if (!cart.length) {
         container.innerHTML = `
-            <div class="empty-cart">
-                <h3>Your cart is empty</h3>
-                <p>Start shopping</p>
-            </div>`;
+        <div class="empty-cart">
+            <h3>Your cart is empty</h3>
+            <p>Add items to continue</p>
+        </div>`;
         return;
     }
 
@@ -236,45 +198,67 @@ function renderCartPage() {
     <div class="cart-layout">
 
         <div class="items">
+
             ${cart.map(item => `
                 <div class="cart-item">
-                    <img src="${item.image}">
-                    <div>${item.name}</div>
-                    <div>${config.currencySymbol}${(item.price * item.qty).toFixed(2)}</div>
 
-                    <button class="dec" data-id="${item.id}">-</button>
-                    <span>${item.qty}</span>
-                    <button class="inc" data-id="${item.id}">+</button>
-                    <button class="remove" data-id="${item.id}">x</button>
+                    <img src="${item.image}" />
+
+                    <div class="item-info">
+                        <div class="name">${item.name}</div>
+                        <div class="price">${config.currencySymbol}${(item.price * item.qty).toFixed(2)}</div>
+                    </div>
+
+                    <div class="qty-controls">
+                        <button class="dec" data-id="${item.id}">-</button>
+                        <span>${item.qty}</span>
+                        <button class="inc" data-id="${item.id}">+</button>
+                    </div>
+
+                    <button class="remove" data-id="${item.id}">Remove</button>
+
                 </div>
             `).join('')}
+
         </div>
 
         <div class="summary">
-            <h3>Summary</h3>
 
-            <p>Subtotal: ${config.currencySymbol}${subtotal.toFixed(2)}</p>
-            <p>Shipping: ${shipping === 0 ? "FREE" : config.currencySymbol + shipping}</p>
-            <h2>Total: ${config.currencySymbol}${total.toFixed(2)}</h2>
+            <h3>Checkout</h3>
+
+            <div class="line">
+                <span>Subtotal</span>
+                <span>${config.currencySymbol}${subtotal.toFixed(2)}</span>
+            </div>
+
+            <div class="line">
+                <span>Shipping</span>
+                <span>${shipping === 0 ? "FREE" : config.currencySymbol + shipping}</span>
+            </div>
+
+            <div class="line total">
+                <span>Total</span>
+                <span>${config.currencySymbol}${total.toFixed(2)}</span>
+            </div>
 
             <div class="promo">
                 <input id="promo-input" placeholder="Promo code">
                 <button id="apply-promo">Apply</button>
             </div>
 
-            <button onclick="proceedToCheckout()">Checkout</button>
+            <button class="checkout-btn" onclick="proceedToCheckout()">
+                Checkout
+            </button>
+
         </div>
+
     </div>`;
 
+    // EVENTS
     container.querySelector('#apply-promo').onclick = () => {
-        const input = document.getElementById('promo-input').value;
-        const ok = applyPromo(input);
-
-        if (ok) {
-            renderCartPage();
-        } else {
-            alert("Invalid code");
-        }
+        const val = document.getElementById('promo-input').value;
+        applyPromo(val);
+        renderCartPage();
     };
 
     container.querySelectorAll('.inc').forEach(b =>
@@ -318,6 +302,7 @@ async function proceedToCheckout() {
     });
 
     const data = await res.json();
+
     if (!res.ok) {
         alert("Checkout failed");
         return;
@@ -327,29 +312,7 @@ async function proceedToCheckout() {
 }
 
 /* =========================
-   ORDERS
-========================= */
-
-async function getPreviousOrders() {
-    const supabase = getSupabase();
-    const userId = getUserId();
-    if (!supabase || !userId) return [];
-
-    try {
-        const { data } = await supabase
-            .from('user_orders')
-            .select('*')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
-
-        return data || [];
-    } catch {
-        return [];
-    }
-}
-
-/* =========================
-   ABANDONED CART
+   ABANDONED + ORDERS (SAFE)
 ========================= */
 
 async function saveAbandonedCart(cart) {
@@ -357,38 +320,25 @@ async function saveAbandonedCart(cart) {
     const userId = getUserId();
     if (!supabase || !userId) return;
 
-    try {
-        await supabase.from('abandoned_carts').upsert({
-            user_id: userId,
-            cart,
-            updated_at: new Date().toISOString()
-        });
-    } catch {}
+    await supabase.from('abandoned_carts').upsert({
+        user_id: userId,
+        cart,
+        updated_at: new Date().toISOString()
+    });
 }
 
-async function getAbandonedCart() {
+async function getPreviousOrders() {
     const supabase = getSupabase();
     const userId = getUserId();
     if (!supabase || !userId) return [];
 
-    try {
-        const { data } = await supabase
-            .from('abandoned_carts')
-            .select('*')
-            .eq('user_id', userId)
-            .single();
+    const { data } = await supabase
+        .from('user_orders')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
-        return data?.cart || [];
-    } catch {
-        return [];
-    }
-}
-
-async function restoreAbandonedCart() {
-    const cart = await getAbandonedCart();
-    if (!cart.length) return;
-
-    saveCart(cart);
+    return data || [];
 }
 
 /* =========================
@@ -397,7 +347,21 @@ async function restoreAbandonedCart() {
 
 (async function init() {
     if (getSupabase()) {
-        await loadCartFromServer();
+        const userId = getUserId();
+        if (!userId) return;
+
+        try {
+            const { data } = await getSupabase()
+                .from('user_carts')
+                .select('*')
+                .eq('user_id', userId)
+                .single();
+
+            if (data?.cart) {
+                localStorage.setItem('amCart', JSON.stringify(data.cart));
+                window.dispatchEvent(new CustomEvent('amCartUpdated'));
+            }
+        } catch {}
     }
 })();
 
@@ -412,8 +376,7 @@ window.clearCart = clearCart;
 window.getCart = getCart;
 window.renderCartPage = renderCartPage;
 window.proceedToCheckout = proceedToCheckout;
-window.getPreviousOrders = getPreviousOrders;
-window.restoreAbandonedCart = restoreAbandonedCart;
 window.applyPromo = applyPromo;
+window.getPreviousOrders = getPreviousOrders;
 
-console.log("cart.js loaded");
+console.log("cart.js loaded (SHOPIFY STYLE FIXED)");

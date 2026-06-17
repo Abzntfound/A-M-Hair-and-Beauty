@@ -1,64 +1,175 @@
 /* ============================================================
-   A&M Hair & Beauty — cart.js
-   Cart state management + Stripe checkout.
+   A&M Hair & Beauty — cart.js (FULL FIXED VERSION)
+   Persistent cart + Supabase sync + Orders + Recovery
    ============================================================ */
 
 // ============================================================
-// CART STATE
+// CONFIG
 // ============================================================
-function getCart() {
-    try { return JSON.parse(localStorage.getItem('amCart') || '[]'); }
-    catch (e) { return []; }
+
+function getConfig() {
+    return window.AM_CONFIG || { currencySymbol: "£" };
 }
+
+// ============================================================
+// USER
+// ============================================================
+
+function getUserId() {
+    try {
+        const raw = localStorage.getItem('amUserData');
+        if (!raw) return null;
+
+        const user = JSON.parse(raw);
+        return user?.email || user?.id || null;
+    } catch {
+        return null;
+    }
+}
+
+// ============================================================
+// SAFE STORAGE
+// ============================================================
+
+function safeParse(json, fallback) {
+    try { return JSON.parse(json); }
+    catch { return fallback; }
+}
+
+// ============================================================
+// CART CORE
+// ============================================================
+
+function getCart() {
+    const cart = safeParse(localStorage.getItem('amCart'), []);
+    return Array.isArray(cart) ? cart : [];
+}
+
+// ============================================================
+// SUPABASE HELPERS
+// ============================================================
+
+function getSupabase() {
+    return window.supabaseClient || null;
+}
+
+// ============================================================
+// LOAD CART FROM SERVER
+// ============================================================
+
+async function loadCartFromServer() {
+    const userId = getUserId();
+    const supabase = getSupabase();
+    if (!userId || !supabase) return;
+
+    try {
+        const { data } = await supabase
+            .from('user_carts')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+
+        if (data?.cart) {
+            localStorage.setItem('amCart', JSON.stringify(data.cart));
+            window.dispatchEvent(new CustomEvent('amCartUpdated'));
+        }
+    } catch (e) {
+        console.warn("Cart load failed:", e);
+    }
+}
+
+// ============================================================
+// SAVE CART (LOCAL + CLOUD + ABANDONED)
+// ============================================================
 
 function saveCart(items) {
     localStorage.setItem('amCart', JSON.stringify(items));
-    window.AM && window.AM.updateCartBadge && window.AM.updateCartBadge();
+
     window.dispatchEvent(new CustomEvent('amCartUpdated'));
+    window.AM?.updateCartBadge?.();
+
+    const supabase = getSupabase();
+    if (supabase) {
+        saveCartToServer(items);
+        saveAbandonedCart(items);
+    }
 }
 
+async function saveCartToServer(cart) {
+    const userId = getUserId();
+    const supabase = getSupabase();
+    if (!userId || !supabase) return;
+
+    try {
+        await supabase.from('user_carts').upsert({
+            user_id: userId,
+            cart,
+            updated_at: new Date().toISOString()
+        });
+    } catch (e) {
+        console.warn("Cart sync failed:", e);
+    }
+}
+
+// ============================================================
+// CART ACTIONS
+// ============================================================
+
 function addToCart(productId, qty = 1) {
-    const product = AM_PRODUCTS.find(p => p.id === productId);
+    qty = Math.max(1, Number(qty) || 1);
+
+    const product = (window.AM_PRODUCTS || []).find(p => p.id === productId);
     if (!product || product.discontinued) return false;
 
     const cart = getCart();
     const existing = cart.find(i => i.id === productId);
 
     if (existing) {
-        existing.qty = (existing.qty || 1) + qty;
+        existing.qty += qty;
     } else {
         cart.push({
             id: product.id,
             name: product.name,
-            price: product.price,
+            price: Number(product.price) || 0,
             image: product.image,
-            qty: qty,
+            qty
         });
     }
 
     saveCart(cart);
-    window.AM && window.AM.showToast(`${product.name} added to cart 🛒`);
+    window.AM?.showToast?.(`${product.name} added to cart 🛒`);
     return true;
 }
 
-function removeFromCart(productId) {
-    const cart = getCart().filter(i => i.id !== productId);
-    saveCart(cart);
+function removeFromCart(id) {
+    saveCart(getCart().filter(i => i.id !== id));
 }
 
-function updateQty(productId, qty) {
-    if (qty < 1) { removeFromCart(productId); return; }
+function updateQty(id, qty) {
+    qty = Number(qty);
     const cart = getCart();
-    const item = cart.find(i => i.id === productId);
-    if (item) { item.qty = qty; saveCart(cart); }
+    const item = cart.find(i => i.id === id);
+
+    if (!item) return;
+
+    if (qty < 1) return removeFromCart(id);
+
+    item.qty = qty;
+    saveCart(cart);
 }
 
 function clearCart() {
     saveCart([]);
 }
 
+// ============================================================
+// TOTALS
+// ============================================================
+
 function getCartTotal() {
-    return getCart().reduce((sum, i) => sum + i.price * (i.qty || 1), 0);
+    return getCart().reduce((sum, i) =>
+        sum + (Number(i.price) || 0) * (Number(i.qty) || 1), 0
+    );
 }
 
 function getShipping() {
@@ -70,179 +181,198 @@ function getOrderTotal() {
 }
 
 // ============================================================
-// STRIPE CHECKOUT (NO BACKEND / NO NETLIFY FUNCTIONS)
+// CART RENDER
 // ============================================================
 
-// ============================================================
-// CART PAGE RENDERER
-// ============================================================
 function renderCartPage() {
     const container = document.getElementById('cart-content');
     if (!container) return;
 
     const cart = getCart();
+    const config = getConfig();
 
-    if (cart.length === 0) {
+    if (!cart.length) {
         container.innerHTML = `
-        <div class="empty-cart scroll-reveal">
-          <div class="icon">🛒</div>
-          <h3>Your cart is empty</h3>
-          <p>Looks like you haven't added anything yet.</p>
-          <a href="/products/" class="btn btn-primary">Browse Products</a>
+        <div class="empty-cart">
+            <h3>Your cart is empty</h3>
+            <p>Start shopping to add items.</p>
+            <a href="/products/">Browse Products</a>
         </div>`;
-        window.AM && window.AM.initScrollReveal();
         return;
     }
 
     const subtotal = getCartTotal();
     const shipping = getShipping();
-    const total    = getOrderTotal();
-
-    const itemsHTML = cart.map(item => `
-    <div class="cart-item" data-id="${item.id}">
-      <img src="${item.image}" alt="${item.name}" class="cart-item-img"
-           onerror="this.src='https://via.placeholder.com/90x90/f9a8d4/fff?text=A%26M'">
-      <div class="cart-item-info">
-        <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-price">${AM_CONFIG.currencySymbol}${(item.price * item.qty).toFixed(2)}</div>
-        <div style="font-size:0.8rem;color:#aaa;margin-top:0.2rem">
-          ${AM_CONFIG.currencySymbol}${item.price.toFixed(2)} each
-        </div>
-      </div>
-      <div class="qty-control">
-        <button class="qty-btn" data-action="dec" data-id="${item.id}">−</button>
-        <span class="qty-num">${item.qty}</span>
-        <button class="qty-btn" data-action="inc" data-id="${item.id}">+</button>
-      </div>
-      <button class="cart-item-remove" data-id="${item.id}" title="Remove">✕</button>
-    </div>`).join('');
+    const total = getOrderTotal();
 
     container.innerHTML = `
     <div class="cart-layout">
-      <div class="cart-items-section">
-        <h2>Your Cart (${cart.reduce((s,i)=>s+(i.qty||1),0)} items)</h2>
-        ${itemsHTML}
-        <div style="margin-top:1.5rem">
-          <a href="/products/" class="btn btn-outline btn-sm">← Continue Shopping</a>
-        </div>
-      </div>
+        <div class="items">
+            ${cart.map(item => `
+                <div class="cart-item">
+                    <img src="${item.image}">
+                    <div>${item.name}</div>
+                    <div>${config.currencySymbol}${item.price * item.qty}</div>
 
-      <div class="cart-summary">
-        <h3>Order Summary</h3>
-
-        <div class="summary-row">
-          <span>Subtotal</span>
-          <span>${AM_CONFIG.currencySymbol}${subtotal.toFixed(2)}</span>
-        </div>
-
-        <div class="summary-row">
-          <span>Shipping</span>
-          <span>${shipping === 0 ? '<strong style="color:#10b981">FREE</strong>' : AM_CONFIG.currencySymbol + shipping.toFixed(2)}</span>
+                    <button data-id="${item.id}" class="dec">-</button>
+                    <span>${item.qty}</span>
+                    <button data-id="${item.id}" class="inc">+</button>
+                    <button data-id="${item.id}" class="remove">✕</button>
+                </div>
+            `).join('')}
         </div>
 
-        ${shipping > 0 ? `<div style="font-size:0.78rem;color:#aaa;margin-bottom:0.5rem">
-          Free shipping on orders over ${AM_CONFIG.currencySymbol}30
-        </div>` : ''}
+        <div class="summary">
+            <h3>Summary</h3>
+            <p>Subtotal: ${config.currencySymbol}${subtotal.toFixed(2)}</p>
+            <p>Shipping: ${shipping === 0 ? "FREE" : config.currencySymbol + shipping}</p>
+            <h2>Total: ${config.currencySymbol}${total.toFixed(2)}</h2>
 
-        <div class="summary-row total">
-          <span>Total</span>
-          <span>${AM_CONFIG.currencySymbol}${total.toFixed(2)}</span>
+            <button onclick="proceedToCheckout()">Checkout</button>
         </div>
-
-        <div class="stripe-info">
-          <strong>🔒 Secure Checkout via Stripe</strong><br>
-          You’ll be redirected to Stripe to complete your payment.
-        </div>
-
-        <button class="btn btn-primary" style="width:100%" id="checkout-btn" onclick="proceedToCheckout()">
-          Checkout — ${AM_CONFIG.currencySymbol}${total.toFixed(2)}
-        </button>
-
-        <p class="checkout-note">
-          Payments are securely handled by <a href="https://stripe.com" target="_blank">Stripe</a>.
-        </p>
-      </div>
     </div>`;
 
-    // Event listeners
-    container.querySelectorAll('.qty-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const id = btn.dataset.id;
-            const action = btn.dataset.action;
-            const current = getCart().find(i => i.id === id);
-            if (!current) return;
-
-            if (action === 'inc') updateQty(id, current.qty + 1);
-            if (action === 'dec') updateQty(id, current.qty - 1);
-
+    container.querySelectorAll('.inc').forEach(b =>
+        b.onclick = () => {
+            const id = b.dataset.id;
+            const item = getCart().find(i => i.id === id);
+            updateQty(id, item.qty + 1);
             renderCartPage();
-        });
-    });
+        }
+    );
 
-    container.querySelectorAll('.cart-item-remove').forEach(btn => {
-        btn.addEventListener('click', () => {
-            removeFromCart(btn.dataset.id);
+    container.querySelectorAll('.dec').forEach(b =>
+        b.onclick = () => {
+            const id = b.dataset.id;
+            const item = getCart().find(i => i.id === id);
+            updateQty(id, item.qty - 1);
             renderCartPage();
-        });
-    });
+        }
+    );
+
+    container.querySelectorAll('.remove').forEach(b =>
+        b.onclick = () => {
+            removeFromCart(b.dataset.id);
+            renderCartPage();
+        }
+    );
 }
+
+// ============================================================
+// CHECKOUT
+// ============================================================
 
 async function proceedToCheckout() {
     const cart = getCart();
-
-    if (cart.length === 0) return;
-
-    const btn = document.getElementById('checkout-btn');
-
-    if (btn) {
-        btn.disabled = true;
-        btn.textContent = 'Redirecting...';
-    }
+    if (!cart.length) return;
 
     try {
-        const response = await fetch(
-            '/.netlify/functions/create-checkout',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(cart),
-            }
-        );
+        const res = await fetch('/.netlify/functions/create-checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cart)
+        });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error);
-        }
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
 
         window.location.href = data.url;
-    } catch (err) {
-        console.error(err);
-
-        alert('Checkout failed.');
-
-        if (btn) {
-            btn.disabled = false;
-            btn.textContent =
-                `Checkout — ${AM_CONFIG.currencySymbol}${getOrderTotal().toFixed(2)}`;
-        }
+    } catch (e) {
+        console.error(e);
+        alert("Checkout failed");
     }
 }
 
 // ============================================================
-// EXPOSE GLOBALS
+// ORDERS (PREVIOUS ORDERS)
 // ============================================================
-window.addToCart         = addToCart;
-window.removeFromCart    = removeFromCart;
-window.updateQty         = updateQty;
-window.clearCart         = clearCart;
-window.getCart           = getCart;
-window.getCartTotal      = getCartTotal;
-window.getShipping       = getShipping;
-window.getOrderTotal     = getOrderTotal;
-window.proceedToCheckout = proceedToCheckout;
-window.renderCartPage    = renderCartPage;
 
-console.log('✅ cart.js loaded (Netlify removed)');
+async function getPreviousOrders() {
+    const userId = getUserId();
+    const supabase = getSupabase();
+    if (!userId || !supabase) return [];
+
+    try {
+        const { data } = await supabase
+            .from('user_orders')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+
+        return data || [];
+    } catch {
+        return [];
+    }
+}
+
+// ============================================================
+// ABANDONED CART
+// ============================================================
+
+async function saveAbandonedCart(cart) {
+    const userId = getUserId();
+    const supabase = getSupabase();
+    if (!userId || !supabase) return;
+
+    try {
+        await supabase.from('abandoned_carts').upsert({
+            user_id: userId,
+            cart,
+            updated_at: new Date().toISOString()
+        });
+    } catch (e) {
+        console.warn("Abandoned cart failed:", e);
+    }
+}
+
+async function getAbandonedCart() {
+    const userId = getUserId();
+    const supabase = getSupabase();
+    if (!userId || !supabase) return [];
+
+    try {
+        const { data } = await supabase
+            .from('abandoned_carts')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+
+        return data?.cart || [];
+    } catch {
+        return [];
+    }
+}
+
+async function restoreAbandonedCart() {
+    const cart = await getAbandonedCart();
+    if (!cart.length) return;
+
+    saveCart(cart);
+    alert("Previous cart restored 🛒");
+}
+
+// ============================================================
+// INIT
+// ============================================================
+
+(async function init() {
+    if (getSupabase()) {
+        await loadCartFromServer();
+    }
+})();
+
+// ============================================================
+// EXPORTS
+// ============================================================
+
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.updateQty = updateQty;
+window.clearCart = clearCart;
+window.getCart = getCart;
+window.renderCartPage = renderCartPage;
+window.proceedToCheckout = proceedToCheckout;
+window.getPreviousOrders = getPreviousOrders;
+window.restoreAbandonedCart = restoreAbandonedCart;
+
+console.log("✅ cart.js loaded (FIXED + PERSISTENT + ORDERS + ABANDONED)");

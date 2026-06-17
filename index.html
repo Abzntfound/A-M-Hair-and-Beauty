@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A&M Hair & Beauty — Beautiful Hair, Made Effortlessly</title>
   <meta name="description" content="Premium natural hair care products — oils, bonnets, shampoo, and more. Handcrafted for all hair types.">
-  <link rel="icon" href="https://amhairandbeauty.com/A&M.ico">
+  <link rel="icon" href="/A&M.ico">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://amhairandbeauty.com/styles.css">
+  <link rel="stylesheet" href="/styles.css">
   <style>
     /* ---- Hero --- */
     .hero {
@@ -158,8 +158,8 @@
     <h1>Beautiful Hair,<br>Made Effortlessly.</h1>
     <p>Transform your hair with our premium, all-natural products. Designed for all hair types, crafted with love.</p>
     <div class="hero-actions">
-      <a href="products.html" class="btn btn-primary btn-lg">Explore Products</a>
-      <a href="about.html"    class="btn btn-secondary btn-lg">Our Story</a>
+      <a href="/products/" class="btn btn-primary btn-lg">Explore Products</a>
+      <a href="/about/"    class="btn btn-secondary btn-lg">Our Story</a>
     </div>
   </div>
 </section>
@@ -180,7 +180,7 @@
   </div>
   <div class="home-products-grid" id="featured-products"></div>
   <div style="text-align:center" class="scroll-reveal">
-    <a href="products.html" class="btn btn-secondary btn-lg">View All Products →</a>
+    <a href="/products/" class="btn btn-secondary btn-lg">View All Products →</a>
   </div>
 </section>
 
@@ -249,7 +249,7 @@
 <script>
   window.supabaseClient = supabase.createClient(
     "https://bipejrjipvoqvkwuzftz.supabase.co",
-    "YOUR_ANON_KEY"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpcGVqcmppcHZvcXZrd3V6ZnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzYzMjMsImV4cCI6MjA5NzIxMjMyM30.Z8V7chc-UOK2UU5dxBydgLbT0u1DUv2_DGtisLmZWq4"
   );
 </script>
 <script src="data.js"></script>
@@ -277,7 +277,7 @@
     const grid = document.getElementById('featured-products');
     const featured = AM_PRODUCTS.filter(p => !p.discontinued).slice(0, 3);
     grid.innerHTML = featured.map((p, i) => `
-      <a href="product-detail.html?id=${p.id}" class="product-card ${i===0?'scroll-reveal-left':i===1?'scale-in':'scroll-reveal-right'}">
+      <a href="/products?id=${p.id}" class="product-card ${i===0?'scroll-reveal-left':i===1?'scale-in':'scroll-reveal-right'}">
         <div class="product-image-wrap">
           <img src="${p.image}" alt="${p.name}" class="product-image" onerror="this.src='https://via.placeholder.com/350x290/f9a8d4/fff?text=${encodeURIComponent(p.name)}'">
           ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}

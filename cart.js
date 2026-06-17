@@ -88,7 +88,7 @@ function renderCartPage() {
           <div class="icon">🛒</div>
           <h3>Your cart is empty</h3>
           <p>Looks like you haven't added anything yet.</p>
-          <a href="products.html" class="btn btn-primary">Browse Products</a>
+          <a href="/products/" class="btn btn-primary">Browse Products</a>
         </div>`;
         window.AM && window.AM.initScrollReveal();
         return;
@@ -123,7 +123,7 @@ function renderCartPage() {
         <h2>Your Cart (${cart.reduce((s,i)=>s+(i.qty||1),0)} items)</h2>
         ${itemsHTML}
         <div style="margin-top:1.5rem">
-          <a href="products.html" class="btn btn-outline btn-sm">← Continue Shopping</a>
+          <a href="/products/" class="btn btn-outline btn-sm">← Continue Shopping</a>
         </div>
       </div>
 

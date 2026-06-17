@@ -8,7 +8,7 @@ const AM_CONFIG = {
      // flexible "customer chooses" link
     currency: 'GBP',
     currencySymbol: '£',
-    shopUrl: 'https://shop.amhairandbeauty.com',
+    shopUrl: 'https://amhairandbeauty.com',
     authUrl: 'https://auth.amhairandbeauty.com',
     siteUrl: 'https://amhairandbeauty.com',
 };

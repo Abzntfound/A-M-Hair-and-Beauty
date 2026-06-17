@@ -1,8 +1,7 @@
 const Stripe = require('stripe');
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-const SHIPPING_FEE = 399; // £3.99 in pence
+const SHIPPING_FEE = 399;
 
 const PRODUCTS = {
   'hair-growth-oil-100ml': { name: 'Hair Growth Oil', price: 999 },
@@ -17,8 +16,7 @@ const PRODUCTS = {
 
 exports.handler = async (event) => {
   try {
-
-    const cart = JSON.parse(event.body || "[]");
+    const { cart, promo } = JSON.parse(event.body || "{}");
 
     if (!Array.isArray(cart) || cart.length === 0) {
       return {
@@ -27,73 +25,58 @@ exports.handler = async (event) => {
       };
     }
 
-    const line_items = [];
+    let shipping = SHIPPING_FEE;
 
-    let subtotal = 0;
+    // ✅ FREE SHIPPING PROMO CHECK
+    if (promo?.type === "free_shipping") {
+      shipping = 0;
+    }
+
+    const line_items = [];
 
     for (const item of cart) {
       const product = PRODUCTS[item.id];
-
-      if (!product) {
-        throw new Error(`Unknown product: ${item.id}`);
-      }
-
-      const qty = item.qty || 1;
-
-      subtotal += product.price * qty;
+      if (!product) throw new Error("Unknown product: " + item.id);
 
       line_items.push({
         price_data: {
           currency: 'gbp',
-          product_data: {
-            name: product.name,
-          },
+          product_data: { name: product.name },
           unit_amount: product.price,
         },
-        quantity: qty,
+        quantity: item.qty || 1,
       });
     }
 
-    // -----------------------------
-    // ADD SHIPPING AS LINE ITEM
-    // -----------------------------
-    line_items.push({
-      price_data: {
-        currency: 'gbp',
-        product_data: {
-          name: 'Shipping',
+    // only add shipping if not free
+    if (shipping > 0) {
+      line_items.push({
+        price_data: {
+          currency: 'gbp',
+          product_data: { name: 'Shipping' },
+          unit_amount: shipping,
         },
-        unit_amount: SHIPPING_FEE,
-      },
-      quantity: 1,
-    });
+        quantity: 1,
+      });
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
-
       line_items,
-
-      success_url:
-        'https://amhairandbeauty.com/success/',
-
-      cancel_url:
-        'https://amhairandbeauty.com/cart/',
+      success_url: 'https://amhairandbeauty.com/success/',
+      cancel_url: 'https://amhairandbeauty.com/cart/',
     });
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        url: session.url
-      }),
+      body: JSON.stringify({ url: session.url }),
     };
 
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: err.message
-      }),
+      body: JSON.stringify({ error: err.message }),
     };
   }
 };

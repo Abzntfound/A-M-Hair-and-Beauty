@@ -1,331 +1,382 @@
 /* ============================================================
-   A&M Hair & Beauty — data.js
-   All product data, site text, and configuration in one place.
+   A&M Hair & Beauty — cart.js (SHOPIFY STYLE CLEAN VERSION)
+   Persistent + Supabase + Orders + Abandoned + Promo
    ============================================================ */
 
-// ---- STRIPE CONFIG ----
-const AM_CONFIG = {
-     // flexible "customer chooses" link
-    currency: 'GBP',
-    currencySymbol: '£',
-    shopUrl: 'https://amhairandbeauty.com',
-    authUrl: 'https://auth.amhairandbeauty.com',
-    siteUrl: 'https://amhairandbeauty.com',
-};
+/* =========================
+   CONFIG
+========================= */
 
-// ---- PRODUCTS ----
-const AM_PRODUCTS = [
-    {
-        id: 'hair-growth-oil-100ml',
-        name: 'Hair Growth Oil',
-        subtitle: '100ml Premium Formula',
-        price: 9.99,
-        image: '/big hair oil.jpg',
-        images: ['/big hair oil.jpg'],
-        category: 'oils',
-        badge: 'Best Seller',
-        description: 'Our signature 100ml hair growth oil is a rich, concentrated blend of natural oils that nourishes your scalp, stimulates follicles, and promotes stronger, longer hair. Suitable for all hair types.',
-        features: [
-            '100% natural ingredients',
-            'Promotes hair growth and thickness',
-            'Nourishes and moisturises the scalp',
-            'Adds brilliant shine',
-            'Suitable for all hair types',
-            'No harsh chemicals or sulphates',
-        ],
-        shopUrl: 'https://shop.amhairandbeauty.com/products/hair-growth-oil',
-        inStock: true,
-        discontinued: false,
-    },
-   {
-        id: 'test1',
-        name: 'Hair Growth Oil',
-        subtitle: '100ml Premium Formula',
-        price: 0,
-        image: '/big hair oil.jpg',
-        images: ['/big hair oil.jpg'],
-        category: 'oils',
-        badge: 'Best Seller',
-        description: 'Our signature 100ml hair growth oil is a rich, concentrated blend of natural oils that nourishes your scalp, stimulates follicles, and promotes stronger, longer hair. Suitable for all hair types.',
-        features: [
-            '100% natural ingredients',
-            'Promotes hair growth and thickness',
-            'Nourishes and moisturises the scalp',
-            'Adds brilliant shine',
-            'Suitable for all hair types',
-            'No harsh chemicals or sulphates',
-        ],
-        shopUrl: 'https://shop.amhairandbeauty.com/products/hair-growth-oil',
-        inStock: true,
-        discontinued: false,
-    },
-    {
-        id: 'satin-bonnet',
-        name: 'Satin Bonnet',
-        subtitle: 'Protective Hair Bonnet',
-        price: 2.99,
-        image: '/good bonnet.jpg',
-        images: ['/good bonnet.jpg'],
-        category: 'accessories',
-        badge: 'Popular',
-        description: 'Protect your hair while you sleep with our luxuriously smooth satin bonnet. Locks in moisture, reduces friction, and prevents breakage so you wake up with healthier hair every morning.',
-        features: [
-            'High-quality satin interior',
-            'Elastic band for secure fit',
-            'Reduces friction and breakage',
-            'Locks in overnight moisture',
-            'Suitable for all hair types and lengths',
-            'One size fits most',
-        ],
-        shopUrl: 'https://shop.amhairandbeauty.com/products/satin-bonnet',
-        inStock: true,
-        discontinued: false,
-    },
-    {
-        id: 'rosemary-hair-oil-60ml',
-        name: 'Rosemary Hair Oil',
-        subtitle: '60ml Concentrated Formula',
-        price: 4.99,
-        image: '/small hair oil.jpg',
-        images: ['/small hair oil.jpg'],
-        category: 'oils',
-        badge: null,
-        description: 'Our 60ml rosemary hair oil is a potent, travel-friendly formula packed with natural rosemary extract and nourishing botanicals. Stimulates the scalp, strengthens strands, and encourages healthy growth.',
-        features: [
-            'Rosemary extract as key ingredient',
-            'Compact 60ml for on-the-go use',
-            'Stimulates scalp circulation',
-            'Strengthens hair from root to tip',
-            'Lightweight, non-greasy formula',
-            'Vegan and cruelty-free',
-        ],
-        shopUrl: 'https://shop.amhairandbeauty.com/products/hair-growth-oil-1',
-        inStock: true,
-        discontinued: false,
-    },
-    {
-        id: 'shampoo',
-        name: 'Nourishing Shampoo',
-        subtitle: 'Natural Cleansing Formula',
-        price: 12.99,
-        image: 'shampoo.jpg',
-        images: ['shampoo.jpg'],
-        category: 'haircare',
-        badge: 'New',
-        description: 'A gentle yet effective cleansing shampoo formulated with natural ingredients that lift dirt and build-up without stripping your hair of its natural oils. Leaves hair feeling clean, soft, and refreshed.',
-        features: [
-            'Sulphate-free formula',
-            'Infused with natural botanicals',
-            'Cleanses without stripping moisture',
-            'Suitable for colour-treated hair',
-            'Rich, creamy lather',
-            'Paraben-free',
-        ],
-        shopUrl: 'https://shop.amhairandbeauty.com/products/untitled-sep26_07-47',
-        inStock: true,
-        discontinued: false,
-    },
-    {
-        id: 'conditioner',
-        name: 'Deep Conditioner',
-        subtitle: 'Intense Moisture Treatment',
-        price: 9.99,
-        image: '/conditioner.jpg',
-        images: ['/conditioner.jpg'],
-        category: 'haircare',
-        badge: 'New',
-        description: 'Replenish lost moisture and restore elasticity with our deep conditioning treatment. Packed with nourishing butters and oils, it detangles, softens, and strengthens every strand.',
-        features: [
-            'Deep moisturising formula',
-            'Detangles with ease',
-            'Restores elasticity and shine',
-            'Suitable for dry and damaged hair',
-            'Can be used as a leave-in or rinse-out',
-            'Free from silicones and parabens',
-        ],
-        shopUrl: 'https://shop.amhairandbeauty.com/products/conditioner',
-        inStock: true,
-        discontinued: false,
-    },
-    {
-        id: 'pomade',
-        name: 'Pomade',
-        subtitle: 'Edge & Style Control',
-        price: 4.99,
-        image: '/Pomade.jpg',
-        images: ['/Pomade.jpg'],
-        category: 'styling',
-        badge: null,
-        description: 'Get sleek edges and defined styles with our all-day hold pomade. Lightweight enough to avoid build-up yet strong enough to keep every strand in place. Non-flaking and humidity resistant.',
-        features: [
-            'Strong, flexible hold',
-            'Humidity and sweat resistant',
-            'Non-flaking formula',
-            'Defines and lays edges',
-            'Adds a healthy sheen',
-            'Easy water wash-out',
-        ],
-        shopUrl: 'https://shop.amhairandbeauty.com/products/pomade',
-        inStock: true,
-        discontinued: false,
-    },
-    {
-        id: 'sisal-soap-bag',
-        name: 'Sisal Soap Bag',
-        subtitle: 'Exfoliating Soap Pouch',
-        price: 2.59,
-        image: '/IMG_9162.PNG',
-        images: ['/IMG_9162.PNG'],
-        category: 'accessories',
-        badge: null,
-        description: 'A natural sisal fibre bag that creates a rich lather while gently exfoliating your skin. Perfect for use with any bar soap. Eco-friendly, reusable, and biodegradable.',
-        features: [
-            '100% natural sisal fibre',
-            'Creates a rich, luxurious lather',
-            'Gentle exfoliation for smooth skin',
-            'Reusable and biodegradable',
-            'Drawstring closure',
-            'Suitable for all skin types',
-        ],
-        shopUrl: 'https://shop.amhairandbeauty.com/products/sisal-soap-bags',
-        inStock: true,
-        discontinued: false,
-    },
-    {
-        id: 'turmeric-soap',
-        name: 'Turmeric Soap',
-        subtitle: 'Brightening Bar Soap',
-        price: 3.49,
-        image: '/tumeric.jpg',
-        images: ['/tumeric.jpg'],
-        category: 'skincare',
-        badge: null,
-        description: 'Harness the brightening power of turmeric in our handcrafted bar soap. Naturally reduces the appearance of dark spots, evens skin tone, and leaves your skin glowing and refreshed.',
-        features: [
-            'Real turmeric extract',
-            'Brightens and evens skin tone',
-            'Reduces dark spots over time',
-            'Handcrafted in small batches',
-            'Gentle enough for daily use',
-            'Contains shea butter and coconut oil',
-        ],
-        shopUrl: 'https://shop.amhairandbeauty.com/products/tumeric-soap',
-        inStock: true,
-        discontinued: false,
-    },
-    // Discontinued products
-    {
-        id: 'valentine-hamper',
-        name: 'Valentine Hamper',
-        subtitle: 'Limited Edition Gift Set',
-        price: 39.99,
-        image: '/valentinehamper.png',
-        images: ['/valentinehamper.png'],
-        category: 'bundles',
-        badge: 'Discontinued',
-        description: 'Our sold-out Valentine gift hamper — a curated collection of our best-loved hair care products, beautifully packaged for gifting.',
-        features: ['Curated product selection', 'Beautiful gift packaging', 'Suitable for all hair types'],
-        shopUrl: null,
-        inStock: false,
-        discontinued: true,
-    },
-    {
-        id: 'valentine-hamper-plus',
-        name: 'Valentine Hamper +',
-        subtitle: 'Premium Limited Edition',
-        price: 49.99,
-        image: '/IMG_1753.png',
-        images: ['/IMG_1753.png'],
-        category: 'bundles',
-        badge: 'Discontinued',
-        description: 'Our premium Valentine hamper with an extended selection of hair and beauty products. This edition has now sold out.',
-        features: ['Extended premium selection', 'Luxury gift packaging', 'Our most popular gift set'],
-        shopUrl: null,
-        inStock: false,
-        discontinued: true,
-    },
+function getConfig() {
+    return window.AM_CONFIG || { currencySymbol: "£" };
+}
+
+/* =========================
+   USER
+========================= */
+
+function getUserId() {
+    try {
+        const raw = localStorage.getItem('amUserData');
+        if (!raw) return null;
+
+        const user = JSON.parse(raw);
+        return user?.email || user?.id || null;
+    } catch {
+        return null;
+    }
+}
+
+/* =========================
+   CART
+========================= */
+
+function safeParse(json, fallback) {
+    try { return JSON.parse(json); }
+    catch { return fallback; }
+}
+
+function getCart() {
+    const cart = safeParse(localStorage.getItem('amCart'), []);
+    return Array.isArray(cart) ? cart : [];
+}
+
+/* =========================
+   SUPABASE
+========================= */
+
+function getSupabase() {
+    return window.supabaseClient || null;
+}
+
+/* =========================
+   PROMO SYSTEM
+========================= */
+
+const PROMO_CODES = [
+    { code: "IBMCHURCH", type: "free_shipping", value: true }
 ];
 
-// ---- CATEGORIES ----
-const AM_CATEGORIES = [
-    { id: 'all', label: 'All Products' },
-    { id: 'oils', label: 'Hair Oils' },
-    { id: 'haircare', label: 'Hair Care' },
-    { id: 'styling', label: 'Styling' },
-    { id: 'skincare', label: 'Skin Care' },
-    { id: 'accessories', label: 'Accessories' },
-    { id: 'bundles', label: 'Bundles' },
-];
+let activePromo = null;
 
-// ---- ABOUT PAGE TEXT ----
-const AM_ABOUT = {
-    headline: 'Our Story',
-    intro: 'At A&M Hair Beauty, our journey began from personal experience. My hair was breaking, dry, and seemed impossible to grow — no matter what I tried.',
-    body: [
-        'I tried every product on the market. Nothing worked. So I started researching, experimenting, and blending my own formulas using the finest natural ingredients I could find.',
-        'Through dedication, late nights, and an unshakeable belief that there had to be a better way, I developed a blend that transformed my hair — making it longer, stronger, and full of shine.',
-        'A&M Hair Beauty was born from a passion to help people regain confidence in their natural beauty. Every product we create goes through the same personal testing and high standards that led to that first breakthrough.',
-    ],
-    tagline: 'We believe that when your hair is healthy, you feel empowered. 🌿✨',
-    stats: [
-        { num: '500+', label: 'Happy customers' },
-        { num: '100%', label: 'Natural ingredients' },
-        { num: '5★', label: 'Average rating' },
-    ],
-    values: [
-        { icon: '🌿', title: 'All Natural', body: 'We use only the finest natural ingredients — no harsh chemicals, sulphates, or parabens ever.' },
-        { icon: '🧪', title: 'Tested & Proven', body: 'Every product is tested on ourselves and trusted customers before it reaches your door.' },
-        { icon: '💜', title: 'Community First', body: "We're a small business built on love — your support directly fuels every new product we create." },
-        { icon: '♻️', title: 'Sustainable', body: 'We minimise our environmental footprint with eco-conscious packaging and responsible sourcing.' },
-    ],
-};
+function applyPromo(code) {
+    const promo = PROMO_CODES.find(
+        p => p.code.toUpperCase() === code.toUpperCase()
+    );
 
-// ---- NAV LINKS ----
-const AM_NAV = [
-    { label: 'Products', href: 'https://amhairandbeauty.com/products/' },
-    { label: 'About', href: 'https://amhairandbeauty.com/about/' },
-    { label: 'Reviews', href: 'index.html#reviews' },
-    { label: 'Shop', href: AM_CONFIG.shopUrl },
-];
+    if (!promo) {
+        activePromo = null;
+        return false;
+    }
 
-// ---- FOOTER LINKS ----
-const AM_FOOTER = {
-    tagline: 'Premium natural hair care products handcrafted with love. Transforming hair, one bottle at a time.',
-    columns: [
-        {
-            heading: 'Shop',
-            links: [
-                { label: 'All Products', href: 'https://amhairandbeauty.com/products/' },
-                { label: 'Hair Oils', href: 'https://amhairandbeauty.com/products/?cat=oils' },
-                { label: 'Hair Care', href: 'https://amhairandbeauty.com/products/?cat=haircare' },
-                { label: 'Accessories', href: 'https://amhairandbeauty.com/products/?cat=accessories' },
-            ],
-        },
-        {
-            heading: 'Company',
-            links: [
-                { label: 'Our Story', href: 'about.html' },
-                { label: 'Reviews', href: 'index.html#reviews' },
-                { label: 'Contact Us', href: 'mailto:hello@amhairandbeauty.com' },
-            ],
-        },
-        {
-            heading: 'Help',
-            links: [
-                { label: 'Shopping Cart', href: 'https://amhairandbeauty.com/cart/' },
-                { label: 'Sign In', href: AM_CONFIG.authUrl },
-                { label: 'Online Shop', href: AM_CONFIG.shopUrl },
-            ],
-        },
-    ],
-};
+    activePromo = promo;
+    return true;
+}
 
-// Expose globally
-window.AM_CONFIG     = AM_CONFIG;
-window.AM_PRODUCTS   = AM_PRODUCTS;
-window.AM_CATEGORIES = AM_CATEGORIES;
-window.AM_ABOUT      = AM_ABOUT;
-window.AM_NAV        = AM_NAV;
-window.AM_FOOTER     = AM_FOOTER;
+/* =========================
+   SAVE CART
+========================= */
 
-console.log('✅ data.js loaded');
+function saveCart(items) {
+    localStorage.setItem('amCart', JSON.stringify(items));
+
+    window.dispatchEvent(new CustomEvent('amCartUpdated'));
+    window.AM?.updateCartBadge?.();
+
+    if (getSupabase()) {
+        saveCartToServer(items);
+        saveAbandonedCart(items);
+    }
+}
+
+async function saveCartToServer(cart) {
+    const supabase = getSupabase();
+    const userId = getUserId();
+    if (!supabase || !userId) return;
+
+    await supabase.from('user_carts').upsert({
+        user_id: userId,
+        cart,
+        updated_at: new Date().toISOString()
+    });
+}
+
+/* =========================
+   CART ACTIONS
+========================= */
+
+function addToCart(productId, qty = 1) {
+    qty = Math.max(1, Number(qty) || 1);
+
+    const product = (window.AM_PRODUCTS || []).find(p => p.id === productId);
+    if (!product) return false;
+
+    const cart = getCart();
+    const existing = cart.find(i => i.id === productId);
+
+    if (existing) existing.qty += qty;
+    else {
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: Number(product.price) || 0,
+            image: product.image,
+            qty
+        });
+    }
+
+    saveCart(cart);
+    return true;
+}
+
+function removeFromCart(id) {
+    saveCart(getCart().filter(i => i.id !== id));
+}
+
+function updateQty(id, qty) {
+    qty = Number(qty);
+    const cart = getCart();
+    const item = cart.find(i => i.id === id);
+
+    if (!item) return;
+
+    if (qty < 1) return removeFromCart(id);
+
+    item.qty = qty;
+    saveCart(cart);
+}
+
+function clearCart() {
+    saveCart([]);
+}
+
+/* =========================
+   TOTALS
+========================= */
+
+function getCartTotal() {
+    return getCart().reduce(
+        (sum, i) => sum + i.price * i.qty,
+        0
+    );
+}
+
+function getShipping() {
+    if (activePromo?.type === "free_shipping") return 0;
+    return getCartTotal() >= 30 ? 0 : 3.99;
+}
+
+function getOrderTotal() {
+    return getCartTotal() + getShipping();
+}
+
+/* =========================
+   SHOPIFY STYLE RENDER
+========================= */
+
+function renderCartPage() {
+    const container = document.getElementById('cart-content');
+    if (!container) return;
+
+    const cart = getCart();
+    const config = getConfig();
+
+    if (!cart.length) {
+        container.innerHTML = `
+        <div class="empty-cart">
+            <h3>Your cart is empty</h3>
+            <p>Add items to continue</p>
+        </div>`;
+        return;
+    }
+
+    const subtotal = getCartTotal();
+    const shipping = getShipping();
+    const total = getOrderTotal();
+
+    container.innerHTML = `
+    <div class="cart-layout">
+
+        <div class="items">
+
+            ${cart.map(item => `
+                <div class="cart-item">
+
+                    <img src="${item.image}" />
+
+                    <div class="item-info">
+                        <div class="name">${item.name}</div>
+                        <div class="price">${config.currencySymbol}${(item.price * item.qty).toFixed(2)}</div>
+                    </div>
+
+                    <div class="qty-controls">
+                        <button class="dec" data-id="${item.id}">-</button>
+                        <span>${item.qty}</span>
+                        <button class="inc" data-id="${item.id}">+</button>
+                    </div>
+
+                    <button class="remove" data-id="${item.id}">Remove</button>
+
+                </div>
+            `).join('')}
+
+        </div>
+
+        <div class="summary">
+
+            <h3>Checkout</h3>
+
+            <div class="line">
+                <span>Subtotal</span>
+                <span>${config.currencySymbol}${subtotal.toFixed(2)}</span>
+            </div>
+
+            <div class="line">
+                <span>Shipping</span>
+                <span>${shipping === 0 ? "FREE" : config.currencySymbol + shipping}</span>
+            </div>
+
+            <div class="line total">
+                <span>Total</span>
+                <span>${config.currencySymbol}${total.toFixed(2)}</span>
+            </div>
+
+            <div class="promo">
+                <input id="promo-input" placeholder="Promo code">
+                <button id="apply-promo">Apply</button>
+            </div>
+
+            <button class="checkout-btn" onclick="proceedToCheckout()">
+                Checkout
+            </button>
+
+        </div>
+
+    </div>`;
+
+    // EVENTS
+    container.querySelector('#apply-promo').onclick = () => {
+        const val = document.getElementById('promo-input').value;
+        applyPromo(val);
+        renderCartPage();
+    };
+
+    container.querySelectorAll('.inc').forEach(b =>
+        b.onclick = () => {
+            const id = b.dataset.id;
+            const item = getCart().find(i => i.id === id);
+            updateQty(id, item.qty + 1);
+            renderCartPage();
+        }
+    );
+
+    container.querySelectorAll('.dec').forEach(b =>
+        b.onclick = () => {
+            const id = b.dataset.id;
+            const item = getCart().find(i => i.id === id);
+            updateQty(id, item.qty - 1);
+            renderCartPage();
+        }
+    );
+
+    container.querySelectorAll('.remove').forEach(b =>
+        b.onclick = () => {
+            removeFromCart(b.dataset.id);
+            renderCartPage();
+        }
+    );
+}
+
+/* =========================
+   CHECKOUT
+========================= */
+
+async function proceedToCheckout() {
+    const cart = getCart();
+    if (!cart.length) return;
+
+    const res = await fetch('/.netlify/functions/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cart)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        alert("Checkout failed");
+        return;
+    }
+
+    window.location.href = data.url;
+}
+
+/* =========================
+   ABANDONED + ORDERS (SAFE)
+========================= */
+
+async function saveAbandonedCart(cart) {
+    const supabase = getSupabase();
+    const userId = getUserId();
+    if (!supabase || !userId) return;
+
+    await supabase.from('abandoned_carts').upsert({
+        user_id: userId,
+        cart,
+        updated_at: new Date().toISOString()
+    });
+}
+
+async function getPreviousOrders() {
+    const supabase = getSupabase();
+    const userId = getUserId();
+    if (!supabase || !userId) return [];
+
+    const { data } = await supabase
+        .from('user_orders')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    return data || [];
+}
+
+/* =========================
+   INIT
+========================= */
+
+(async function init() {
+    if (getSupabase()) {
+        const userId = getUserId();
+        if (!userId) return;
+
+        try {
+            const { data } = await getSupabase()
+                .from('user_carts')
+                .select('*')
+                .eq('user_id', userId)
+                .single();
+
+            if (data?.cart) {
+                localStorage.setItem('amCart', JSON.stringify(data.cart));
+                window.dispatchEvent(new CustomEvent('amCartUpdated'));
+            }
+        } catch {}
+    }
+})();
+
+/* =========================
+   EXPORTS
+========================= */
+
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.updateQty = updateQty;
+window.clearCart = clearCart;
+window.getCart = getCart;
+window.renderCartPage = renderCartPage;
+window.proceedToCheckout = proceedToCheckout;
+window.applyPromo = applyPromo;
+window.getPreviousOrders = getPreviousOrders;
+
+console.log("cart.js loaded (SHOPIFY STYLE FIXED)");

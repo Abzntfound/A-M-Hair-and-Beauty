@@ -64,7 +64,11 @@ function am_removeCookie(name) {
 // Supabase's storage interface just needs getItem/setItem/removeItem,
 // each of which may return a value or a Promise of one.
 const am_cookieStorage = {
-    getItem: (key) => am_getCookieRaw(key),
+    getItem: (key) => {
+        const value = am_getCookieRaw(key);
+        console.log('nav.js DEBUG: storage.getItem called with key ->', JSON.stringify(key), '| found:', !!value);
+        return value;
+    },
     setItem: (key, value) => am_setCookie(key, value, 7), // 7-day session cookie, matches typical refresh-token lifetime
     removeItem: (key) => am_removeCookie(key),
 };
@@ -276,14 +280,20 @@ function renderHeaderWith(activePage, user) {
     const currentPath = window.location.pathname.replace(/\/$/, "");
 
     const navLinks = (AM_NAV || []).map(l => {
-        const linkPath = new URL(l.href, BASE).pathname.replace(/\/$/, "");
+        // Resolve against BASE so links work the same from any page.
+        // Without this, an anchor-only href like "#reviews" resolves
+        // relative to whatever page you're currently on (e.g.
+        // /products/#reviews) instead of always pointing at the
+        // homepage section (https://amhairandbeauty.com/#reviews).
+        const resolvedUrl = new URL(l.href, BASE);
+        const linkPath = resolvedUrl.pathname.replace(/\/$/, "");
 
         const isActive = activePage
             ? activePage === l.label
             : currentPath === linkPath;
 
         return `
-            <a href="${l.href}" class="${isActive ? "active" : ""}">
+            <a href="${resolvedUrl.href}" class="${isActive ? "active" : ""}">
                 ${l.label}
             </a>
         `;

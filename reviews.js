@@ -13,9 +13,13 @@ let lastPostTime = 0;
 const SPAM_DELAY = 5000; // 5 seconds
 
 // ===================== USER =====================
+// NOTE: auth.js stores the logged-in user under the "am_user" key
+// (see saveLocalUser() in auth.js). This used to read "amUserData",
+// which nothing ever wrote to, so getUser() always returned null
+// here and isAdmin() was always false.
 function getUser() {
     try {
-        return JSON.parse(localStorage.getItem("amUserData") || "null");
+        return JSON.parse(localStorage.getItem("am_user") || "null");
     } catch {
         return null;
     }
@@ -115,12 +119,15 @@ async function addReply(id) {
         .from("reviews")
         .update({
             reply,
-            reply_author: user?.name || "Admin"
+            // name lives under user.profile.name, not user.name
+            reply_author: user?.profile?.name || "Admin"
         })
         .eq("id", id);
 
     if (error) {
         console.error("Reply error:", error);
+        alert("Couldn't save reply: " + error.message);
+        return;
     }
 
     displayReviews();
@@ -226,7 +233,8 @@ async function handleSubmit(e) {
         review,
         rating: Number(rating),
         date: new Date().toISOString(),
-        pfp: user?.pfp || ""
+        // pfp lives under user.profile.pfp, not user.pfp
+        pfp: user?.profile?.pfp || ""
     });
 
     if (success) {

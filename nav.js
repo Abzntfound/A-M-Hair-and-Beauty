@@ -4,6 +4,12 @@
 
 const BASE = "https://amhairandbeauty.com";
 
+// auth.js stores the logged-in user under the "am_user" key
+// (see saveLocalUser() in auth.js). Declared up here, before
+// loadTheme() runs below, since loadTheme() -> getUserData()
+// needs this immediately at script load time.
+const USER_CACHE_KEY = 'am_user';
+
 // ============================================================
 // COOKIE HELPERS
 // ============================================================
@@ -41,11 +47,6 @@ loadTheme();
 // ============================================================
 // AUTH / USER DATA
 // ============================================================
-// auth.js stores the logged-in user under the "am_user" key
-// (see saveLocalUser() in auth.js). This used to read "amUserData",
-// a key nothing ever wrote to, so nav.js could never see who was
-// actually logged in.
-const USER_CACHE_KEY = 'am_user';
 
 function getUserData() {
     const raw = localStorage.getItem(USER_CACHE_KEY) || getCookie(USER_CACHE_KEY);

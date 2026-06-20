@@ -133,9 +133,11 @@ function displayNameFor(user) {
 // than trusting whatever's cached in localStorage (which goes stale
 // the moment someone logs out in another tab, or a session expires).
 async function fetchLiveUser() {
+    console.log('nav.js DEBUG: fetchLiveUser() called');
     let client;
     try {
         client = await ensureSupabaseClient();
+        console.log('nav.js DEBUG: got client ->', client);
     } catch (err) {
         console.warn('nav.js: could not get a Supabase client, using cached value', err);
         return getUserData();
@@ -150,7 +152,8 @@ async function fetchLiveUser() {
         // getSession() is what actually waits on/returns that
         // initialization, so we call it first to let the client catch
         // up before asking getUser() to validate against the server.
-        const { data: sessionData } = await client.auth.getSession();
+        const { data: sessionData, error: sessionError } = await client.auth.getSession();
+        console.log('nav.js DEBUG: getSession() ->', sessionData, sessionError);
 
         if (!sessionData?.session) {
             // Genuinely no session in storage at all — safe to clear.
@@ -200,6 +203,7 @@ async function fetchLiveUser() {
 // HEADER
 // ============================================================
 function renderHeader(activePage) {
+    console.log('nav.js DEBUG: renderHeader() called with', activePage);
     // Render immediately with whatever's cached so the header
     // paints instantly with no flash/jump...
     renderHeaderWith(activePage, getUserData());

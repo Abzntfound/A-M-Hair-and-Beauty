@@ -29,7 +29,7 @@ function waitForSupabaseClient(timeoutMs = 8000) {
 }
 
 // ===================== ADMIN =====================
-const ADMIN_EMAILS = ["adube6113@outlook.com", "vuy_ncanywa@yahoo.co.uk"];
+const ADMIN_EMAILS = ["adube6113@outlook.com", "vuyo_ncanywa@yahoo.co.uk"];
 
 // ===================== ANTI-SPAM =====================
 let lastPostTime = 0;

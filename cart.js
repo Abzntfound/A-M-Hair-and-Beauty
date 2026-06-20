@@ -16,10 +16,17 @@ function getConfig() {
 
 function getUserId() {
     try {
+        // auth.js stores the logged-in user under "am_user" (see
+        // saveLocalUser() in auth.js) — "amUserData" was never written
+        // to by anything, so this always returned null before.
         const raw = localStorage.getItem('am_user');
         if (!raw) return null;
 
         const user = JSON.parse(raw);
+        // user_carts.user_id is a uuid column matching auth.users.id.
+        // Previously this checked user?.email first, which is a string
+        // like "name@example.com" — not a valid uuid — causing Supabase
+        // to reject the query with a 400.
         return user?.id || null;
     } catch {
         return null;
@@ -49,7 +56,7 @@ function getSupabase() {
 }
 
 /* =========================
-   PROMO SYSTEM (FIXED)
+   PROMO SYSTEM
 ========================= */
 
 const PROMO_CODES = [
@@ -58,7 +65,6 @@ const PROMO_CODES = [
 
 let activePromo = null;
 
-/* Load saved promo */
 function loadPromo() {
     try {
         activePromo = JSON.parse(localStorage.getItem("amPromo")) || null;
@@ -67,12 +73,10 @@ function loadPromo() {
     }
 }
 
-/* Save promo */
 function savePromo() {
     localStorage.setItem("amPromo", JSON.stringify(activePromo));
 }
 
-/* Apply promo */
 function applyPromo(code) {
     const promo = PROMO_CODES.find(
         p => p.code.toUpperCase() === (code || "").toUpperCase()
@@ -192,9 +196,11 @@ function renderCartPage() {
 
     if (!cart.length) {
         container.innerHTML = `
-        <div id="empty-cart">
+        <div class="empty-cart">
+            <div class="icon">🛍️</div>
             <h3>Your cart is empty</h3>
             <p>Add items to continue</p>
+            <a href="/products/" class="btn btn-primary" style="margin-top:1rem;">Shop Now</a>
         </div>`;
         return;
     }
@@ -202,68 +208,84 @@ function renderCartPage() {
     const subtotal = getCartTotal();
     const shipping = getShipping();
     const total = getOrderTotal();
+    const promoMsg = activePromo?.type === "free_shipping"
+        ? `<div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;">✓ Free shipping applied (${activePromo.code})</div>`
+        : '';
 
     container.innerHTML = `
-    <div id="cart-layout">
+    <div class="cart-layout">
 
-        <div id="cart-items">
+        <div class="cart-items-section">
+            <h2>Your Cart</h2>
 
             ${cart.map(item => `
-                <div id="cart-item-${item.id}">
+                <div class="cart-item">
 
-                    <img src="${item.image}" />
+                    <img
+                        class="cart-item-img"
+                        src="${item.image}"
+                        alt="${item.name}"
+                        onerror="this.src='/assets/placeholder.webp'"
+                    />
 
-                    <div id="item-info-${item.id}">
-                        <div>${item.name}</div>
-                        <div>${config.currencySymbol}${(item.price * item.qty).toFixed(2)}</div>
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-price">${config.currencySymbol}${(item.price * item.qty).toFixed(2)}</div>
                     </div>
 
-                    <div id="qty-controls-${item.id}">
-                        <button data-id="${item.id}" data-action="dec">-</button>
-                        <span>${item.qty}</span>
-                        <button data-id="${item.id}" data-action="inc">+</button>
+                    <div class="qty-control">
+                        <button class="qty-btn" data-id="${item.id}" data-action="dec">−</button>
+                        <span class="qty-num">${item.qty}</span>
+                        <button class="qty-btn" data-id="${item.id}" data-action="inc">+</button>
                     </div>
 
-                    <button data-id="${item.id}" data-action="remove">Remove</button>
+                    <button class="cart-item-remove" data-id="${item.id}" data-action="remove" title="Remove item">✕</button>
 
                 </div>
             `).join('')}
 
         </div>
 
-        <div id="cart-summary">
+        <div class="cart-summary">
 
-            <h3>Checkout</h3>
+            <h3>Order Summary</h3>
 
-            <div id="line-subtotal">
+            <div class="summary-row">
                 <span>Subtotal</span>
                 <span>${config.currencySymbol}${subtotal.toFixed(2)}</span>
             </div>
 
-            <div id="line-shipping">
+            <div class="summary-row">
                 <span>Shipping</span>
                 <span>${shipping === 0 ? "FREE" : config.currencySymbol + shipping.toFixed(2)}</span>
             </div>
 
-            <div id="line-total">
+            <div class="summary-row total">
                 <span>Total</span>
                 <span>${config.currencySymbol}${total.toFixed(2)}</span>
             </div>
 
-            <div id="promo-section">
-                <input id="promo-input" placeholder="Promo code">
+            <div class="promo">
+                <input id="promo-input" placeholder="Promo code" />
                 <button id="apply-promo">Apply</button>
             </div>
+            ${promoMsg}
 
-            <button id="checkout-btn" onclick="proceedToCheckout()">
+            <button class="btn btn-primary checkout-btn" style="width:100%;margin-top:1.2rem;" onclick="proceedToCheckout()">
                 Checkout
             </button>
+
+            <p class="checkout-note">
+                Secure payment via Stripe.<br>
+                <a href="/policies/">Terms &amp; refund policy</a>
+            </p>
 
         </div>
 
     </div>`;
 
-    /* EVENTS */
+    /* ---- EVENTS ---- */
+
     container.querySelector('#apply-promo').onclick = () => {
         const val = document.getElementById('promo-input').value;
         applyPromo(val);
@@ -271,19 +293,15 @@ function renderCartPage() {
 
     container.querySelectorAll('[data-action="inc"]').forEach(b =>
         b.onclick = () => {
-            const id = b.dataset.id;
-            const item = getCart().find(i => i.id === id);
-            updateQty(id, item.qty + 1);
-            renderCartPage();
+            const item = getCart().find(i => i.id === b.dataset.id);
+            if (item) { updateQty(b.dataset.id, item.qty + 1); renderCartPage(); }
         }
     );
 
     container.querySelectorAll('[data-action="dec"]').forEach(b =>
         b.onclick = () => {
-            const id = b.dataset.id;
-            const item = getCart().find(i => i.id === id);
-            updateQty(id, item.qty - 1);
-            renderCartPage();
+            const item = getCart().find(i => i.id === b.dataset.id);
+            if (item) { updateQty(b.dataset.id, item.qty - 1); renderCartPage(); }
         }
     );
 
@@ -296,7 +314,7 @@ function renderCartPage() {
 }
 
 /* =========================
-   CHECKOUT (IMPORTANT FIX)
+   CHECKOUT
 ========================= */
 
 async function proceedToCheckout() {
@@ -306,10 +324,7 @@ async function proceedToCheckout() {
     const res = await fetch('/.netlify/functions/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            cart,
-            promo: activePromo
-        })
+        body: JSON.stringify({ cart, promo: activePromo })
     });
 
     const data = await res.json();
@@ -352,6 +367,15 @@ async function saveAbandonedCart(cart) {
         if (!userId) return;
 
         try {
+            // .maybeSingle() instead of .single(): a brand-new user (or
+            // anyone who's never had a cart saved to the server) will
+            // legitimately have ZERO rows in user_carts, which is not
+            // an error. .single() treats "0 rows" the same as "more
+            // than 1 row" — it throws either way, which is why this
+            // was failing with "Cannot coerce the result to a single
+            // JSON object" (a 406) for first-time/new carts.
+            // .maybeSingle() returns { data: null } for zero rows and
+            // only sets `error` for genuine failures.
             const { data, error } = await getSupabase()
                 .from('user_carts')
                 .select('*')

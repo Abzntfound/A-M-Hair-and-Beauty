@@ -23,6 +23,65 @@ const USER_CACHE_KEY = 'am_user';
 const SUPABASE_URL = "https://bipejrjipvoqvkwuzftz.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpcGVqcmppcHZvcXZrd3V6ZnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzYzMjMsImV4cCI6MjA5NzIxMjMyM30.Z8V7chc-UOK2UU5dxBydgLbT0u1DUv2_DGtisLmZWq4";
 
+// ------------------------------------------------------------
+// Cross-subdomain session storage
+// ------------------------------------------------------------
+// By default, the Supabase SDK persists sessions in localStorage,
+// which is scoped per-origin — auth.amhairandbeauty.com and
+// amhairandbeauty.com are different origins, so a session created
+// on one is invisible on the other. This adapter stores the
+// session in a cookie scoped to ".amhairandbeauty.com" instead
+// (note the leading dot), which browsers share across ALL
+// subdomains of that domain. auth.js must use this exact same
+// adapter (same domain string) or the two scripts will write to
+// different storage and we're back to square one.
+//
+// IMPORTANT: this only works when the site is actually served
+// from *.amhairandbeauty.com over HTTPS. It will silently do
+// nothing useful on localhost or any other domain — that's fine
+// for local dev (falls back to an in-memory-only session for
+// that tab), but don't expect cross-subdomain persistence there.
+const AM_COOKIE_DOMAIN = '.amhairandbeauty.com';
+
+function am_setCookie(name, value, days) {
+    const maxAge = days ? `; max-age=${days * 24 * 60 * 60}` : '';
+    document.cookie = `${name}=${encodeURIComponent(value)}; path=/; domain=${AM_COOKIE_DOMAIN}${maxAge}; secure; samesite=lax`;
+}
+
+function am_getCookieRaw(name) {
+    const eq = name + '=';
+    for (let c of document.cookie.split(';')) {
+        c = c.trim();
+        if (c.indexOf(eq) === 0) return decodeURIComponent(c.substring(eq.length));
+    }
+    return null;
+}
+
+function am_removeCookie(name) {
+    document.cookie = `${name}=; path=/; domain=${AM_COOKIE_DOMAIN}; max-age=0; secure; samesite=lax`;
+}
+
+// Supabase's storage interface just needs getItem/setItem/removeItem,
+// each of which may return a value or a Promise of one.
+const am_cookieStorage = {
+    getItem: (key) => am_getCookieRaw(key),
+    setItem: (key, value) => am_setCookie(key, value, 7), // 7-day session cookie, matches typical refresh-token lifetime
+    removeItem: (key) => am_removeCookie(key),
+};
+
+// Shared client config — auth.js MUST pass the exact same `auth`
+// options (same storage adapter) so both scripts read/write the
+// session to the same place. If you change this here, change it
+// in auth.js too.
+const AM_SUPABASE_CLIENT_OPTIONS = {
+    auth: {
+        storage: am_cookieStorage,
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+    },
+};
+
 // Lazily loads the Supabase JS SDK from CDN if it isn't already on
 // the page, then creates window.supabaseClient if it doesn't exist.
 // Returns a promise that resolves once window.supabaseClient is ready.
@@ -34,7 +93,7 @@ function ensureSupabaseClient() {
     // The SDK itself might already be loaded (e.g. by auth.js's own
     // <script> tag) even if the *client* hasn't been created yet.
     if (window.supabase && typeof window.supabase.createClient === 'function') {
-        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, AM_SUPABASE_CLIENT_OPTIONS);
         return Promise.resolve(window.supabaseClient);
     }
 
@@ -47,7 +106,7 @@ function ensureSupabaseClient() {
 
         const onReady = () => {
             try {
-                window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, AM_SUPABASE_CLIENT_OPTIONS);
                 resolve(window.supabaseClient);
             } catch (err) {
                 reject(err);
@@ -133,11 +192,9 @@ function displayNameFor(user) {
 // than trusting whatever's cached in localStorage (which goes stale
 // the moment someone logs out in another tab, or a session expires).
 async function fetchLiveUser() {
-    console.log('nav.js DEBUG: fetchLiveUser() called');
     let client;
     try {
         client = await ensureSupabaseClient();
-        console.log('nav.js DEBUG: got client ->', client);
     } catch (err) {
         console.warn('nav.js: could not get a Supabase client, using cached value', err);
         return getUserData();
@@ -152,8 +209,7 @@ async function fetchLiveUser() {
         // getSession() is what actually waits on/returns that
         // initialization, so we call it first to let the client catch
         // up before asking getUser() to validate against the server.
-        const { data: sessionData, error: sessionError } = await client.auth.getSession();
-        console.log('nav.js DEBUG: getSession() ->', sessionData, sessionError);
+        const { data: sessionData } = await client.auth.getSession();
 
         if (!sessionData?.session) {
             // Genuinely no session in storage at all — safe to clear.
@@ -186,11 +242,10 @@ async function fetchLiveUser() {
             .single();
 
         if (profileError) {
-            console.warn('nav.js DEBUG: profile fetch failed ->', profileError);
+            console.warn('nav.js: profile fetch failed', profileError);
         }
 
         const user = { ...data.user, profile: profile || null };
-        console.log('nav.js DEBUG: resolved user ->', user);
         setUserData(user);
         return user;
     } catch (err) {
@@ -203,7 +258,6 @@ async function fetchLiveUser() {
 // HEADER
 // ============================================================
 function renderHeader(activePage) {
-    console.log('nav.js DEBUG: renderHeader() called with', activePage);
     // Render immediately with whatever's cached so the header
     // paints instantly with no flash/jump...
     renderHeaderWith(activePage, getUserData());

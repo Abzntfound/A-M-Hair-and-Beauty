@@ -1,5 +1,5 @@
 /* ===========================================================
-   A&M Hair & Beauty — nav.js (FOLDER-SAFE VERSION)
+   A&M Hair & Beauty — nav.js (FOLDER-SAFE VERSION, SUPABASE-AWARE)
    ============================================================ */
 
 const BASE = "https://amhairandbeauty.com";
@@ -26,13 +26,11 @@ function applyTheme(theme) {
 
 function loadTheme() {
     let theme = null;
-    const rawUser = localStorage.getItem('amUserData') || getCookie('amUserData');
+    const u = getUserData();
 
-    if (rawUser) {
-        try {
-            const u = JSON.parse(rawUser);
-            if (u.darkMode !== undefined) theme = u.darkMode ? 'dark' : 'light';
-        } catch (e) {}
+    if (u) {
+        const dark = u.darkMode ?? u.profile?.darkMode;
+        if (dark !== undefined) theme = dark ? 'dark' : 'light';
     }
 
     if (!theme) theme = localStorage.getItem('amTheme') || getCookie('amTheme') || 'light';
@@ -41,14 +39,82 @@ function loadTheme() {
 loadTheme();
 
 // ============================================================
+// AUTH / USER DATA
+// ============================================================
+// auth.js stores the logged-in user under the "am_user" key
+// (see saveLocalUser() in auth.js). This used to read "amUserData",
+// a key nothing ever wrote to, so nav.js could never see who was
+// actually logged in.
+const USER_CACHE_KEY = 'am_user';
+
+function getUserData() {
+    const raw = localStorage.getItem(USER_CACHE_KEY) || getCookie(USER_CACHE_KEY);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+}
+
+function setUserData(user) {
+    if (user) localStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
+    else localStorage.removeItem(USER_CACHE_KEY);
+}
+
+function displayNameFor(user) {
+    if (!user) return 'Sign In';
+    const name = user.profile?.name;
+    return name ? name.split(' ')[0] : (user.email ? user.email.split('@')[0] : 'Account');
+}
+
+// Ask Supabase directly who's actually logged in right now, rather
+// than trusting whatever's cached in localStorage (which goes stale
+// the moment someone logs out in another tab, or a session expires).
+async function fetchLiveUser() {
+    const client = window.supabaseClient;
+    if (!client) {
+        console.warn('nav.js: window.supabaseClient not found — is auth.js loaded on this page?');
+        return getUserData(); // fall back to cache rather than wiping the nav
+    }
+
+    try {
+        const { data, error } = await client.auth.getUser();
+
+        if (error || !data?.user) {
+            setUserData(null);
+            return null;
+        }
+
+        const { data: profile } = await client
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+
+        const user = { ...data.user, profile: profile || null };
+        setUserData(user);
+        return user;
+    } catch (err) {
+        console.warn('nav.js: failed to fetch live user, using cached value', err);
+        return getUserData();
+    }
+}
+
+// ============================================================
 // HEADER
 // ============================================================
 function renderHeader(activePage) {
+    // Render immediately with whatever's cached so the header
+    // paints instantly with no flash/jump...
+    renderHeaderWith(activePage, getUserData());
+
+    // ...then quietly verify against Supabase and patch the
+    // display if the real session disagrees with the cache.
+    fetchLiveUser().then(liveUser => {
+        updateUserDisplay(liveUser);
+    });
+}
+
+function renderHeaderWith(activePage, user) {
     const cartCount = getCartCount();
-    const user = getUserData();
-    const displayName = user
-        ? (user.name ? user.name.split(' ')[0] : user.email.split('@')[0])
-        : 'Sign In';
+    const displayName = displayNameFor(user);
 
     const currentPath = window.location.pathname.replace(/\/$/, "");
 
@@ -81,7 +147,7 @@ function renderHeader(activePage) {
           <span class="cart-count" id="header-cart-count">${cartCount || ''}</span>
         </a>
 
-        <a href="${AM_CONFIG.authUrl}" class="user-link">
+        <a href="${AM_CONFIG.authUrl}" class="user-link" id="user-link">
           👤 <span id="user-display-name">${displayName}</span>
         </a>
 
@@ -96,7 +162,7 @@ function renderHeader(activePage) {
       <nav>
         ${navLinks}
         <a href="/cart/">Cart (${cartCount})</a>
-        <a href="${AM_CONFIG.authUrl}">${displayName}</a>
+        <a href="${AM_CONFIG.authUrl}" id="mobile-user-link">${displayName}</a>
       </nav>
     </div>`;
 
@@ -105,6 +171,19 @@ function renderHeader(activePage) {
     else document.body.insertAdjacentHTML('afterbegin', html);
 
     initHeader();
+}
+
+// Patches just the user-facing bits of the already-rendered header,
+// instead of re-rendering the whole thing (avoids losing scroll
+// state / re-triggering animations / flashing the nav).
+function updateUserDisplay(user) {
+    const displayName = displayNameFor(user);
+
+    const nameEl = document.getElementById('user-display-name');
+    if (nameEl) nameEl.textContent = displayName;
+
+    const mobileLink = document.getElementById('mobile-user-link');
+    if (mobileLink) mobileLink.textContent = displayName;
 }
 
 // ============================================================
@@ -214,15 +293,6 @@ function updateCartBadge() {
 }
 
 // ============================================================
-// AUTH
-// ============================================================
-function getUserData() {
-    const raw = localStorage.getItem('amUserData') || getCookie('amUserData');
-    if (!raw) return null;
-    try { return JSON.parse(raw); } catch { return null; }
-}
-
-// ============================================================
 // EXPORT
 // ============================================================
 window.AM = {
@@ -232,6 +302,7 @@ window.AM = {
     getCartCount,
     updateCartBadge,
     getUserData,
+    fetchLiveUser,
     getCookie,
     applyTheme,
 };
@@ -240,4 +311,4 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollReveal();
 });
 
-console.log("✅ nav.js loaded");
+console.log("✅ nav.js loaded (Supabase-aware)");

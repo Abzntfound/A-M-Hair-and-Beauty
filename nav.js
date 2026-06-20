@@ -176,13 +176,18 @@ async function fetchLiveUser() {
             return null;
         }
 
-        const { data: profile } = await client
+        const { data: profile, error: profileError } = await client
             .from('profiles')
             .select('*')
             .eq('id', data.user.id)
             .single();
 
+        if (profileError) {
+            console.warn('nav.js DEBUG: profile fetch failed ->', profileError);
+        }
+
         const user = { ...data.user, profile: profile || null };
+        console.log('nav.js DEBUG: resolved user ->', user);
         setUserData(user);
         return user;
     } catch (err) {

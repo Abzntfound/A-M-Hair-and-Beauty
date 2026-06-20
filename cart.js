@@ -359,11 +359,20 @@ async function saveAbandonedCart(cart) {
         if (!userId) return;
 
         try {
+            // .maybeSingle() instead of .single(): a brand-new user (or
+            // anyone who's never had a cart saved to the server) will
+            // legitimately have ZERO rows in user_carts, which is not
+            // an error. .single() treats "0 rows" the same as "more
+            // than 1 row" — it throws either way, which is why this
+            // was failing with "Cannot coerce the result to a single
+            // JSON object" (a 406) for first-time/new carts.
+            // .maybeSingle() returns { data: null } for zero rows and
+            // only sets `error` for genuine failures.
             const { data, error } = await getSupabase()
                 .from('user_carts')
                 .select('*')
                 .eq('user_id', userId)
-                .single();
+                .maybeSingle();
 
             if (error) {
                 console.warn('Could not load saved cart from server:', error.message);
@@ -371,6 +380,8 @@ async function saveAbandonedCart(cart) {
                 localStorage.setItem('amCart', JSON.stringify(data.cart));
                 window.dispatchEvent(new CustomEvent('amCartUpdated'));
             }
+            // else: data is null because this user has no saved cart
+            // yet — nothing to do, local cart (if any) stays as-is.
         } catch (err) {
             console.warn('Could not load saved cart from server:', err);
         }

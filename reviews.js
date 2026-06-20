@@ -3,7 +3,30 @@
    ============================================================ */
 
 // ===================== SUPABASE =====================
-const client = window.supabaseClient;
+// IMPORTANT: don't capture window.supabaseClient into a constant at
+// load time. nav.js now creates that client asynchronously (it may
+// need to fetch the Supabase SDK from CDN first), so if reviews.js
+// grabs window.supabaseClient the instant this script runs, it can
+// easily capture `undefined` and never look again — which is
+// exactly what caused "Cannot read properties of undefined (reading
+// 'channel'/'from')". Instead, every function below asks for the
+// client fresh, and waits for it if it isn't ready yet.
+function waitForSupabaseClient(timeoutMs = 8000) {
+    if (window.supabaseClient) return Promise.resolve(window.supabaseClient);
+
+    return new Promise((resolve, reject) => {
+        const start = Date.now();
+        const interval = setInterval(() => {
+            if (window.supabaseClient) {
+                clearInterval(interval);
+                resolve(window.supabaseClient);
+            } else if (Date.now() - start > timeoutMs) {
+                clearInterval(interval);
+                reject(new Error('Timed out waiting for window.supabaseClient'));
+            }
+        }, 50);
+    });
+}
 
 // ===================== ADMIN =====================
 const ADMIN_EMAILS = ["adube6113@outlook.com"];
@@ -14,9 +37,7 @@ const SPAM_DELAY = 5000; // 5 seconds
 
 // ===================== USER =====================
 // NOTE: auth.js stores the logged-in user under the "am_user" key
-// (see saveLocalUser() in auth.js). This used to read "amUserData",
-// which nothing ever wrote to, so getUser() always returned null
-// here and isAdmin() was always false.
+// (see saveLocalUser() in auth.js).
 function getUser() {
     try {
         return JSON.parse(localStorage.getItem("am_user") || "null");
@@ -67,6 +88,14 @@ function timeAgo(dateStr) {
 
 // ===================== FETCH REVIEWS =====================
 async function fetchReviews() {
+    let client;
+    try {
+        client = await waitForSupabaseClient();
+    } catch (err) {
+        console.error("reviews.js: Supabase client never became available:", err);
+        return [];
+    }
+
     const { data, error } = await client
         .from("reviews")
         .select("*")
@@ -91,6 +120,15 @@ async function saveReview(review) {
 
     lastPostTime = now;
 
+    let client;
+    try {
+        client = await waitForSupabaseClient();
+    } catch (err) {
+        console.error("reviews.js: Supabase client never became available:", err);
+        alert("Couldn't connect to post your review. Please refresh and try again.");
+        return false;
+    }
+
     const { error } = await client
         .from("reviews")
         .insert([review]);
@@ -114,6 +152,15 @@ async function addReply(id) {
     if (!reply) return;
 
     const user = getUser();
+
+    let client;
+    try {
+        client = await waitForSupabaseClient();
+    } catch (err) {
+        console.error("reviews.js: Supabase client never became available:", err);
+        alert("Couldn't connect. Please refresh and try again.");
+        return;
+    }
 
     const { error } = await client
         .from("reviews")
@@ -250,7 +297,15 @@ async function handleSubmit(e) {
 }
 
 // ===================== REALTIME =====================
-function subscribe() {
+async function subscribe() {
+    let client;
+    try {
+        client = await waitForSupabaseClient();
+    } catch (err) {
+        console.error("reviews.js: Supabase client never became available, skipping realtime subscription:", err);
+        return;
+    }
+
     client
         .channel("reviews")
         .on("postgres_changes", {

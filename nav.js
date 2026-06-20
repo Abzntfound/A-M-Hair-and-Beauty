@@ -1,14 +1,78 @@
 /* ===========================================================
-   A&M Hair & Beauty — nav.js (FOLDER-SAFE VERSION, SUPABASE-AWARE)
+   A&M Hair & Beauty — nav.js (SELF-CONTAINED, SUPABASE-AWARE)
    ============================================================ */
 
 const BASE = "https://amhairandbeauty.com";
 
-// auth.js stores the logged-in user under the "am_user" key
-// (see saveLocalUser() in auth.js). Declared up here, before
-// loadTheme() runs below, since loadTheme() -> getUserData()
-// needs this immediately at script load time.
+// auth.js (when present) stores the logged-in user under the
+// "am_user" key (see saveLocalUser() in auth.js).
 const USER_CACHE_KEY = 'am_user';
+
+// ============================================================
+// SUPABASE CLIENT (SELF-CONTAINED)
+// ============================================================
+// nav.js used to assume auth.js had already run somewhere on the
+// page and created window.supabaseClient. That's not true on every
+// page (e.g. pages in folders that don't include auth.js), so
+// nav.js now creates its own client if one doesn't already exist.
+// If auth.js DOES run later and creates its own client, that's
+// fine too — Supabase clients are stateless config wrappers, not
+// singletons, so having two is harmless as long as both point at
+// the same project (which they do here).
+
+const SUPABASE_URL = "https://bipejrjipvoqvkwuzftz.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpcGVqcmppcHZvcXZrd3V6ZnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzYzMjMsImV4cCI6MjA5NzIxMjMyM30.Z8V7chc-UOK2UU5dxBydgLbT0u1DUv2_DGtisLmZWq4";
+
+// Lazily loads the Supabase JS SDK from CDN if it isn't already on
+// the page, then creates window.supabaseClient if it doesn't exist.
+// Returns a promise that resolves once window.supabaseClient is ready.
+function ensureSupabaseClient() {
+    if (window.supabaseClient) {
+        return Promise.resolve(window.supabaseClient);
+    }
+
+    // The SDK itself might already be loaded (e.g. by auth.js's own
+    // <script> tag) even if the *client* hasn't been created yet.
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        return Promise.resolve(window.supabaseClient);
+    }
+
+    // Neither the SDK nor the client exist yet — load the SDK from
+    // CDN, then create the client once it's available.
+    return new Promise((resolve, reject) => {
+        const existingScript = document.querySelector(
+            'script[data-am-supabase-sdk]'
+        );
+
+        const onReady = () => {
+            try {
+                window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                resolve(window.supabaseClient);
+            } catch (err) {
+                reject(err);
+            }
+        };
+
+        if (existingScript) {
+            // Another call to ensureSupabaseClient() already kicked
+            // off the load; just wait for it.
+            existingScript.addEventListener('load', onReady, { once: true });
+            existingScript.addEventListener('error', reject, { once: true });
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+        script.setAttribute('data-am-supabase-sdk', 'true');
+        script.addEventListener('load', onReady, { once: true });
+        script.addEventListener('error', () => {
+            console.error('nav.js: failed to load Supabase SDK from CDN');
+            reject(new Error('Supabase SDK failed to load'));
+        }, { once: true });
+        document.head.appendChild(script);
+    });
+}
 
 // ============================================================
 // COOKIE HELPERS
@@ -69,10 +133,12 @@ function displayNameFor(user) {
 // than trusting whatever's cached in localStorage (which goes stale
 // the moment someone logs out in another tab, or a session expires).
 async function fetchLiveUser() {
-    const client = window.supabaseClient;
-    if (!client) {
-        console.warn('nav.js: window.supabaseClient not found — is auth.js loaded on this page?');
-        return getUserData(); // fall back to cache rather than wiping the nav
+    let client;
+    try {
+        client = await ensureSupabaseClient();
+    } catch (err) {
+        console.warn('nav.js: could not get a Supabase client, using cached value', err);
+        return getUserData();
     }
 
     try {
@@ -306,10 +372,11 @@ window.AM = {
     fetchLiveUser,
     getCookie,
     applyTheme,
+    ensureSupabaseClient,
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     initScrollReveal();
 });
 
-console.log("✅ nav.js loaded (Supabase-aware)");
+console.log("✅ nav.js loaded (self-contained Supabase)");

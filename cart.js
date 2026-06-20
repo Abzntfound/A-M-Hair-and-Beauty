@@ -16,17 +16,10 @@ function getConfig() {
 
 function getUserId() {
     try {
-        // auth.js stores the logged-in user under "am_user" (see
-        // saveLocalUser() in auth.js) — "amUserData" was never written
-        // to by anything, so this always returned null before.
         const raw = localStorage.getItem('am_user');
         if (!raw) return null;
 
         const user = JSON.parse(raw);
-        // user_carts.user_id is a uuid column matching auth.users.id.
-        // Previously this checked user?.email first, which is a string
-        // like "name@example.com" — not a valid uuid — causing Supabase
-        // to reject the query with a 400.
         return user?.id || null;
     } catch {
         return null;
@@ -199,7 +192,7 @@ function renderCartPage() {
 
     if (!cart.length) {
         container.innerHTML = `
-        <div class="empty-cart">
+        <div id="empty-cart">
             <h3>Your cart is empty</h3>
             <p>Add items to continue</p>
         </div>`;
@@ -211,58 +204,58 @@ function renderCartPage() {
     const total = getOrderTotal();
 
     container.innerHTML = `
-    <div class="cart-layout">
+    <div id="cart-layout">
 
-        <div class="items">
+        <div id="cart-items">
 
             ${cart.map(item => `
-                <div class="cart-item">
+                <div id="cart-item-${item.id}">
 
                     <img src="${item.image}" />
 
-                    <div class="item-info">
-                        <div class="name">${item.name}</div>
-                        <div class="price">${config.currencySymbol}${(item.price * item.qty).toFixed(2)}</div>
+                    <div id="item-info-${item.id}">
+                        <div>${item.name}</div>
+                        <div>${config.currencySymbol}${(item.price * item.qty).toFixed(2)}</div>
                     </div>
 
-                    <div class="qty-controls">
-                        <button class="dec" data-id="${item.id}">-</button>
+                    <div id="qty-controls-${item.id}">
+                        <button data-id="${item.id}" data-action="dec">-</button>
                         <span>${item.qty}</span>
-                        <button class="inc" data-id="${item.id}">+</button>
+                        <button data-id="${item.id}" data-action="inc">+</button>
                     </div>
 
-                    <button class="remove" data-id="${item.id}">Remove</button>
+                    <button data-id="${item.id}" data-action="remove">Remove</button>
 
                 </div>
             `).join('')}
 
         </div>
 
-        <div class="summary">
+        <div id="cart-summary">
 
             <h3>Checkout</h3>
 
-            <div class="line">
+            <div id="line-subtotal">
                 <span>Subtotal</span>
                 <span>${config.currencySymbol}${subtotal.toFixed(2)}</span>
             </div>
 
-            <div class="line">
+            <div id="line-shipping">
                 <span>Shipping</span>
                 <span>${shipping === 0 ? "FREE" : config.currencySymbol + shipping.toFixed(2)}</span>
             </div>
 
-            <div class="line total">
+            <div id="line-total">
                 <span>Total</span>
                 <span>${config.currencySymbol}${total.toFixed(2)}</span>
             </div>
 
-            <div class="promo">
+            <div id="promo-section">
                 <input id="promo-input" placeholder="Promo code">
                 <button id="apply-promo">Apply</button>
             </div>
 
-            <button class="checkout-btn" onclick="proceedToCheckout()">
+            <button id="checkout-btn" onclick="proceedToCheckout()">
                 Checkout
             </button>
 
@@ -276,7 +269,7 @@ function renderCartPage() {
         applyPromo(val);
     };
 
-    container.querySelectorAll('.inc').forEach(b =>
+    container.querySelectorAll('[data-action="inc"]').forEach(b =>
         b.onclick = () => {
             const id = b.dataset.id;
             const item = getCart().find(i => i.id === id);
@@ -285,7 +278,7 @@ function renderCartPage() {
         }
     );
 
-    container.querySelectorAll('.dec').forEach(b =>
+    container.querySelectorAll('[data-action="dec"]').forEach(b =>
         b.onclick = () => {
             const id = b.dataset.id;
             const item = getCart().find(i => i.id === id);
@@ -294,7 +287,7 @@ function renderCartPage() {
         }
     );
 
-    container.querySelectorAll('.remove').forEach(b =>
+    container.querySelectorAll('[data-action="remove"]').forEach(b =>
         b.onclick = () => {
             removeFromCart(b.dataset.id);
             renderCartPage();
@@ -359,15 +352,6 @@ async function saveAbandonedCart(cart) {
         if (!userId) return;
 
         try {
-            // .maybeSingle() instead of .single(): a brand-new user (or
-            // anyone who's never had a cart saved to the server) will
-            // legitimately have ZERO rows in user_carts, which is not
-            // an error. .single() treats "0 rows" the same as "more
-            // than 1 row" — it throws either way, which is why this
-            // was failing with "Cannot coerce the result to a single
-            // JSON object" (a 406) for first-time/new carts.
-            // .maybeSingle() returns { data: null } for zero rows and
-            // only sets `error` for genuine failures.
             const { data, error } = await getSupabase()
                 .from('user_carts')
                 .select('*')
@@ -380,8 +364,6 @@ async function saveAbandonedCart(cart) {
                 localStorage.setItem('amCart', JSON.stringify(data.cart));
                 window.dispatchEvent(new CustomEvent('amCartUpdated'));
             }
-            // else: data is null because this user has no saved cart
-            // yet — nothing to do, local cart (if any) stays as-is.
         } catch (err) {
             console.warn('Could not load saved cart from server:', err);
         }

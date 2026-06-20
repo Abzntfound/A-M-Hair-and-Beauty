@@ -144,7 +144,18 @@ async function fetchLiveUser() {
     try {
         const { data, error } = await client.auth.getUser();
 
-        if (error || !data?.user) {
+        if (error) {
+            // Log instead of silently wiping the cache — a transient
+            // network/auth error here used to delete am_user and flip
+            // the nav to "Sign In" even though the user was actually
+            // still logged in.
+            console.warn('nav.js: auth.getUser() returned an error, keeping cached user', error);
+            return getUserData();
+        }
+
+        if (!data?.user) {
+            // This IS a real "no session" result (not an error), so
+            // it's safe to clear the cache here.
             setUserData(null);
             return null;
         }

@@ -163,7 +163,8 @@ nav a.active { color: #d946a6; }
     transition: right 0.4s cubic-bezier(0.16,1,0.3,1);
 }
 .mobile-menu.open { right: 0; }
-.mobile-menu nav { flex-direction: column; gap: 0; }
+/* Always show nav inside the mobile drawer regardless of screen size */
+.mobile-menu nav { display: flex !important; flex-direction: column; gap: 0; }
 .mobile-menu nav a { font-size: 1.05rem; color: #333; border-bottom: 1px solid #f0f0f0; padding: 0.9rem 0; }
 .mobile-menu nav a::after { display: none; }
 
@@ -561,7 +562,8 @@ button { font-family: inherit; }
     /* Header */
     .site-header { padding: 1rem 4%; }
     .site-header.scrolled { padding: 0.75rem 4%; }
-    nav { display: none; }
+    /* Hide the header nav only — NOT the one inside the mobile drawer */
+    .site-header > nav { display: none; }
     .mobile-menu-btn { display: block; }
     .user-link span { display: none; }
     .logo { font-size: 1.2rem; }

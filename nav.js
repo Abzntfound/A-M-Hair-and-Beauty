@@ -142,6 +142,22 @@ async function fetchLiveUser() {
     }
 
     try {
+        // A freshly-created client needs a moment to read its session
+        // back out of localStorage before it knows who's logged in.
+        // Calling getUser() immediately after createClient() can throw
+        // AuthSessionMissingError even when a valid session DOES exist
+        // in storage, because initialization hasn't finished yet.
+        // getSession() is what actually waits on/returns that
+        // initialization, so we call it first to let the client catch
+        // up before asking getUser() to validate against the server.
+        const { data: sessionData } = await client.auth.getSession();
+
+        if (!sessionData?.session) {
+            // Genuinely no session in storage at all — safe to clear.
+            setUserData(null);
+            return null;
+        }
+
         const { data, error } = await client.auth.getUser();
 
         if (error) {

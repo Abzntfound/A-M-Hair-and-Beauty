@@ -16,11 +16,18 @@ function getConfig() {
 
 function getUserId() {
     try {
-        const raw = localStorage.getItem('amUserData');
+        // auth.js stores the logged-in user under "am_user" (see
+        // saveLocalUser() in auth.js) — "amUserData" was never written
+        // to by anything, so this always returned null before.
+        const raw = localStorage.getItem('am_user');
         if (!raw) return null;
 
         const user = JSON.parse(raw);
-        return user?.email || user?.id || null;
+        // user_carts.user_id is a uuid column matching auth.users.id.
+        // Previously this checked user?.email first, which is a string
+        // like "name@example.com" — not a valid uuid — causing Supabase
+        // to reject the query with a 400.
+        return user?.id || null;
     } catch {
         return null;
     }
@@ -104,11 +111,13 @@ async function saveCartToServer(cart) {
     const userId = getUserId();
     if (!supabase || !userId) return;
 
-    await supabase.from('user_carts').upsert({
+    const { error } = await supabase.from('user_carts').upsert({
         user_id: userId,
         cart,
         updated_at: new Date().toISOString()
     });
+
+    if (error) console.error('saveCartToServer error:', error);
 }
 
 /* =========================
@@ -329,11 +338,13 @@ async function saveAbandonedCart(cart) {
     const userId = getUserId();
     if (!supabase || !userId) return;
 
-    await supabase.from('abandoned_carts').upsert({
+    const { error } = await supabase.from('abandoned_carts').upsert({
         user_id: userId,
         cart,
         updated_at: new Date().toISOString()
     });
+
+    if (error) console.error('saveAbandonedCart error:', error);
 }
 
 /* =========================
@@ -348,17 +359,21 @@ async function saveAbandonedCart(cart) {
         if (!userId) return;
 
         try {
-            const { data } = await getSupabase()
+            const { data, error } = await getSupabase()
                 .from('user_carts')
                 .select('*')
                 .eq('user_id', userId)
                 .single();
 
-            if (data?.cart) {
+            if (error) {
+                console.warn('Could not load saved cart from server:', error.message);
+            } else if (data?.cart) {
                 localStorage.setItem('amCart', JSON.stringify(data.cart));
                 window.dispatchEvent(new CustomEvent('amCartUpdated'));
             }
-        } catch {}
+        } catch (err) {
+            console.warn('Could not load saved cart from server:', err);
+        }
     }
 })();
 

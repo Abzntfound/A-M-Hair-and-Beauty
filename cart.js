@@ -356,8 +356,10 @@ async function saveAbandonedCart(cart) {
 ========================= */
 
 (async function init() {
-    localStorage.removeItem("amPromo"); // clean up legacy storage key
+    localStorage.removeItem("amPromo");   // remove legacy localStorage key
+    sessionStorage.removeItem("amPromo"); // remove sessionStorage key from previous attempt
     loadPromo();
+    // ... rest of init unchanged
     // ... rest of init unchanged
 
     if (getSupabase()) {

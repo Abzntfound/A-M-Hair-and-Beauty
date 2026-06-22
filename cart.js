@@ -63,21 +63,16 @@ const PROMO_CODES = [
     { code: "IBMCHURCH", type: "free_shipping", value: true }
 ];
 
+// AFTER
 let activePromo = null;
 
-// AFTER
 function loadPromo() {
-    try {
-        activePromo = JSON.parse(sessionStorage.getItem("amPromo")) || null;
-    } catch {
-        activePromo = null;
-    }
+    activePromo = null; // always starts empty — resets on every page load/refresh
 }
 
 function savePromo() {
-    sessionStorage.setItem("amPromo", JSON.stringify(activePromo));
+    // no persistence — intentionally in-memory only
 }
-
 function applyPromo(code) {
     const promo = PROMO_CODES.find(
         p => p.code.toUpperCase() === (code || "").toUpperCase()

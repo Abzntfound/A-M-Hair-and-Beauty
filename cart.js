@@ -65,16 +65,17 @@ const PROMO_CODES = [
 
 let activePromo = null;
 
+// AFTER
 function loadPromo() {
     try {
-        activePromo = JSON.parse(localStorage.getItem("amPromo")) || null;
+        activePromo = JSON.parse(sessionStorage.getItem("amPromo")) || null;
     } catch {
         activePromo = null;
     }
 }
 
 function savePromo() {
-    localStorage.setItem("amPromo", JSON.stringify(activePromo));
+    sessionStorage.setItem("amPromo", JSON.stringify(activePromo));
 }
 
 function applyPromo(code) {
@@ -360,7 +361,9 @@ async function saveAbandonedCart(cart) {
 ========================= */
 
 (async function init() {
+    localStorage.removeItem("amPromo"); // clean up legacy storage key
     loadPromo();
+    // ... rest of init unchanged
 
     if (getSupabase()) {
         const userId = getUserId();

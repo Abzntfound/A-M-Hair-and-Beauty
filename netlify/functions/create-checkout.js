@@ -14,6 +14,12 @@ const PRODUCTS = {
   'turmeric-soap': { name: 'Turmeric Soap', price: 349 }
 };
 
+// Mirrors PROMO_CODES in cart.js — server is the source of truth.
+// Never trust a `type` flag sent straight from the client.
+const PROMO_CODES = {
+  'IBMCHURCH': { type: 'free_shipping' }
+};
+
 exports.handler = async (event) => {
   try {
     const { cart, promo } = JSON.parse(event.body || "{}");
@@ -25,15 +31,16 @@ exports.handler = async (event) => {
       };
     }
 
-    let shipping = SHIPPING_FEE;
+    // Re-validate the promo code against the server's own list —
+    // ignore promo.type from the client entirely.
+    const validPromo = promo?.code ? PROMO_CODES[promo.code.toUpperCase()] : null;
 
-    // ✅ FREE SHIPPING PROMO CHECK
-    if (promo?.type === "free_shipping") {
+    let shipping = SHIPPING_FEE;
+    if (validPromo?.type === "free_shipping") {
       shipping = 0;
     }
 
     const line_items = [];
-
     for (const item of cart) {
       const product = PRODUCTS[item.id];
       if (!product) throw new Error("Unknown product: " + item.id);
@@ -48,7 +55,6 @@ exports.handler = async (event) => {
       });
     }
 
-    // only add shipping if not fre
     if (shipping > 0) {
       line_items.push({
         price_data: {

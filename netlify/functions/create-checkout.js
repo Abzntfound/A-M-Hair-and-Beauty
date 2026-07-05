@@ -41,7 +41,7 @@ exports.handler = async (event) => {
     }
 
     // Re-validate the promo code against the server's own list —
-    // ignore promo.type from the client entirely.
+    // ignore promo.type from the client entirely
     const validPromo = promo?.code ? PROMO_CODES[promo.code.toUpperCase()] : null;
 
     let shipping = SHIPPING_FEE;

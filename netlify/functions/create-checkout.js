@@ -24,7 +24,7 @@ const PRODUCTS = {
 };
 
 // Mirrors PROMO_CODES in cart.js — server is the source of truth
-// Never trust a `type` flag sent straight from the client.
+// Never trust a `type` flag sent straight from the client
 const PROMO_CODES = {
   'IBMCHURCH': { type: 'free_shipping' }
 };

@@ -79,7 +79,7 @@ exports.handler = async (event) => {
       mode: 'payment',
       payment_method_types: ['card'],
       line_items,
-      success_url: 'https://amhairandbeauty.com/success/',
+      success_url: 'https://amhairandbeauty.com/success/?success=true&session_id={CHECKOUT_SESSION_ID}',
       cancel_url: 'https://amhairandbeauty.com/cart/',
     });
 

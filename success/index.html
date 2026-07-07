@@ -59,8 +59,20 @@
     </div>
   </div>
   <script>
-    // Clear cart on successful payment
-    try { localStorage.removeItem('amCart'); } catch(e) {}
-  </script>
+  const params = new URLSearchParams(window.location.search);
+
+  // Redirect anyone who hasn't come from Stripe
+  if (
+    params.get("success") !== "true" ||
+    !params.get("session_id")
+  ) {
+    window.location.replace("https://amhairandbeauty.com/");
+  }
+
+  // Clear cart
+  try {
+    localStorage.removeItem("amCart");
+  } catch (e) {}
+</script>
 </body>
 </html>

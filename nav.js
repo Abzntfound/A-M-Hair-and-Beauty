@@ -66,7 +66,6 @@ function am_removeCookie(name) {
 const am_cookieStorage = {
     getItem: (key) => {
         const value = am_getCookieRaw(key);
-        console.log('nav.js DEBUG: storage.getItem called with key ->', JSON.stringify(key), '| found:', !!value);
         return value;
     },
     setItem: (key, value) => am_setCookie(key, value, 7), // 7-day session cookie, matches typical refresh-token lifetime

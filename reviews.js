@@ -343,4 +343,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-console.log("✅ reviews.js loaded (fixed version)");

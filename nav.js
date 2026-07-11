@@ -477,5 +477,3 @@ window.AM = {
 document.addEventListener('DOMContentLoaded', () => {
     initScrollReveal();
 });
-
-console.log("✅ nav.js loaded (self-contained Supabase)");

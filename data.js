@@ -510,5 +510,3 @@ window.AM_CATEGORIES = AM_CATEGORIES;
 window.AM_ABOUT = AM_ABOUT;
 window.AM_NAV = AM_NAV;
 window.AM_FOOTER = AM_FOOTER;
-
-console.log('✅ data.js loaded');

@@ -406,5 +406,3 @@ window.getCart = getCart;
 window.renderCartPage = renderCartPage;
 window.proceedToCheckout = proceedToCheckout;
 window.applyPromo = applyPromo;
-
-console.log("cart.js FIXED + PROMO READY");

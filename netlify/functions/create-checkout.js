@@ -14,12 +14,10 @@ const PRODUCTS = {
   'turmeric-soap': { name: 'Turmeric Soap', price: 349 },
   'silk-and-shine-set': { name: 'Silk and Shine Bundle', price: 1799 },
   'wash-set': { name: 'Wash Bundle', price: 1599 },
-  'blow-dry-set': { name: 'Blowdryer Bundle', price: 2499 },
-  'silk-care-trio': { name: 'Silk Care Trio', price: 2499 },
-  'complete-blow-dry-kit': { name: 'Complete Blow Dryer Kit', price: 2799 },
+  'blow-dry-set': { name: 'Blowdryer Bundle', price: 2799 },
+  'silk-care-trio': { name: 'Silk Care Trio', price: 3299 },
   'root-revival-duo': { name: 'Root Revival Duo', price: 2499 },
   'botanical-growth-duo': { name: 'Botanical Growth Duo', price: 1399 },
-  'complete-care': { name: 'A&M Complete Care Package', price: 6499 },
   'kids-set': { name: 'Kids Set', price: 2499 },
 };
 

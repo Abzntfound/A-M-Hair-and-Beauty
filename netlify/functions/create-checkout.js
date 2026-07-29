@@ -19,6 +19,7 @@ const PRODUCTS = {
   'root-revival-duo': { name: 'Root Revival Duo', price: 2499 },
   'botanical-growth-duo': { name: 'Botanical Growth Duo', price: 1399 },
   'kids-set': { name: 'Kids Set', price: 2499 },
+  'premium-hair-collection': { name: 'Premium Hair Collection', price: 3799 },
 };
 
 // Mirrors PROMO_CODES in cart.js — server is the source of truth

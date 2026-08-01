@@ -1,8 +1,15 @@
 import Stripe from "stripe";
 import { Resend } from "resend";
+import { createClient } from "@supabase/supabase-js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export const handler = async (event) => {
     const sig = event.headers["stripe-signature"];
@@ -23,19 +30,51 @@ export const handler = async (event) => {
     }
 
     if (stripeEvent.type === "checkout.session.completed") {
+
         const session = stripeEvent.data.object;
 
-        const email = session.customer_details?.email || "unknown";
+        const email = session.customer_details?.email || "";
+        const name = session.customer_details?.name || "";
         const amount = (session.amount_total || 0) / 100;
 
+        // Generate order number
+        const orderNumber =
+            "AM" +
+            Date.now().toString().slice(-8);
+
+        // Save order to Supabase
+        const { error } = await supabase
+            .from("orders")
+            .insert({
+                order_number: orderNumber,
+                stripe_session_id: session.id,
+                stripe_payment_intent: session.payment_intent,
+                customer_name: name,
+                customer_email: email,
+                total: amount,
+                status: "processing"
+            });
+
+        if (error) {
+            console.error("Supabase Error:", error);
+        }
+
+        // Email yourself
         await resend.emails.send({
             from: "A&M Orders <onboarding@resend.dev>",
             to: "adube6113@outlook.com",
-            subject: "New Paid Order - A&M Hair & Beauty",
+            subject: `New Order ${orderNumber}`,
             html: `
                 <h2>New Order Paid</h2>
-                <p><b>Customer Email:</b> ${email}</p>
-                <p><b>Total Paid:</b> £${amount}</p>
+
+                <p><b>Order:</b> ${orderNumber}</p>
+
+                <p><b>Name:</b> ${name}</p>
+
+                <p><b>Email:</b> ${email}</p>
+
+                <p><b>Total:</b> £${amount}</p>
+
                 <p><b>Stripe Session:</b> ${session.id}</p>
             `
         });

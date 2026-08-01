@@ -13,29 +13,7 @@ const AM_CONFIG = {
 };
 
 // ---- PRODUCTS ----
-const AM_PRODUCTS = [
-   {
-        id: 'test',
-        name: 'Hair Growth Oil',
-        subtitle: '100ml Premium Formula',
-        price: 0.00,
-        image: '/A&M.png',
-        images: ['/A&M.png'],
-        category: 'oils',
-        badge: 'Best Seller',
-        description: 'Our signature 100ml hair growth oil is a rich, concentrated blend of natural oils that nourishes your scalp, stimulates follicles, and promotes stronger, longer hair. Suitable for all hair types.',
-        features: [
-            '100% natural ingredients',
-            'Promotes hair growth and thickness',
-            'Nourishes and moisturises the scalp',
-            'Adds brilliant shine',
-            'Suitable for all hair types',
-            'No harsh chemicals or sulphates',
-        ],
-        shopUrl: 'https://shop.amhairandbeauty.com/products/hair-growth-oil',
-        inStock: true,
-        discontinued: false,
-    }, 
+const AM_PRODUCTS = [ 
    {
         id: 'hair-growth-oil-100ml',
         name: 'Hair Growth Oil',

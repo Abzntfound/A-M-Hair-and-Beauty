@@ -14,39 +14,65 @@ function getConfig() {
    USER
 ========================= */
 
-function getUserId() {
+function getCurrentUser() {
     try {
-        // auth.js stores the logged-in user under "am_user" (see
-        // saveLocalUser() in auth.js) — "amUserData" was never written
-        // to by anything, so this always returned null before.
-        const raw = localStorage.getItem('am_user');
+        const raw = localStorage.getItem("am_user");
         if (!raw) return null;
 
-        const user = JSON.parse(raw);
-        // user_carts.user_id is a uuid column matching auth.users.id.
-        // Previously this checked user?.email first, which is a string
-        // like "name@example.com" — not a valid uuid — causing Supabase
-        // to reject the query with a 400.
-        return user?.id || null;
+        return JSON.parse(raw);
     } catch {
         return null;
     }
 }
+
+function getUserId() {
+    const user = getCurrentUser();
+    return user?.id || null;
+}
+
 
 /* =========================
    CART STORAGE
 ========================= */
 
 function safeParse(json, fallback) {
-    try { return JSON.parse(json); }
-    catch { return fallback; }
+    try {
+        return JSON.parse(json);
+    } catch {
+        return fallback;
+    }
 }
 
+
+function getCartKey() {
+    const userId = getUserId();
+
+    // Logged-in users get their own cart
+    if (userId) {
+        return `amCart_${userId}`;
+    }
+
+    // Guest cart
+    return "amCart_guest";
+}
+
+
 function getCart() {
-    const cart = safeParse(localStorage.getItem('amCart'), []);
+    const cart = safeParse(
+        localStorage.getItem(getCartKey()),
+        []
+    );
+
     return Array.isArray(cart) ? cart : [];
 }
 
+
+function saveLocalCart(items) {
+    localStorage.setItem(
+        getCartKey(),
+        JSON.stringify(items)
+    );
+}
 /* =========================
    SUPABASE
 ========================= */
@@ -88,36 +114,53 @@ function applyPromo(code) {
 ========================= */
 
 function saveCart(items) {
-    localStorage.setItem('amCart', JSON.stringify(items));
 
-    window.dispatchEvent(new CustomEvent('amCartUpdated'));
+    saveLocalCart(items);
+
+    window.dispatchEvent(
+        new CustomEvent("amCartUpdated")
+    );
+
     window.AM?.updateCartBadge?.();
 
-    if (getSupabase()) {
+
+    const userId = getUserId();
+
+    if (userId && getSupabase()) {
+
         saveCartToServer(items);
         saveAbandonedCart(items);
+
     }
 }
 
 async function saveCartToServer(cart) {
+
     const supabase = getSupabase();
     const userId = getUserId();
+
     if (!supabase || !userId) return;
 
-    const { error } = await supabase
-    .from("user_carts")
-    .upsert(
-        {
-            user_id: userId,
-            cart,
-            updated_at: new Date().toISOString()
-        },
-        {
-            onConflict: "user_id"
-        }
-    );
 
-    if (error) console.error('saveCartToServer error:', error);
+    const { error } = await supabase
+        .from("user_carts")
+        .upsert(
+            {
+                user_id: userId,
+                cart: cart,
+                updated_at: new Date().toISOString()
+            },
+            {
+                onConflict:"user_id"
+            }
+        );
+
+
+    if(error)
+        console.error(
+            "Cart save failed:",
+            error
+        );
 }
 
 /* =========================
@@ -344,25 +387,36 @@ async function proceedToCheckout() {
    ABANDONED CART
 ========================= */
 
-async function saveAbandonedCart(cart) {
+async function saveAbandonedCart(cart){
+
     const supabase = getSupabase();
     const userId = getUserId();
-    if (!supabase || !userId) return;
 
-    const { error } = await supabase
-    .from("abandoned_carts")
-    .upsert(
+
+    if(!supabase || !userId)
+        return;
+
+
+
+    const {error}=await supabase
+        .from("abandoned_carts")
+        .upsert(
         {
-            user_id: userId,
-            cart,
-            updated_at: new Date().toISOString()
+            user_id:userId,
+            cart:cart,
+            updated_at:new Date().toISOString()
         },
         {
-            onConflict: "user_id"
-        }
-    );
+            onConflict:"user_id"
+        });
 
-    if (error) console.error('saveAbandonedCart error:', error);
+
+
+    if(error)
+        console.error(
+            "Abandoned cart error:",
+            error
+        );
 }
 
 /* =========================
@@ -370,44 +424,72 @@ async function saveAbandonedCart(cart) {
 ========================= */
 
 (async function init() {
-    localStorage.removeItem("amPromo");   // remove legacy localStorage key
-    sessionStorage.removeItem("amPromo"); // remove sessionStorage key from previous attempt
+
     loadPromo();
-    // ... rest of init unchanged
-    // ... rest of init unchanged
 
-    if (getSupabase()) {
-        const userId = getUserId();
-        if (!userId) return;
 
-        try {
-            // .maybeSingle() instead of .single(): a brand-new user (or
-            // anyone who's never had a cart saved to the server) will
-            // legitimately have ZERO rows in user_carts, which is not
-            // an error. .single() treats "0 rows" the same as "more
-            // than 1 row" — it throws either way, which is why this
-            // was failing with "Cannot coerce the result to a single
-            // JSON object" (a 406) for first-time/new carts.
-            // .maybeSingle() returns { data: null } for zero rows and
-            // only sets `error` for genuine failures.
-            const { data, error } = await getSupabase()
-                .from('user_carts')
-                .select('*')
-                .eq('user_id', userId)
-                .maybeSingle();
+    const supabase = getSupabase();
 
-            if (error) {
-                console.warn('Could not load saved cart from server:', error.message);
-            } else if (data?.cart) {
-                localStorage.setItem('amCart', JSON.stringify(data.cart));
-                window.dispatchEvent(new CustomEvent('amCartUpdated'));
-            }
-        } catch (err) {
-            console.warn('Could not load saved cart from server:', err);
-        }
+    if (!supabase) {
+        renderCartPage();
+        return;
     }
-})();
 
+
+    const userId = getUserId();
+
+    if (!userId) {
+        renderCartPage();
+        return;
+    }
+
+
+    try {
+
+        const { data, error } =
+            await supabase
+            .from("user_carts")
+            .select("cart")
+            .eq("user_id", userId)
+            .maybeSingle();
+
+
+
+        if (error) {
+
+            console.error(
+                "Cart loading error:",
+                error
+            );
+
+        }
+
+
+        if (data?.cart) {
+
+            localStorage.setItem(
+                `amCart_${userId}`,
+                JSON.stringify(data.cart)
+            );
+
+        }
+
+
+        renderCartPage();
+
+
+    } catch(err) {
+
+        console.error(
+            "Cart sync failed:",
+            err
+        );
+
+        renderCartPage();
+
+    }
+
+})();
 /* =========================
    EXPORTS
 ========================= */

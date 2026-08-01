@@ -237,6 +237,35 @@
   </div>
 </section>
 
+<section class="orders-section">
+    <div class="section-header">
+        <h2>Track Your Order</h2>
+        <p>Enter your order number and email address.</p>
+    </div>
+
+    <div class="orders-card">
+
+        <input
+            type="text"
+            id="track-order-number"
+            placeholder="Order Number (e.g. AM12345678)"
+        >
+
+        <input
+            type="email"
+            id="track-email"
+            placeholder="Email Address"
+        >
+
+        <button class="btn btn-primary" onclick="trackOrder()">
+            Track Order
+        </button>
+
+        <div id="tracking-result"></div>
+
+    </div>
+</section>
+
 <!-- ============================================================ CTA -->
 <section class="cta-band scroll-reveal">
   <h2>Ready to Transform Your Hair?</h2>

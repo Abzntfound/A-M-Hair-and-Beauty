@@ -268,8 +268,13 @@ function renderHeader(activePage) {
     // ...then quietly verify against Supabase and patch the
     // display if the real session disagrees with the cache.
     fetchLiveUser().then(liveUser => {
-        updateUserDisplay(liveUser);
-    });
+
+    updateUserDisplay(liveUser);
+
+    // Reload cart count after user identity is confirmed
+    updateCartBadge();
+
+});
 }
 
 function renderHeaderWith(activePage, user) {
@@ -438,26 +443,74 @@ function initScrollReveal() {
 // ============================================================
 // CART
 // ============================================================
-function getCartCount() {
+
+function getCartKey() {
     try {
-        const items = JSON.parse(localStorage.getItem('amCart') || '[]');
-        return items.reduce((s, i) => s + (i.qty || 1), 0);
+        const user = JSON.parse(
+            localStorage.getItem(USER_CACHE_KEY)
+        );
+
+        if (user?.id) {
+            return `amCart_${user.id}`;
+        }
+
+    } catch {}
+
+    return "amCart_guest";
+}
+
+
+function getCartCount() {
+
+    try {
+
+        const items = JSON.parse(
+            localStorage.getItem(getCartKey()) || "[]"
+        );
+
+
+        return items.reduce(
+            (total, item) =>
+                total + Number(item.qty || 0),
+            0
+        );
+
+
     } catch {
+
         return 0;
+
     }
 }
+
 
 function updateCartBadge() {
-    const el = document.getElementById('header-cart-count');
+
+    const el = document.getElementById(
+        'header-cart-count'
+    );
+
     if (!el) return;
-    const c = getCartCount();
-    el.textContent = c || '';
-    if (c) {
-        el.classList.add('bump');
-        setTimeout(() => el.classList.remove('bump'), 300);
+
+
+    const count = getCartCount();
+
+
+    el.textContent = count > 0
+        ? count
+        : "";
+
+
+    if (count > 0) {
+
+        el.classList.add("bump");
+
+        setTimeout(() => {
+            el.classList.remove("bump");
+        }, 300);
+
     }
 }
-
 // ============================================================
 // EXPORT
 // ============================================================

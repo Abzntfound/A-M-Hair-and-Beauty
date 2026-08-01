@@ -104,11 +104,18 @@ async function saveCartToServer(cart) {
     const userId = getUserId();
     if (!supabase || !userId) return;
 
-    const { error } = await supabase.from('user_carts').upsert({
-        user_id: userId,
-        cart,
-        updated_at: new Date().toISOString()
-    });
+    const { error } = await supabase
+    .from("user_carts")
+    .upsert(
+        {
+            user_id: userId,
+            cart,
+            updated_at: new Date().toISOString()
+        },
+        {
+            onConflict: "user_id"
+        }
+    );
 
     if (error) console.error('saveCartToServer error:', error);
 }
@@ -342,11 +349,18 @@ async function saveAbandonedCart(cart) {
     const userId = getUserId();
     if (!supabase || !userId) return;
 
-    const { error } = await supabase.from('abandoned_carts').upsert({
-        user_id: userId,
-        cart,
-        updated_at: new Date().toISOString()
-    });
+    const { error } = await supabase
+    .from("abandoned_carts")
+    .upsert(
+        {
+            user_id: userId,
+            cart,
+            updated_at: new Date().toISOString()
+        },
+        {
+            onConflict: "user_id"
+        }
+    );
 
     if (error) console.error('saveAbandonedCart error:', error);
 }

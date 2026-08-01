@@ -4,6 +4,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const SHIPPING_FEE = 399;
 
 const PRODUCTS = {
+  'test': { name: 'Hair Growth Oil', price: 000 },
   'hair-growth-oil-100ml': { name: 'Hair Growth Oil', price: 999 },
   'satin-bonnet': { name: 'Satin Bonnet', price: 299 },
   'rosemary-hair-oil-60ml': { name: 'Rosemary Hair Oil', price: 499 },

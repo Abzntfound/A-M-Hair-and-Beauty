@@ -371,5 +371,141 @@
     AM.initScrollReveal();
   });
 </script>
+<script>
+  async function trackOrder() {
+
+    const orderNumber =
+        document.getElementById("track-order-number").value.trim();
+
+    const email =
+        document.getElementById("track-email").value.trim();
+
+    const result =
+        document.getElementById("tracking-result");
+
+    result.style.display = "block";
+    result.innerHTML = "<p>Looking up your order...</p>";
+
+    const response = await fetch("/.netlify/functions/track-order", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            orderNumber,
+            email
+        })
+
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+
+        result.innerHTML = `
+            <h3>Order Not Found</h3>
+            <p>Please check your order number and email.</p>
+        `;
+
+        return;
+    }
+
+    result.innerHTML = `
+       result.innerHTML = `
+<div class="tracking-card">
+
+    <div class="tracking-header">
+
+        <div>
+            <h2>Order ${data.order_number}</h2>
+            <p>Placed ${new Date(data.created_at).toLocaleDateString()}</p>
+        </div>
+
+        <div class="status-pill">
+            ${data.status.replaceAll("_"," ")}
+        </div>
+
+    </div>
+
+    <div class="tracking-progress">
+
+        <div class="progress-line"></div>
+
+        <div class="progress-step ${["processing","packed","shipped","out_for_delivery","delivered"].includes(data.status) ? "active" : ""}">
+            <div class="circle">✓</div>
+            <span>Processing</span>
+        </div>
+
+        <div class="progress-step ${["packed","shipped","out_for_delivery","delivered"].includes(data.status) ? "active" : ""}">
+            <div class="circle">📦</div>
+            <span>Packed</span>
+        </div>
+
+        <div class="progress-step ${["shipped","out_for_delivery","delivered"].includes(data.status) ? "active" : ""}">
+            <div class="circle">🚚</div>
+            <span>Shipped</span>
+        </div>
+
+        <div class="progress-step ${["out_for_delivery","delivered"].includes(data.status) ? "active" : ""}">
+            <div class="circle">🏠</div>
+            <span>Out for Delivery</span>
+        </div>
+
+        <div class="progress-step ${data.status==="delivered" ? "active" : ""}">
+            <div class="circle">✔</div>
+            <span>Delivered</span>
+        </div>
+
+    </div>
+
+    <div class="order-grid">
+
+        <div>
+            <strong>Customer</strong>
+            <span>${data.customer_name}</span>
+        </div>
+
+        <div>
+            <strong>Total</strong>
+            <span>£${Number(data.total).toFixed(2)}</span>
+        </div>
+
+        <div>
+            <strong>Courier</strong>
+            <span>${data.courier || "Awaiting Dispatch"}</span>
+        </div>
+
+        <div>
+            <strong>Tracking Number</strong>
+            <span>${data.tracking_number || "Will appear once dispatched"}</span>
+        </div>
+
+        <div>
+            <strong>Estimated Delivery</strong>
+            <span>${data.estimated_delivery || "Calculating..."}</span>
+        </div>
+
+    </div>
+
+    ${
+        data.tracking_number && data.courier === "Royal Mail"
+        ? `
+        <a
+            class="tracking-button"
+            target="_blank"
+            href="https://www.royalmail.com/track-your-item#/tracking-results/${data.tracking_number}">
+            Track with Royal Mail →
+        </a>
+        `
+        : ""
+    }
+
+</div>
+`;
+}
+</script>
 </body>
 </html>

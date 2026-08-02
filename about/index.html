@@ -105,6 +105,79 @@
       .about-img img { height: 320px; }
       .stats-inner { gap: 2rem; }
     }
+    .story-wrapper{
+
+    position:relative;
+
+}
+
+.family-photo{
+
+    position:absolute;
+
+    width:240px;
+
+    border-radius:24px;
+
+    overflow:hidden;
+
+    box-shadow:0 20px 50px rgba(0,0,0,.18);
+
+    transition:.35s;
+
+    z-index:10;
+
+}
+
+.family-photo img{
+
+    width:100%;
+
+    display:block;
+
+}
+
+.family-photo:hover{
+
+    transform:translateY(-8px) scale(1.02);
+
+}
+
+.family-left{
+
+    top:-80px;
+
+    left:-100px;
+
+    transform:rotate(-6deg);
+
+}
+
+.family-right{
+
+    top:-60px;
+
+    right:-100px;
+
+    transform:rotate(5deg);
+
+}
+
+@media(max-width:1100px){
+
+.family-photo{
+
+position:static;
+
+width:100%;
+
+margin:25px auto;
+
+transform:none;
+
+}
+
+}
   </style>
 </head>
 
@@ -124,6 +197,15 @@
 
 <!-- STORY -->
 <section class="about-page">
+  <div class="story-wrapper">
+
+<div class="family-photo family-left">
+<img src="/media1.jpeg" alt="Founders">
+</div>
+
+<div class="family-photo family-right">
+<img src="/media2.jpeg" alt="Family">
+</div>
   <div class="about-grid">
 
     <div class="about-img scroll-reveal-left">

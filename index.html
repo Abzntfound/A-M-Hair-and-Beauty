@@ -193,28 +193,51 @@
 
 .contact-marquee{
     position:fixed;
-    top:72px;          /* Adjust to your header height */
+    top:72px;          /* adjust if your header height changes */
     left:0;
     width:100%;
-    z-index:999;
-    background:linear-gradient(90deg,#d946a6,#ec4899);
+
+    height:30px;
+    line-height:30px;
+
+    background:rgba(217,70,166,.82);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+
     color:#fff;
-    padding:10px 0;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
+
+    z-index:998;
+
+    overflow:hidden;
+
+    border-bottom:1px solid rgba(255,255,255,.15);
+
+    font-size:13px;
+    font-weight:500;
+
+    box-shadow:0 3px 10px rgba(0,0,0,.08);
 }
 
 .marquee-content{
+
     display:inline-flex;
     align-items:center;
-    gap:10px;
+
+    gap:18px;
+
+    white-space:nowrap;
+
 }
 
 .marquee-icon{
-    width:18px;
-    height:18px;
-    object-fit:contain;
-    vertical-align:middle;
-    filter:brightness(0) invert(1);
+
+    width:14px;
+    height:14px;
+
+    opacity:.9;
+
+    margin-right:3px;
+
 }
     
     .shipping-notice{
@@ -281,6 +304,26 @@
     cursor:pointer;
 
 }
+
+.marquee-email{
+
+    color:white;
+
+    text-decoration:none;
+
+    opacity:.9;
+
+    transition:.25s;
+
+}
+
+.marquee-email:hover{
+
+    opacity:1;
+
+    text-decoration:underline;
+
+}
   </style>
 </head>
 <body>
@@ -296,11 +339,11 @@
                 alt="Phone"
                 class="marquee-icon"
             >
-            <strong>+44 7346 814367</strong>
+            <strong>📞 +44 7346 814367 </strong>
 
-            &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp; • &nbsp;&nbsp;&nbsp;
 
-            📧 <a href="mailto:help.amhairandbeauty@gmail.com"><strong>help.amhairandbeauty@gmail.com</strong></a>
+            📧 <strong onclick="window.location.href='mailto:help.amhairandbeauty@gmail.com'" class="marquee-email">help.amhairandbeauty@gmail.com</strong>
 
             &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;
 

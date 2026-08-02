@@ -190,11 +190,123 @@
       margin-bottom: 5px;
       color: #d946a6;
     }
+    /* Contact Marquee */
+.contact-marquee{
+    width:100%;
+    background:linear-gradient(90deg,#d946a6,#ec4899);
+    color:#fff;
+    padding:10px 0;
+    font-size:15px;
+    font-weight:600;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+    position:relative;
+    z-index:100;
+}
+
+.marquee-content{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+}
+
+.marquee-icon{
+    width:18px;
+    height:18px;
+    object-fit:contain;
+    vertical-align:middle;
+    filter:brightness(0) invert(1);
+}
+    .shipping-notice{
+
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,0,0,.55);
+
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+
+    z-index:9999;
+
+}
+
+.shipping-box{
+
+    background:white;
+
+    width:min(95%,550px);
+
+    border-radius:25px 25px 0 0;
+
+    padding:30px;
+
+    text-align:center;
+
+    box-shadow:0 -10px 40px rgba(0,0,0,.25);
+
+}
+
+.shipping-box h3{
+
+    color:#d946a6;
+
+}
+
+.shipping-box a{
+
+    color:#d946a6;
+
+    font-weight:700;
+
+    text-decoration:none;
+
+}
+
+.shipping-box button{
+
+    margin-top:20px;
+
+    background:#d946a6;
+
+    color:white;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:12px 30px;
+
+    cursor:pointer;
+
+}
   </style>
 </head>
 <body>
 
-<div id="header-placeholder"></div>
+<div id="header-placeholder">
+  <!-- Contact Marquee -->
+<div class="contact-marquee">
+    <marquee behavior="scroll" direction="left" scrollamount="6">
+        <span class="marquee-content">
+            <img
+                src="https://cdn-icons-png.flaticon.com/512/724/724664.png"
+                alt="Phone"
+                class="marquee-icon"
+            >
+            <strong>+44 7346 814367</strong>
+
+            &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+
+            📧 <a href="mailto:help.amhairandbeauty@gmail.com"><strong>help.amhairandbeauty@gmail.com</strong></a>
+
+            &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;
+
+            Contact us for orders, support & enquiries.
+        </span>
+    </marquee>
+</div>
+</div>
 
 <!-- ============================================================ HERO -->
 <section class="hero">
@@ -321,6 +433,32 @@
   </div>
 </div>
 
+<div id="shippingNotice" class="shipping-notice">
+    <div class="shipping-box">
+
+        <h3>📦 Shipping Enquiries</h3>
+
+        <p>
+
+            If you have any enquiries about shipping,
+            payment,
+            or cancelling/refunding an order,
+
+            please email:
+
+        </p>
+
+        <a href="mailto:help.amhairandbeauty@gmail.com">
+            help.amhairandbeauty@gmail.com
+        </a>
+
+        <button id="closeShippingNotice">
+            OK
+        </button>
+
+    </div>
+</div>
+
 <div id="footer-placeholder"></div>
 
 <!-- Scripts — order matters: supabase cdn → init client → data → nav → cart → reviews -->
@@ -367,140 +505,65 @@
       </a>`).join('');
     AM.initScrollReveal();
   });
+
+document.getElementById("closeShippingNotice").onclick = () => {
+
+    document.getElementById("shippingNotice").style.display="none";
+
+};
 </script>
 <script>
-  async function trackOrder() {
+async function trackOrder() {
+    const orderNumber = document.getElementById("track-order-number").value.trim();
+    const email = document.getElementById("track-email").value.trim();
+    const result = document.getElementById("tracking-result");
 
-    const orderNumber =
-        document.getElementById("track-order-number").value.trim();
-
-    const email =
-        document.getElementById("track-email").value.trim();
-
-    const result =
-        document.getElementById("tracking-result");
-
-    result.style.display = "block";
-    result.innerHTML = "<p>Looking up your order...</p>";
-
-    const response = await fetch("/.netlify/functions/track-order", {
-
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-            orderNumber,
-            email
-        })
-
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-
+    if (!orderNumber || !email) {
+        result.style.display = "block";
         result.innerHTML = `
-            <h3>Order Not Found</h3>
-            <p>Please check your order number and email.</p>
-        `;
-
+            <div class="alert error">
+                Please enter your order number and email.
+            </div>`;
         return;
     }
 
-    result.innerHTML = `
-<div class="tracking-card">
+    result.style.display = "block";
+    result.innerHTML = "<p>🔄 Looking up your order...</p>";
 
-    <div class="tracking-header">
+    try {
 
-        <div>
-            <h2>Order ${data.order_number}</h2>
-            <p>Placed ${new Date(data.created_at).toLocaleDateString()}</p>
-        </div>
+        const response = await fetch("/.netlify/functions/track-order", {
+            method: "POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                orderNumber,
+                email
+            })
+        });
 
-        <div class="status-pill">
-            ${data.status.replaceAll("_"," ")}
-        </div>
+        const data = await response.json();
 
-    </div>
+        if(!response.ok){
+            throw new Error(data.error || "Unable to find order.");
+        }
 
-    <div class="tracking-progress">
+        // Existing HTML goes here...
+        renderTrackingCard(data);
 
-        <div class="progress-line"></div>
+    } catch(err){
 
-        <div class="progress-step ${["processing","packed","shipped","out_for_delivery","delivered"].includes(data.status) ? "active" : ""}">
-            <div class="circle">✓</div>
-            <span>Processing</span>
-        </div>
+        result.innerHTML=`
+            <div class="alert error">
+                <strong>Unable to track order.</strong><br><br>
+                ${err.message}
+            </div>
+        `;
 
-        <div class="progress-step ${["packed","shipped","out_for_delivery","delivered"].includes(data.status) ? "active" : ""}">
-            <div class="circle">📦</div>
-            <span>Packed</span>
-        </div>
+        console.error(err);
 
-        <div class="progress-step ${["shipped","out_for_delivery","delivered"].includes(data.status) ? "active" : ""}">
-            <div class="circle">🚚</div>
-            <span>Shipped</span>
-        </div>
-
-        <div class="progress-step ${["out_for_delivery","delivered"].includes(data.status) ? "active" : ""}">
-            <div class="circle">🏠</div>
-            <span>Out for Delivery</span>
-        </div>
-
-        <div class="progress-step ${data.status==="delivered" ? "active" : ""}">
-            <div class="circle">✔</div>
-            <span>Delivered</span>
-        </div>
-
-    </div>
-
-    <div class="order-grid">
-
-        <div>
-            <strong>Customer</strong>
-            <span>${data.customer_name}</span>
-        </div>
-
-        <div>
-            <strong>Total</strong>
-            <span>£${Number(data.total).toFixed(2)}</span>
-        </div>
-
-        <div>
-            <strong>Courier</strong>
-            <span>${data.courier || "Awaiting Dispatch"}</span>
-        </div>
-
-        <div>
-            <strong>Tracking Number</strong>
-            <span>${data.tracking_number || "Will appear once dispatched"}</span>
-        </div>
-
-        <div>
-            <strong>Estimated Delivery</strong>
-            <span>${data.estimated_delivery || "Calculating..."}</span>
-        </div>
-
-    </div>
-
-    ${
-        data.tracking_number && data.courier === "Royal Mail"
-        ? `
-        <a
-            class="tracking-button"
-            target="_blank"
-            href="https://www.royalmail.com/track-your-item#/tracking-results/${data.tracking_number}">
-            Track with Royal Mail →
-        </a>
-        `
-        : ""
     }
-
-</div>
-`;
 }
 </script>
 </body>

@@ -559,11 +559,25 @@
     AM.initScrollReveal();
   });
 
-document.getElementById("closeShippingNotice").onclick = () => {
+document.addEventListener("DOMContentLoaded", () => {
+    const notice = document.getElementById("shippingNotice");
+    const closeBtn = document.getElementById("closeShippingNotice");
 
-    document.getElementById("shippingNotice").style.display="none";
+    const WEEK = 7 * 24 * 60 * 60 * 1000;
+    const lastClosed = Number(localStorage.getItem("shippingNoticeClosedAt")) || 0;
 
-};
+    if (Date.now() - lastClosed < WEEK) {
+        notice.style.display = "none";
+        return;
+    }
+
+    notice.style.display = "flex";
+
+    closeBtn.addEventListener("click", () => {
+        notice.style.display = "none";
+        localStorage.setItem("shippingNoticeClosedAt", Date.now());
+    });
+});
 </script>
 <script>
 async function trackOrder() {

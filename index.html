@@ -582,8 +582,19 @@ document.addEventListener("DOMContentLoaded", () => {
 <script>
 async function trackOrder() {
     const orderNumber = document.getElementById("track-order-number").value.trim();
-    const email = document.getElementById("track-email").value.trim();
+    const email = document
+      .getElementById("track-email")
+      .value
+      .trim()
+      .toLowerCase();
     const result = document.getElementById("tracking-result");
+
+   if (event.httpMethod !== "POST") {
+    return {
+        statusCode: 405,
+        body: "Method Not Allowed"
+    };
+}
 
     if (!orderNumber || !email) {
         result.style.display = "block";
@@ -595,7 +606,7 @@ async function trackOrder() {
     }
 
     result.style.display = "block";
-    result.innerHTML = "<p>🔄 Looking up your order...</p>";
+    result.innerHTML = "<p>Looking up your order...</p>";
 
     try {
 
@@ -631,6 +642,40 @@ async function trackOrder() {
         console.error(err);
 
     }
+}
+
+function renderTrackingCard(order) {
+
+    const result = document.getElementById("tracking-result");
+
+    result.innerHTML = `
+        <div class="tracking-card">
+
+            <h3>📦 Order Found</h3>
+
+            <p><strong>Order Number:</strong> ${order.order_number}</p>
+
+            <p><strong>Name:</strong> ${order.customer_name}</p>
+
+            <p><strong>Status:</strong> ${order.status}</p>
+
+            <p><strong>Total:</strong> £${Number(order.total).toFixed(2)}</p>
+
+            <p><strong>Courier:</strong>
+                ${order.courier || "Not assigned"}
+            </p>
+
+            <p><strong>Tracking Number:</strong>
+                ${order.tracking_number || "Not available"}
+            </p>
+
+            <p><strong>Estimated Delivery:</strong>
+                ${order.estimated_delivery || "TBC"}
+            </p>
+
+        </div>
+    ];
+
 }
 </script>
 </body>

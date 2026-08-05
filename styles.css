@@ -1095,3 +1095,19 @@ margin-top:0;
     .promo { flex-direction: column; }
     .promo input, .promo button { width: 100%; }
 }
+
+.tracking-card h3{
+    margin-top:0;
+    color:#d946a6;
+}
+
+.tracking-card p{
+    margin:10px 0;
+}
+
+.alert.error{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:15px;
+    border-radius:10px;
+}

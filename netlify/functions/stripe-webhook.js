@@ -43,42 +43,47 @@ export const handler = async (event) => {
             Date.now().toString().slice(-8);
 
         // Save order to Supabase
-        const { error } = await supabase
-            .from("orders")
-            .insert({
-                order_number: orderNumber,
-                stripe_session_id: session.id,
-                stripe_payment_intent: session.payment_intent,
-                customer_name: name,
-                customer_email: email,
-                total: amount,
-                status: "processing"
-            });
+        const { data: existing } = await supabase
+    .from("orders")
+    .select("id")
+    .eq("stripe_session_id", session.id)
+    .maybeSingle();
+
+if (!existing) {
+
+    await supabase
+        .from("orders")
+        .insert({
+            order_number: orderNumber,
+            stripe_session_id: session.id,
+            stripe_payment_intent: session.payment_intent,
+            customer_name: name,
+            customer_email: email,
+            total: amount,
+            status: "processing"
+        });
+
+}
 
         if (error) {
             console.error("Supabase Error:", error);
         }
 
         // Email yourself
-        await resend.emails.send({
-            from: "A&M Orders <onboarding@resend.dev>",
-            to: "adube6113@outlook.com",
-            subject: `New Order ${orderNumber}`,
-            html: `
-                <h2>New Order Paid</h2>
+try {
 
-                <p><b>Order:</b> ${orderNumber}</p>
+    await resend.emails.send({
+        from: "A&M Orders <onboarding@resend.dev>",
+        to: "adube6113@outlook.com",
+        subject: `New Order ${orderNumber}`,
+        html: `...`
+    });
 
-                <p><b>Name:</b> ${name}</p>
+} catch (err) {
 
-                <p><b>Email:</b> ${email}</p>
+    console.error("Email failed:", err);
 
-                <p><b>Total:</b> £${amount}</p>
-
-                <p><b>Stripe Session:</b> ${session.id}</p>
-            `
-        });
-    }
+}
 
     return {
         statusCode: 200,

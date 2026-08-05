@@ -45,7 +45,7 @@
   <meta property="og:title" content="AM Hair & Beauty | Top Tier Hair Products">
   <meta property="og:description" content="Best hair products to rejuvenate your hair.">
   <meta property="og:url" content="https://amhairandbeauty.com/">
-  <meta property="og:image" content="https://amhairandbeauty.com/A&M.ico">
+  <meta property="og:image" content="https://amhairandbeauty.com/A&M.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="en_GB">
@@ -581,100 +581,91 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 <script>
 async function trackOrder() {
+
     const orderNumber = document.getElementById("track-order-number").value.trim();
-    const email = document
-      .getElementById("track-email")
-      .value
-      .trim()
-      .toLowerCase();
+    const email = document.getElementById("track-email").value.trim().toLowerCase();
     const result = document.getElementById("tracking-result");
 
-   if (event.httpMethod !== "POST") {
-    return {
-        statusCode: 405,
-        body: "Method Not Allowed"
-    };
-}
 
     if (!orderNumber || !email) {
-        result.style.display = "block";
+
         result.innerHTML = `
-            <div class="alert error">
-                Please enter your order number and email.
-            </div>`;
+        <div class="alert error">
+            Please enter your order number and email.
+        </div>`;
+
         return;
     }
 
-    result.style.display = "block";
+
     result.innerHTML = "<p>Looking up your order...</p>";
+
 
     try {
 
         const response = await fetch("/.netlify/functions/track-order", {
-            method: "POST",
+
+            method:"POST",
+
             headers:{
                 "Content-Type":"application/json"
             },
+
             body:JSON.stringify({
                 orderNumber,
                 email
             })
+
         });
+
 
         const data = await response.json();
 
+
         if(!response.ok){
-            throw new Error(data.error || "Unable to find order.");
+            throw new Error(data.error || "Order not found");
         }
 
-        // Existing HTML goes here...
+
         renderTrackingCard(data);
 
-    } catch(err){
 
-        result.innerHTML=`
-            <div class="alert error">
-                <strong>Unable to track order.</strong><br><br>
-                ${err.message}
-            </div>
-        `;
+    } catch(error){
 
-        console.error(err);
+        result.innerHTML = `
+        <div class="alert error">
+            ${error.message}
+        </div>`;
+
+        console.error(error);
 
     }
+
 }
 
-function renderTrackingCard(order) {
 
-    const result = document.getElementById("tracking-result");
+function renderTrackingCard(order){
 
-    result.innerHTML = `
-        <div class="tracking-card">
+const result=document.getElementById("tracking-result");
 
-            <h3>📦 Order Found</h3>
 
-            <p><strong>Order Number:</strong> ${order.order_number}</p>
+result.innerHTML=`
 
-            <p><strong>Name:</strong> ${order.customer_name}</p>
+<div class="tracking-card">
 
-            <p><strong>Status:</strong> ${order.status}</p>
+<h3>📦 Order Found</h3>
 
-            <p><strong>Total:</strong> £${Number(order.total).toFixed(2)}</p>
+<p><b>Order:</b> ${order.order_number}</p>
 
-            <p><strong>Courier:</strong>
-                ${order.courier || "Not assigned"}
-            </p>
+<p><b>Status:</b> ${order.status}</p>
 
-            <p><strong>Tracking Number:</strong>
-                ${order.tracking_number || "Not available"}
-            </p>
+<p><b>Courier:</b> ${order.courier || "Not assigned"}</p>
 
-            <p><strong>Estimated Delivery:</strong>
-                ${order.estimated_delivery || "TBC"}
-            </p>
+<p><b>Tracking:</b> ${order.tracking_number || "Not available"}</p>
 
-        </div>
-    ];
+</div>
+
+`;
 
 }
 </script>

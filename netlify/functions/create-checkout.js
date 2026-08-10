@@ -1,3 +1,4 @@
+
 const Stripe = require('stripe');
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -22,10 +23,10 @@ const PRODUCTS = {
   'premium-hair-collection': { name: 'Premium Hair Collection', price: 3799 },
 };
 
-// Mirrors PROMO_CODES in cart.js — server is the source of truth
-// Never trust a `type` flag sent straight from the client
+// Mirrors PROMO_CODES in cart.js
+// Server is the source of truth.
 const PROMO_CODES = {
-  'IBMCHURCH': { type: 'free_shipping' }
+  IBMCHURCH: { type: 'free_shipping' }
 };
 
 exports.handler = async (event) => {
@@ -39,27 +40,60 @@ exports.handler = async (event) => {
       };
     }
 
-    // Re-validate the promo code against the server's own list —
-    // ignore promo.type from the client entirely
-    const validPromo = promo?.code ? PROMO_CODES[promo.code.toUpperCase()] : null;
+    // Re-validate the promo code against the server's own list.
+    const validPromo = promo?.code
+      ? PROMO_CODES[promo.code.toUpperCase()]
+      : null;
 
     let shipping = SHIPPING_FEE;
+
     if (validPromo?.type === "free_shipping") {
       shipping = 0;
     }
 
     const line_items = [];
+
     for (const item of cart) {
       const product = PRODUCTS[item.id];
-      if (!product) throw new Error("Unknown product: " + item.id);
+
+      if (!product) {
+        throw new Error("Unknown product: " + item.id);
+      }
+
+      const requestedQty = Math.max(
+        1,
+        Number(item.qty) || 1
+      );
+
+      /*
+       * ROSEMARY HAIR OIL 2-FOR-1
+       *
+       * Exactly 2 Rosemary Hair Oils in the cart
+       * are charged as 1.
+       *
+       * 1 = 1 charged
+       * 2 = 1 charged
+       * 3 = 3 charged
+       * 4 = 4 charged
+       */
+      let chargedQty = requestedQty;
+
+      if (
+        item.id === 'rosemary-hair-oil-60ml' &&
+        requestedQty === 2
+      ) {
+        chargedQty = 1;
+      }
 
       line_items.push({
         price_data: {
           currency: 'gbp',
-          product_data: { name: product.name },
+          product_data: {
+            name: product.name
+          },
           unit_amount: product.price,
         },
-        quantity: item.qty || 1,
+        quantity: chargedQty,
       });
     }
 
@@ -67,7 +101,9 @@ exports.handler = async (event) => {
       line_items.push({
         price_data: {
           currency: 'gbp',
-          product_data: { name: 'Shipping' },
+          product_data: {
+            name: 'Shipping'
+          },
           unit_amount: shipping,
         },
         quantity: 1,
@@ -78,19 +114,29 @@ exports.handler = async (event) => {
       mode: 'payment',
       payment_method_types: ['card'],
       line_items,
-      success_url: 'https://amhairandbeauty.com/success/?success=true&session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://amhairandbeauty.com/cart/',
+
+      success_url:
+        'https://amhairandbeauty.com/success/?success=true&session_id={CHECKOUT_SESSION_ID}',
+
+      cancel_url:
+        'https://amhairandbeauty.com/cart/',
     });
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ url: session.url }),
+      body: JSON.stringify({
+        url: session.url
+      }),
     };
 
   } catch (err) {
+    console.error("Checkout error:", err);
+
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message }),
+      body: JSON.stringify({
+        error: err.message
+      }),
     };
   }
 };

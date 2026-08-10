@@ -51,6 +51,95 @@
       font-size: .8rem;
       color: #555;
     }
+
+    /* ==========================================================
+   PRIVACY & POLICIES
+========================================================== */
+
+.privacy-policy-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #d946a6;
+    text-decoration: underline;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.privacy-policy-btn:hover {
+    opacity: 0.75;
+}
+
+.policies-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(0, 0, 0, 0.7);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.policies-modal.active {
+    display: flex;
+}
+
+.policies-modal-content {
+    position: relative;
+    width: min(900px, 95vw);
+    height: min(800px, 90vh);
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+}
+
+.policies-modal-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.policies-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+
+    width: 38px;
+    height: 38px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: white;
+    color: #333;
+
+    font-size: 20px;
+    cursor: pointer;
+
+    box-shadow: 0 2px 10px rgba(0,0,0,.2);
+}
+
+.policies-close:hover {
+    background: #f3f3f3;
+}
+
+@media (max-width: 600px) {
+
+    .policies-modal {
+        padding: 10px;
+    }
+
+    .policies-modal-content {
+        width: 100%;
+        height: 94vh;
+        border-radius: 14px;
+    }
+
+}
   </style>
 </head>
 
@@ -67,32 +156,60 @@
 
     <h3>🔒 Secure Checkout</h3>
 
-    <div class="how-steps">
+<div class="how-steps">
 
-      <div class="how-step">
-        <div class="step-num">1</div>
-        <h4>Review cart</h4>
-        <p>Check items before checkout.</p>
-      </div>
+  <div class="how-step">
+    <div class="step-num">1</div>
+    <h4>Review cart</h4>
+    <p>Check items before checkout.</p>
+  </div>
 
-      <div class="how-step">
-        <div class="step-num">2</div>
-        <h4>Stripe payment</h4>
-        <p>Secure payment via Stripe.</p>
-      </div>
+  <div class="how-step">
+    <div class="step-num">2</div>
+    <h4>Stripe payment</h4>
+    <p>Secure payment via Stripe.</p>
+  </div>
 
-      <div class="how-step">
-        <div class="step-num">3</div>
-        <h4>Confirmation</h4>
-        <p>Email confirmation after purchase.</p>
-      </div>
+  <div class="how-step">
+    <div class="step-num">3</div>
+    <h4>Confirmation</h4>
+    <p>Email confirmation after purchase.</p>
+  </div>
 
-    </div>
+</div>
 
-    <div class="stripe-badge">
-      Secured by Stripe
-    </div>
+<div class="stripe-badge">
+  Secured by Stripe
+</div>
 
+<!-- Privacy & Policies -->
+<div style="text-align:center;margin-top:15px;">
+  <button
+    type="button"
+    onclick="openPolicies()"
+    class="privacy-policy-btn">
+    Privacy &amp; Policies
+  </button>
+</div>
+
+<!-- Privacy & Policies Modal -->
+<div id="policiesModal" class="policies-modal">
+  <div class="policies-modal-content">
+
+    <button
+      type="button"
+      class="policies-close"
+      onclick="closePolicies()">
+      ✕
+    </button>
+
+    <iframe
+      src="/cart/policies.php"
+      title="Privacy & Policies">
+    </iframe>
+
+  </div>
+</div>
   </div>
 
 </section>
@@ -128,6 +245,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
   AM.initScrollReveal();
 
+});
+</script>
+
+<script>
+function openPolicies() {
+    const modal = document.getElementById("policiesModal");
+
+    if (!modal) return;
+
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function closePolicies() {
+    const modal = document.getElementById("policiesModal");
+
+    if (!modal) return;
+
+    modal.classList.remove("active");
+    document.body.style.overflow = "";
+}
+
+/* Close when clicking outside the iframe */
+document.getElementById("policiesModal")?.addEventListener("click", function(event) {
+    if (event.target === this) {
+        closePolicies();
+    }
+});
+
+/* Close with Escape */
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        closePolicies();
+    }
 });
 </script>
 

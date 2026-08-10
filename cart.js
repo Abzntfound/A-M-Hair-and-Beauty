@@ -67,6 +67,24 @@ function getCart() {
 }
 
 
+function getChargedQty(item) {
+    const qty = Math.max(1, Number(item.qty) || 1);
+
+    // Rosemary Hair Oil 2-for-1
+    // Exactly 2 in the cart costs the same as 1.
+    if (
+        item.id === "rosemary-hair-oil-60ml" &&
+        qty === 2
+    ) {
+        return 1;
+    }
+
+    return qty;
+}
+
+
+
+
 function saveLocalCart(items) {
     localStorage.setItem(
         getCartKey(),
@@ -217,7 +235,11 @@ function clearCart() {
 ========================= */
 
 function getCartTotal() {
-    return getCart().reduce((sum, i) => sum + i.price * i.qty, 0);
+    return getCart().reduce((sum, item) => {
+        const chargedQty = getChargedQty(item);
+
+        return sum + (item.price * chargedQty);
+    }, 0);
 }
 
 function getShipping() {
@@ -276,7 +298,15 @@ function renderCartPage() {
 
                     <div class="cart-item-info">
                         <div class="cart-item-name">${item.name}</div>
-                        <div class="cart-item-price">${config.currencySymbol}${(item.price * item.qty).toFixed(2)}</div>
+                        <div class="cart-item-price">
+    ${config.currencySymbol}${(item.price * getChargedQty(item)).toFixed(2)}
+    ${
+        item.id === "rosemary-hair-oil-60ml" &&
+        Number(item.qty) === 2
+            ? '<small style="display:block;color:#16a34a;">2-for-1 applied</small>'
+            : ''
+    }
+</div>
                     </div>
 
                     <div class="qty-control">

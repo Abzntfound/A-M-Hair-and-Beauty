@@ -67,28 +67,48 @@ function getCart() {
 }
 
 
-function getChargedQty(item, allItems) {
-  const qty = Math.max(1, Number(item.qty) || 1);
+function getChargedQty(item, allItems = getCart()) {
+    const qty = Math.max(1, Number(item.qty) || 1);
 
-  const eligibleIds = [
-    "rosemary-hair-oil-60ml",
-    "hair-growth-oil-100ml"
-  ];
+    const eligibleIds = [
+        "rosemary-hair-oil-60ml",
+        "hair-growth-oil-100ml"
+    ];
 
-  if (!eligibleIds.includes(item.id)) {
+    if (!eligibleIds.includes(item.id)) {
+        return qty;
+    }
+
+    const totalEligibleQty = allItems
+        .filter(i => eligibleIds.includes(i.id))
+        .reduce(
+            (total, i) => total + Math.max(1, Number(i.qty) || 1),
+            0
+        );
+
+    // Exactly 3 eligible products = 1 free.
+    if (totalEligibleQty !== 3) {
+        return qty;
+    }
+
+    // Find the cheapest eligible product.
+    const eligibleItems = allItems
+        .filter(i => eligibleIds.includes(i.id))
+        .map(i => ({
+            id: i.id,
+            price: Number(i.price) || 0
+        }));
+
+    const cheapest = [...eligibleItems].sort(
+        (a, b) => a.price - b.price
+    )[0];
+
+    // One unit of the cheapest product is free.
+    if (item.id === cheapest.id) {
+        return Math.max(0, qty - 1);
+    }
+
     return qty;
-  }
-
-  const totalQty = allItems
-    .filter(i => eligibleIds.includes(i.id))
-    .reduce((total, i) => total + (Number(i.qty) || 0), 0);
-
-  // 3 for the price of 2
-  if (totalQty === 3) {
-    return qty - 1;
-  }
-
-  return qty;
 }
 
 
@@ -289,6 +309,12 @@ function renderCartPage() {
         ? `<div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;">✓ Free shipping applied (${activePromo.code})</div>`
         : '';
 
+   const threeForTwoMsg = eligiblePromoQty === 3
+    ? `<div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;">
+         ✓ 3-for-2 applied — cheapest eligible oil is free
+       </div>`
+    : '';
+
     container.innerHTML = `
     <div class="cart-layout">
 
@@ -310,8 +336,12 @@ function renderCartPage() {
                         <div class="cart-item-price">
     ${config.currencySymbol}${(item.price * getChargedQty(item)).toFixed(2)}
     ${
-        item.id === "rosemary-hair-oil-60ml" &&
-        Number(item.qty) === 2
+        const eligiblePromoQty = cart
+    .filter(i =>
+        i.id === "rosemary-hair-oil-60ml" ||
+        i.id === "hair-growth-oil-100ml"
+    )
+    .reduce((total, i) => total + Number(i.qty || 0), 0);
             ? '<small style="display:block;color:#16a34a;">2-for-1 applied</small>'
             : ''
     }
@@ -339,6 +369,8 @@ function renderCartPage() {
                 <span>Subtotal</span>
                 <span>${config.currencySymbol}${subtotal.toFixed(2)}</span>
             </div>
+
+            ${threeForTwoMsg}
 
             <div class="summary-row">
                 <span>Shipping</span>

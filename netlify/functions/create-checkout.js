@@ -1,4 +1,3 @@
-
 const Stripe = require('stripe');
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -23,32 +22,76 @@ const PRODUCTS = {
   'premium-hair-collection': { name: 'Premium Hair Collection', price: 3799 },
 };
 
-// Mirrors PROMO_CODES in cart.js
-// Server is the source of truth.
 const PROMO_CODES = {
   IBMCHURCH: { type: 'free_shipping' }
 };
 
+const ELIGIBLE_3_FOR_2 = [
+  'rosemary-hair-oil-60ml',
+  'hair-growth-oil-100ml'
+];
+
 exports.handler = async (event) => {
   try {
-    const { cart, promo } = JSON.parse(event.body || "{}");
+    const { cart, promo } = JSON.parse(event.body || '{}');
 
     if (!Array.isArray(cart) || cart.length === 0) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Cart is empty" })
+        body: JSON.stringify({
+          error: 'Cart is empty'
+        })
       };
     }
 
-    // Re-validate the promo code against the server's own list.
+    // Validate promo code server-side.
     const validPromo = promo?.code
       ? PROMO_CODES[promo.code.toUpperCase()]
       : null;
 
     let shipping = SHIPPING_FEE;
 
-    if (validPromo?.type === "free_shipping") {
+    if (validPromo?.type === 'free_shipping') {
       shipping = 0;
+    }
+
+    /*
+     * ==========================================================
+     * 3-FOR-2
+     *
+     * These two products count together:
+     *
+     * 3 Rosemary                  -> pay for 2
+     * 3 Hair Growth               -> pay for 2
+     * 2 Rosemary + 1 Hair Growth  -> pay for 2
+     * 1 Rosemary + 2 Hair Growth  -> pay for 2
+     *
+     * The cheapest eligible item is free.
+     * ==========================================================
+     */
+
+    const eligibleItems = cart
+      .filter(item => ELIGIBLE_3_FOR_2.includes(item.id))
+      .map(item => ({
+        id: item.id,
+        qty: Math.max(1, Number(item.qty) || 1),
+        price: PRODUCTS[item.id].price
+      }));
+
+    const totalEligibleQty = eligibleItems.reduce(
+      (total, item) => total + item.qty,
+      0
+    );
+
+    // Exactly 3 eligible products = 1 free.
+    let freeItemId = null;
+
+    if (totalEligibleQty === 3) {
+      const cheapest = [...eligibleItems].sort(
+        (a, b) => a.price - b.price
+      )[0];
+
+      freeItemId = cheapest.id;
     }
 
     const line_items = [];
@@ -57,7 +100,7 @@ exports.handler = async (event) => {
       const product = PRODUCTS[item.id];
 
       if (!product) {
-        throw new Error("Unknown product: " + item.id);
+        throw new Error('Unknown product: ' + item.id);
       }
 
       const requestedQty = Math.max(
@@ -65,47 +108,26 @@ exports.handler = async (event) => {
         Number(item.qty) || 1
       );
 
-      /*
-       * ROSEMARY HAIR OIL 2-FOR-1
-       *
-       * Exactly 2 Rosemary Hair Oils in the cart
-       * are charged as 1.
-       *
-       * 1 = 1 charged
-       * 2 = 1 charged
-       * 3 = 3 charged
-       * 4 = 4 charged
-       */
-let chargedQty = requestedQty;
+      let chargedQty = requestedQty;
 
-const eligibleIds = [
-  'rosemary-hair-oil-60ml',
-  'hair-growth-oil-100ml'
-];
-
-const totalEligibleQty = items
-  .filter(i => eligibleIds.includes(i.id))
-  .reduce((total, i) => total + (Number(i.qty) || 0), 0);
-
-if (
-  eligibleIds.includes(item.id) &&
-  totalEligibleQty === 3
-) {
-  // The 3rd eligible oil is free.
-  chargedQty = requestedQty;
-}chargedQty = 2;
+      // Remove one unit from the cheapest eligible product.
+      if (item.id === freeItemId) {
+        chargedQty = requestedQty - 1;
       }
 
-      line_items.push({
-        price_data: {
-          currency: 'gbp',
-          product_data: {
-            name: product.name
+      // Normal paid quantity.
+      if (chargedQty > 0) {
+        line_items.push({
+          price_data: {
+            currency: 'gbp',
+            product_data: {
+              name: product.name
+            },
+            unit_amount: product.price
           },
-          unit_amount: product.price,
-        },
-        quantity: chargedQty,
-      });
+          quantity: chargedQty
+        });
+      }
     }
 
     if (shipping > 0) {
@@ -115,9 +137,9 @@ if (
           product_data: {
             name: 'Shipping'
           },
-          unit_amount: shipping,
+          unit_amount: shipping
         },
-        quantity: 1,
+        quantity: 1
       });
     }
 
@@ -130,24 +152,24 @@ if (
         'https://amhairandbeauty.com/success/?success=true&session_id={CHECKOUT_SESSION_ID}',
 
       cancel_url:
-        'https://amhairandbeauty.com/cart/',
+        'https://amhairandbeauty.com/cart/'
     });
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         url: session.url
-      }),
+      })
     };
 
   } catch (err) {
-    console.error("Checkout error:", err);
+    console.error('Checkout error:', err);
 
     return {
       statusCode: 500,
       body: JSON.stringify({
         error: err.message
-      }),
+      })
     };
   }
 };

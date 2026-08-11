@@ -82,16 +82,15 @@ function getChargedQty(item, allItems = getCart()) {
     const totalEligibleQty = allItems
         .filter(i => eligibleIds.includes(i.id))
         .reduce(
-            (total, i) => total + Math.max(1, Number(i.qty) || 1),
+            (total, i) =>
+                total + Math.max(1, Number(i.qty) || 1),
             0
         );
 
-    // Exactly 3 eligible products = 1 free.
     if (totalEligibleQty !== 3) {
         return qty;
     }
 
-    // Find the cheapest eligible product.
     const eligibleItems = allItems
         .filter(i => eligibleIds.includes(i.id))
         .map(i => ({
@@ -103,7 +102,6 @@ function getChargedQty(item, allItems = getCart()) {
         (a, b) => a.price - b.price
     )[0];
 
-    // One unit of the cheapest product is free.
     if (item.id === cheapest.id) {
         return Math.max(0, qty - 1);
     }
@@ -264,8 +262,10 @@ function clearCart() {
 ========================= */
 
 function getCartTotal() {
-    return getCart().reduce((sum, item) => {
-        const chargedQty = getChargedQty(item);
+    const cart = getCart();
+
+    return cart.reduce((sum, item) => {
+        const chargedQty = getChargedQty(item, cart);
 
         return sum + (item.price * chargedQty);
     }, 0);
@@ -297,7 +297,9 @@ function renderCartPage() {
             <div class="icon">🛍️</div>
             <h3>Your cart is empty</h3>
             <p>Add items to continue</p>
-            <a href="/products/" class="btn btn-primary" style="margin-top:1rem;">Shop Now</a>
+            <a href="/products/" class="btn btn-primary" style="margin-top:1rem;">
+                Shop Now
+            </a>
         </div>`;
         return;
     }
@@ -305,23 +307,49 @@ function renderCartPage() {
     const subtotal = getCartTotal();
     const shipping = getShipping();
     const total = getOrderTotal();
-    const promoMsg = activePromo?.type === "free_shipping"
-        ? `<div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;">✓ Free shipping applied (${activePromo.code})</div>`
+
+    // ==========================================================
+    // 3-FOR-2 PROMOTION
+    // Rosemary Hair Oil + Hair Growth Oil count together.
+    // ==========================================================
+
+    const eligibleIds = [
+        "rosemary-hair-oil-60ml",
+        "hair-growth-oil-100ml"
+    ];
+
+    const eligiblePromoQty = cart
+        .filter(item => eligibleIds.includes(item.id))
+        .reduce(
+            (total, item) => total + Math.max(1, Number(item.qty) || 1),
+            0
+        );
+
+    const threeForTwoMsg = eligiblePromoQty === 3
+        ? `
+            <div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;">
+                ✓ 3-for-2 applied — cheapest eligible oil is free
+            </div>
+          `
         : '';
 
-   const threeForTwoMsg = eligiblePromoQty === 3
-    ? `<div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;">
-         ✓ 3-for-2 applied — cheapest eligible oil is free
-       </div>`
-    : '';
+    const promoMsg = activePromo?.type === "free_shipping"
+        ? `
+            <div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;">
+                ✓ Free shipping applied (${activePromo.code})
+            </div>
+          `
+        : '';
 
     container.innerHTML = `
     <div class="cart-layout">
 
         <div class="cart-items-section">
+
             <h2>Your Cart</h2>
 
             ${cart.map(item => `
+
                 <div class="cart-item">
 
                     <img
@@ -332,31 +360,54 @@ function renderCartPage() {
                     />
 
                     <div class="cart-item-info">
-                        <div class="cart-item-name">${item.name}</div>
+
+                        <div class="cart-item-name">
+                            ${item.name}
+                        </div>
+
                         <div class="cart-item-price">
-    ${config.currencySymbol}${(item.price * getChargedQty(item)).toFixed(2)}
-    ${
-        const eligiblePromoQty = cart
-    .filter(i =>
-        i.id === "rosemary-hair-oil-60ml" ||
-        i.id === "hair-growth-oil-100ml"
-    )
-    .reduce((total, i) => total + Number(i.qty || 0), 0);
-            ? '<small style="display:block;color:#16a34a;">2-for-1 applied</small>'
-            : ''
-    }
-</div>
+                            ${config.currencySymbol}${(
+                                item.price * getChargedQty(item, cart)
+                            ).toFixed(2)}
+                        </div>
+
                     </div>
 
                     <div class="qty-control">
-                        <button class="qty-btn" data-id="${item.id}" data-action="dec">−</button>
-                        <span class="qty-num">${item.qty}</span>
-                        <button class="qty-btn" data-id="${item.id}" data-action="inc">+</button>
+
+                        <button
+                            class="qty-btn"
+                            data-id="${item.id}"
+                            data-action="dec"
+                        >
+                            −
+                        </button>
+
+                        <span class="qty-num">
+                            ${item.qty}
+                        </span>
+
+                        <button
+                            class="qty-btn"
+                            data-id="${item.id}"
+                            data-action="inc"
+                        >
+                            +
+                        </button>
+
                     </div>
 
-                    <button class="cart-item-remove" data-id="${item.id}" data-action="remove" title="Remove item">✕</button>
+                    <button
+                        class="cart-item-remove"
+                        data-id="${item.id}"
+                        data-action="remove"
+                        title="Remove item"
+                    >
+                        ✕
+                    </button>
 
                 </div>
+
             `).join('')}
 
         </div>
@@ -367,67 +418,138 @@ function renderCartPage() {
 
             <div class="summary-row">
                 <span>Subtotal</span>
-                <span>${config.currencySymbol}${subtotal.toFixed(2)}</span>
+                <span>
+                    ${config.currencySymbol}${subtotal.toFixed(2)}
+                </span>
             </div>
 
             ${threeForTwoMsg}
 
             <div class="summary-row">
+
                 <span>Shipping</span>
-                <span>${shipping === 0 ? "FREE" : config.currencySymbol + shipping.toFixed(2)}</span>
+
+                <span>
+                    ${
+                        shipping === 0
+                            ? "FREE"
+                            : config.currencySymbol + shipping.toFixed(2)
+                    }
+                </span>
+
             </div>
 
             <div class="summary-row total">
+
                 <span>Total</span>
-                <span>${config.currencySymbol}${total.toFixed(2)}</span>
+
+                <span>
+                    ${config.currencySymbol}${total.toFixed(2)}
+                </span>
+
             </div>
 
             <div class="promo">
-                <input id="promo-input" placeholder="Promo code" />
-                <button id="apply-promo">Apply</button>
+
+                <input
+                    id="promo-input"
+                    placeholder="Promo code"
+                />
+
+                <button id="apply-promo">
+                    Apply
+                </button>
+
             </div>
+
             ${promoMsg}
 
-            <button class="btn btn-primary checkout-btn" style="width:100%;margin-top:1.2rem;" onclick="proceedToCheckout()">
+            <button
+                class="btn btn-primary checkout-btn"
+                style="width:100%;margin-top:1.2rem;"
+                onclick="proceedToCheckout()"
+            >
                 Checkout
             </button>
 
             <p class="checkout-note">
                 Secure payment via Stripe.<br>
-                <a href="/policies/">Terms &amp; refund policy</a>
+                <a href="/policies/">
+                    Terms &amp; refund policy
+                </a>
             </p>
 
         </div>
 
     </div>`;
 
-    /* ---- EVENTS ---- */
+    // ==========================================================
+    // EVENTS
+    // ==========================================================
 
-    container.querySelector('#apply-promo').onclick = () => {
-        const val = document.getElementById('promo-input').value;
-        applyPromo(val);
-    };
+    const applyPromoButton =
+        container.querySelector('#apply-promo');
 
-    container.querySelectorAll('[data-action="inc"]').forEach(b =>
-        b.onclick = () => {
-            const item = getCart().find(i => i.id === b.dataset.id);
-            if (item) { updateQty(b.dataset.id, item.qty + 1); renderCartPage(); }
-        }
-    );
+    if (applyPromoButton) {
+        applyPromoButton.onclick = () => {
+            const input =
+                container.querySelector('#promo-input');
 
-    container.querySelectorAll('[data-action="dec"]').forEach(b =>
-        b.onclick = () => {
-            const item = getCart().find(i => i.id === b.dataset.id);
-            if (item) { updateQty(b.dataset.id, item.qty - 1); renderCartPage(); }
-        }
-    );
+            applyPromo(input?.value || '');
+        };
+    }
 
-    container.querySelectorAll('[data-action="remove"]').forEach(b =>
-        b.onclick = () => {
-            removeFromCart(b.dataset.id);
-            renderCartPage();
-        }
-    );
+    container
+        .querySelectorAll('[data-action="inc"]')
+        .forEach(button => {
+
+            button.onclick = () => {
+
+                const item = getCart()
+                    .find(i => i.id === button.dataset.id);
+
+                if (item) {
+                    updateQty(
+                        button.dataset.id,
+                        item.qty + 1
+                    );
+
+                    renderCartPage();
+                }
+            };
+        });
+
+    container
+        .querySelectorAll('[data-action="dec"]')
+        .forEach(button => {
+
+            button.onclick = () => {
+
+                const item = getCart()
+                    .find(i => i.id === button.dataset.id);
+
+                if (item) {
+                    updateQty(
+                        button.dataset.id,
+                        item.qty - 1
+                    );
+
+                    renderCartPage();
+                }
+            };
+        });
+
+    container
+        .querySelectorAll('[data-action="remove"]')
+        .forEach(button => {
+
+            button.onclick = () => {
+
+                removeFromCart(button.dataset.id);
+
+                renderCartPage();
+            };
+        });
 }
 
 /* =========================

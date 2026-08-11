@@ -67,19 +67,28 @@ function getCart() {
 }
 
 
-function getChargedQty(item) {
-    const qty = Math.max(1, Number(item.qty) || 1);
+function getChargedQty(item, allItems) {
+  const qty = Math.max(1, Number(item.qty) || 1);
 
-    // Rosemary Hair Oil 2-for-1
-    // Exactly 2 in the cart costs the same as 1.
-    if (
-        item.id === "rosemary-hair-oil-60ml" &&
-        qty === 2
-    ) {
-        return 1;
-    }
+  const eligibleIds = [
+    "rosemary-hair-oil-60ml",
+    "hair-growth-oil-100ml"
+  ];
 
+  if (!eligibleIds.includes(item.id)) {
     return qty;
+  }
+
+  const totalQty = allItems
+    .filter(i => eligibleIds.includes(i.id))
+    .reduce((total, i) => total + (Number(i.qty) || 0), 0);
+
+  // 3 for the price of 2
+  if (totalQty === 3) {
+    return qty - 1;
+  }
+
+  return qty;
 }
 
 

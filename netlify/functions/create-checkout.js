@@ -76,13 +76,24 @@ exports.handler = async (event) => {
        * 3 = 3 charged
        * 4 = 4 charged
        */
-      let chargedQty = requestedQty;
+let chargedQty = requestedQty;
 
-      if (
-        item.id === 'rosemary-hair-oil-60ml' && item.id === 'hair-growth-oil-100ml' &&
-        requestedQty === 3
-      ) {
-        chargedQty = 2;
+const eligibleIds = [
+  'rosemary-hair-oil-60ml',
+  'hair-growth-oil-100ml'
+];
+
+const totalEligibleQty = items
+  .filter(i => eligibleIds.includes(i.id))
+  .reduce((total, i) => total + (Number(i.qty) || 0), 0);
+
+if (
+  eligibleIds.includes(item.id) &&
+  totalEligibleQty === 3
+) {
+  // The 3rd eligible oil is free.
+  chargedQty = requestedQty;
+}chargedQty = 2;
       }
 
       line_items.push({

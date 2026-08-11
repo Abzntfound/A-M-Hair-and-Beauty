@@ -79,10 +79,10 @@ exports.handler = async (event) => {
       let chargedQty = requestedQty;
 
       if (
-        item.id === 'rosemary-hair-oil-60ml' &&
-        requestedQty === 2
+        item.id === 'rosemary-hair-oil-60ml' && item.id === 'hair-growth-oil-100ml' &&
+        requestedQty === 3
       ) {
-        chargedQty = 1;
+        chargedQty = 2;
       }
 
       line_items.push({

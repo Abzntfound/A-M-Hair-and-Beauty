@@ -366,6 +366,28 @@ const AM_PRODUCTS = [
         inStock: true,
         discontinued: false,
     },
+   {
+        id: 'shampoo-150-ml',
+        name: '150ml Nourishing Shampoo',
+        subtitle: '150ml Premium Formula',
+        price: 12.99,
+        image: '/shampoo-150ml.jpg',
+        images: ['/shampoo-150ml.jpg'],
+        category: 'shampoo',
+        badge: null,
+        description: 'Our signature 150ml shampoo is a rich, concentrated blend of natural oils that nourishes your scalp, stimulates follicles, and promotes stronger, longer hair. Suitable for all hair types.',
+        features: [
+            '100% natural ingredients',
+            'Promotes hair growth and thickness',
+            'Nourishes and moisturises the scalp',
+            'Adds brilliant shine',
+            'Suitable for all hair types',
+            'No harsh chemicals or sulphates',
+        ],
+        shopUrl: 'https://shop.amhairandbeauty.com/products/hair-growth-oil',
+        inStock: true,
+        discontinued: false,
+    },
 
     // ---- Discontinued products ----
     {

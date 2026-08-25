@@ -20,7 +20,7 @@ const PRODUCTS = {
   'botanical-growth-duo': { name: 'Botanical Growth Duo', price: 1399 },
   'kids-set': { name: 'Kids Set', price: 2499 },
   'premium-hair-collection': { name: 'Premium Hair Collection', price: 3799 },
-  'shampoo-150-ml': { name: 'Nourishing Shampoo 150ml', price: 999 },
+  'conditioner-150-ml': { name: 'Nourishing Conditioner 150ml', price: 999 },
 };
 
 const PROMO_CODES = {

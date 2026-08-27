@@ -27,7 +27,7 @@ const PROMO_CODES = {
   IBMCHURCH: { type: 'free_shipping' }
 };
 
-const ELIGIBLE_3_FOR_2 = [
+const ELIGIBLE_BOGO_HALF_PRICE = [
   'rosemary-hair-oil-60ml',
   'hair-growth-oil-100ml'
 ];
@@ -56,80 +56,110 @@ exports.handler = async (event) => {
       shipping = 0;
     }
 
-    /*
-     * ==========================================================
-     * 3-FOR-2
-     *
-     * These two products count together:
-     *
-     * 3 Rosemary                  -> pay for 2
-     * 3 Hair Growth               -> pay for 2
-     * 2 Rosemary + 1 Hair Growth  -> pay for 2
-     * 1 Rosemary + 2 Hair Growth  -> pay for 2
-     *
-     * The cheapest eligible item is free.
-     * ==========================================================
-     */
+   /*
+ * ==========================================================
+ * BUY 1 GET 1 HALF PRICE
+ *
+ * Rosemary Hair Oil + Hair Growth Oil count together.
+ *
+ * 2 eligible items:
+ *   cheapest item = 50% off
+ *
+ * 3 eligible items:
+ *   cheapest item = 50% off
+ *   remaining 2 = full price
+ *
+ * 4 eligible items:
+ *   2 cheapest items = 50% off
+ *
+ * The discount is applied to the cheapest eligible
+ * items so mixed products work correctly.
+ * ==========================================================
+ */
 
-    const eligibleItems = cart
-      .filter(item => ELIGIBLE_3_FOR_2.includes(item.id))
-      .map(item => ({
-        id: item.id,
-        qty: Math.max(1, Number(item.qty) || 1),
-        price: PRODUCTS[item.id].price
-      }));
+const eligibleItems = cart
+  .filter(item => ELIGIBLE_BOGO_HALF_PRICE.includes(item.id))
+  .map(item => ({
+    id: item.id,
+    qty: Math.max(1, Number(item.qty) || 1),
+    price: PRODUCTS[item.id].price
+  }));
 
-    const totalEligibleQty = eligibleItems.reduce(
-      (total, item) => total + item.qty,
-      0
-    );
+const eligibleUnits = [];
 
-    // Exactly 3 eligible products = 1 free.
-    let freeItemId = null;
+for (const item of eligibleItems) {
+  for (let i = 0; i < item.qty; i++) {
+    eligibleUnits.push({
+      id: item.id,
+      price: item.price
+    });
+  }
+}
 
-    if (totalEligibleQty === 3) {
-      const cheapest = [...eligibleItems].sort(
-        (a, b) => a.price - b.price
-      )[0];
+// One half-price item for every pair.
+const discountQty = Math.floor(eligibleUnits.length / 2);
 
-      freeItemId = cheapest.id;
-    }
+// Discount the cheapest eligible units.
+const discountedUnits = [...eligibleUnits]
+  .sort((a, b) => a.price - b.price)
+  .slice(0, discountQty);
 
-    const line_items = [];
+// Count discounted units per product.
+const discountedQtyById = {};
 
-    for (const item of cart) {
-      const product = PRODUCTS[item.id];
+for (const unit of discountedUnits) {
+  discountedQtyById[unit.id] =
+    (discountedQtyById[unit.id] || 0) + 1;
+}
 
-      if (!product) {
-        throw new Error('Unknown product: ' + item.id);
-      }
+const line_items = [];
 
-      const requestedQty = Math.max(
-        1,
-        Number(item.qty) || 1
-      );
+for (const item of cart) {
+  const product = PRODUCTS[item.id];
 
-      let chargedQty = requestedQty;
+  if (!product) {
+    throw new Error('Unknown product: ' + item.id);
+  }
 
-      // Remove one unit from the cheapest eligible product.
-      if (item.id === freeItemId) {
-        chargedQty = requestedQty - 1;
-      }
+  const requestedQty = Math.max(
+    1,
+    Number(item.qty) || 1
+  );
 
-      // Normal paid quantity.
-      if (chargedQty > 0) {
-        line_items.push({
-          price_data: {
-            currency: 'gbp',
-            product_data: {
-              name: product.name
-            },
-            unit_amount: product.price
-          },
-          quantity: chargedQty
-        });
-      }
-    }
+  const discountedQty =
+    discountedQtyById[item.id] || 0;
+
+  const fullPriceQty =
+    requestedQty - discountedQty;
+
+  // Full-price items
+  if (fullPriceQty > 0) {
+    line_items.push({
+      price_data: {
+        currency: 'gbp',
+        product_data: {
+          name: product.name
+        },
+        unit_amount: product.price
+      },
+      quantity: fullPriceQty
+    });
+  }
+
+  // Half-price items
+  if (discountedQty > 0) {
+    line_items.push({
+      price_data: {
+        currency: 'gbp',
+        product_data: {
+          name: `${product.name} — 50% off`
+        },
+        unit_amount: Math.round(product.price / 2)
+      },
+      quantity: discountedQty
+    });
+  }
+}
 
     if (shipping > 0) {
       line_items.push({

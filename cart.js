@@ -67,46 +67,74 @@ function getCart() {
 }
 
 
-function getChargedQty(item, allItems = getCart()) {
-    const qty = Math.max(1, Number(item.qty) || 1);
-
+function getEligiblePromoUnits(allItems = getCart()) {
     const eligibleIds = [
         "rosemary-hair-oil-60ml",
         "hair-growth-oil-100ml"
     ];
 
-    if (!eligibleIds.includes(item.id)) {
-        return qty;
-    }
+    const units = [];
 
-    const totalEligibleQty = allItems
-        .filter(i => eligibleIds.includes(i.id))
-        .reduce(
-            (total, i) =>
-                total + Math.max(1, Number(i.qty) || 1),
-            0
-        );
+    allItems
+        .filter(item => eligibleIds.includes(item.id))
+        .forEach(item => {
+            const qty = Math.max(1, Number(item.qty) || 1);
+            const price = Number(item.price) || 0;
 
-    if (totalEligibleQty !== 3) {
-        return qty;
-    }
+            for (let i = 0; i < qty; i++) {
+                units.push({
+                    id: item.id,
+                    price
+                });
+            }
+        });
 
-    const eligibleItems = allItems
-        .filter(i => eligibleIds.includes(i.id))
-        .map(i => ({
-            id: i.id,
-            price: Number(i.price) || 0
-        }));
+    return units;
+}
 
-    const cheapest = [...eligibleItems].sort(
-        (a, b) => a.price - b.price
-    )[0];
 
-    if (item.id === cheapest.id) {
-        return Math.max(0, qty - 1);
-    }
+function getDiscountedPromoUnits(allItems = getCart()) {
+    const units = getEligiblePromoUnits(allItems);
 
-    return qty;
+    // One half-price item for every pair.
+    const discountQty = Math.floor(units.length / 2);
+
+    if (discountQty <= 0) return [];
+
+    // Discount the cheapest eligible items.
+    return [...units]
+        .sort((a, b) => a.price - b.price)
+        .slice(0, discountQty);
+}
+
+
+function getCartItemTotal(item, allItems = getCart()) {
+    const qty = Math.max(1, Number(item.qty) || 1);
+    const price = Number(item.price) || 0;
+
+    const discountedUnits = getDiscountedPromoUnits(allItems)
+        .filter(unit => unit.id === item.id);
+
+    const discountedQty = discountedUnits.length;
+    const fullPriceQty = qty - discountedQty;
+
+    return (
+        (fullPriceQty * price) +
+        (discountedQty * price * 0.5)
+    );
+}
+
+
+function getChargedQty(item, allItems = getCart()) {
+    // Kept for compatibility with any other code that may use it.
+    const qty = Math.max(1, Number(item.qty) || 1);
+
+    const total = getCartItemTotal(item, allItems);
+    const price = Number(item.price) || 0;
+
+    if (!price) return qty;
+
+    return total / price;
 }
 
 
@@ -265,9 +293,7 @@ function getCartTotal() {
     const cart = getCart();
 
     return cart.reduce((sum, item) => {
-        const chargedQty = getChargedQty(item, cart);
-
-        return sum + (item.price * chargedQty);
+        return sum + getCartItemTotal(item, cart);
     }, 0);
 }
 
@@ -314,24 +340,27 @@ function renderCartPage() {
     // ==========================================================
 
     const eligibleIds = [
-        "rosemary-hair-oil-60ml",
-        "hair-growth-oil-100ml"
-    ];
+    "rosemary-hair-oil-60ml",
+    "hair-growth-oil-100ml"
+];
 
-    const eligiblePromoQty = cart
-        .filter(item => eligibleIds.includes(item.id))
-        .reduce(
-            (total, item) => total + Math.max(1, Number(item.qty) || 1),
-            0
-        );
+const eligiblePromoQty = cart
+    .filter(item => eligibleIds.includes(item.id))
+    .reduce(
+        (total, item) =>
+            total + Math.max(1, Number(item.qty) || 1),
+        0
+    );
 
-    const threeForTwoMsg = eligiblePromoQty === 3
-        ? `
-            <div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;">
-                ✓ 3-for-2 applied — cheapest eligible oil is free
-            </div>
-          `
-        : '';
+const halfPriceQty = Math.floor(eligiblePromoQty / 2);
+
+const buyOneGetOneMsg = halfPriceQty > 0
+    ? `
+        <div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;">
+            ✓ Buy 1 Get 1 Half Price applied — ${halfPriceQty} eligible item${halfPriceQty > 1 ? 's' : ''} at 50% off
+        </div>
+      `
+    : '';
 
     const promoMsg = activePromo?.type === "free_shipping"
         ? `
@@ -366,9 +395,7 @@ function renderCartPage() {
                         </div>
 
                         <div class="cart-item-price">
-                            ${config.currencySymbol}${(
-                                item.price * getChargedQty(item, cart)
-                            ).toFixed(2)}
+                            ${config.currencySymbol}${getCartItemTotal(item, cart).toFixed(2)}
                         </div>
 
                     </div>
@@ -423,7 +450,7 @@ function renderCartPage() {
                 </span>
             </div>
 
-            ${threeForTwoMsg}
+            ${buyOneGetOneMsg}    
 
             <div class="summary-row">
 

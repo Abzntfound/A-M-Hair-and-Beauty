@@ -118,7 +118,7 @@ function gtag_report_conversion(url) {
 
     #apply-promo:active { transform: translateY(0); }
 
-    /* Share promo link button */
+    /* Share promo button */
     #share-promo {
       width: 100%;
       margin-top: .75rem;
@@ -141,6 +141,68 @@ function gtag_report_conversion(url) {
     }
 
     #share-promo:active { transform: translateY(0); }
+
+    /* Promo share menu */
+    .promo-share-panel {
+      margin-top: .8rem;
+      padding: 14px;
+      border: 1px solid #f3d3e5;
+      border-radius: 16px;
+      background: rgba(255,255,255,.98);
+      box-shadow: 0 12px 32px rgba(0,0,0,.08);
+      animation: promoShareIn .22s ease;
+    }
+
+    .promo-share-panel[hidden] { display: none !important; }
+
+    @keyframes promoShareIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .promo-share-title {
+      margin-bottom: 10px;
+      color: #333;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .promo-share-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .promo-share-option {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 42px;
+      padding: 9px 10px;
+      border: 1px solid #ececec;
+      border-radius: 11px;
+      background: #fff;
+      color: #333;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+    .promo-share-option:hover {
+      transform: translateY(-1px);
+      border-color: #d946a6;
+      box-shadow: 0 5px 14px rgba(217,70,166,.12);
+    }
+
+    .promo-share-option.facebook { color: #1877f2; }
+    .promo-share-option.whatsapp { color: #128c7e; }
+    .promo-share-option.x-share { color: #111; }
+    .promo-share-option.email-share { color: #6b7280; }
+    .promo-share-option.copy-share { color: #be185d; }
+    .promo-share-option.native-share { color: #d946a6; }
 
     .privacy-policy-btn {
       background: none;
@@ -201,6 +263,7 @@ function gtag_report_conversion(url) {
     @media (max-width: 600px) {
       .promo { gap: 8px; }
       #apply-promo { padding: 0 15px; }
+      .promo-share-grid { grid-template-columns: 1fr 1fr; }
       .policies-modal { padding: 10px; }
       .policies-modal-content { width: 100%; height: 94vh; border-radius: 14px; }
     }

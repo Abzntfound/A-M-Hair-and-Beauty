@@ -83,6 +83,17 @@ function makePromoShareKey(code) {
     return `${cleanCode}-${randomPart}`;
 }
 
+function clearPromoQueryFromUrl() {
+    const url = new URL(window.location.href);
+    const hadPromoQuery = url.searchParams.has("promo") || url.searchParams.has("share");
+
+    if (!hadPromoQuery) return;
+
+    url.searchParams.delete("promo");
+    url.searchParams.delete("share");
+    window.history.replaceState({}, "", url);
+}
+
 function loadPromo() {
     activePromo = null;
     activePromoShareKey = null;
@@ -94,6 +105,11 @@ function loadPromo() {
         activePromo = promo;
         activePromoShareKey = params.get("share") || null;
     }
+
+    // A shared promo URL works for this page view only.
+    // Remove promo/share from the address immediately so refreshing
+    // reloads the normal cart with no promo active.
+    clearPromoQueryFromUrl();
 }
 
 function applyPromo(code) {
@@ -101,16 +117,9 @@ function applyPromo(code) {
     activePromo = promo;
     activePromoShareKey = null;
 
-    const url = new URL(window.location.href);
-    if (promo) {
-        url.searchParams.set("promo", promo.code);
-        url.searchParams.delete("share");
-    } else {
-        url.searchParams.delete("promo");
-        url.searchParams.delete("share");
-    }
-
-    window.history.replaceState({}, "", url);
+    // Keep manually entered promos in memory only.
+    // This means refreshing the page removes the offer.
+    clearPromoQueryFromUrl();
     renderCartPage();
 }
 
@@ -120,6 +129,8 @@ function getPromoShareUrl(code = activePromo?.code) {
 
     const shareKey = makePromoShareKey(promo.code);
     const url = new URL(window.location.href);
+    url.searchParams.delete("promo");
+    url.searchParams.delete("share");
     url.searchParams.set("promo", promo.code);
     url.searchParams.set("share", shareKey);
     activePromoShareKey = shareKey;

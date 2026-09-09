@@ -29,11 +29,6 @@ const PROMO_CODES = {
   AMHALF: { type: 'oil_half_price' },
 };
 
-const ELIGIBLE_BOGO_HALF_PRICE = [
-  'rosemary-hair-oil-60ml',
-  'hair-growth-oil-100ml',
-];
-
 const AMHALF_OIL_IDS = [
   'rosemary-hair-oil-60ml',
   'hair-growth-oil-100ml',
@@ -55,35 +50,12 @@ function getSafeCart(cart) {
   return cart.map((item) => {
     const product = PRODUCTS[item.id];
     if (!product) throw new Error('Unknown product: ' + item.id);
-
     return {
       id: item.id,
       qty: Math.max(1, Math.floor(Number(item.qty) || 1)),
       product,
     };
   });
-}
-
-function getBogoDiscountedQtyById(cart) {
-  const eligibleUnits = [];
-
-  for (const item of cart) {
-    if (!ELIGIBLE_BOGO_HALF_PRICE.includes(item.id)) continue;
-    for (let i = 0; i < item.qty; i++) {
-      eligibleUnits.push({ id: item.id, price: item.product.price });
-    }
-  }
-
-  const discountQty = Math.floor(eligibleUnits.length / 2);
-  const discountedUnits = [...eligibleUnits]
-    .sort((a, b) => a.price - b.price)
-    .slice(0, discountQty);
-
-  const discountedQtyById = {};
-  for (const unit of discountedUnits) {
-    discountedQtyById[unit.id] = (discountedQtyById[unit.id] || 0) + 1;
-  }
-  return discountedQtyById;
 }
 
 exports.handler = async (event) => {
@@ -105,57 +77,30 @@ exports.handler = async (event) => {
     const safeCart = getSafeCart(cart);
     const validPromo = getValidPromo(promo);
     const amHalfActive = validPromo?.type === 'oil_half_price';
-
-    // AMHALF overrides the normal BOGO discount so discounts cannot stack.
-    const discountedQtyById = amHalfActive ? {} : getBogoDiscountedQtyById(safeCart);
-
     const line_items = [];
     let merchandiseTotal = 0;
 
     for (const item of safeCart) {
       const { product, id, qty } = item;
+      const isAmHalfOil = amHalfActive && AMHALF_OIL_IDS.includes(id);
+      const unitAmount = isAmHalfOil
+        ? Math.round(product.price / 2)
+        : product.price;
 
-      if (amHalfActive && AMHALF_OIL_IDS.includes(id)) {
-        const halfPrice = Math.round(product.price / 2);
-        line_items.push({
-          price_data: {
-            currency: 'gbp',
-            product_data: { name: `${product.name} — AMHALF 50% off` },
-            unit_amount: halfPrice,
+      line_items.push({
+        price_data: {
+          currency: 'gbp',
+          product_data: {
+            name: isAmHalfOil
+              ? `${product.name} — AMHALF 50% off`
+              : product.name,
           },
-          quantity: qty,
-        });
-        merchandiseTotal += halfPrice * qty;
-        continue;
-      }
+          unit_amount: unitAmount,
+        },
+        quantity: qty,
+      });
 
-      const discountedQty = discountedQtyById[id] || 0;
-      const fullPriceQty = qty - discountedQty;
-
-      if (fullPriceQty > 0) {
-        line_items.push({
-          price_data: {
-            currency: 'gbp',
-            product_data: { name: product.name },
-            unit_amount: product.price,
-          },
-          quantity: fullPriceQty,
-        });
-        merchandiseTotal += product.price * fullPriceQty;
-      }
-
-      if (discountedQty > 0) {
-        const halfPrice = Math.round(product.price / 2);
-        line_items.push({
-          price_data: {
-            currency: 'gbp',
-            product_data: { name: `${product.name} — 50% off` },
-            unit_amount: halfPrice,
-          },
-          quantity: discountedQty,
-        });
-        merchandiseTotal += halfPrice * discountedQty;
-      }
+      merchandiseTotal += unitAmount * qty;
     }
 
     let shipping = SHIPPING_FEE;

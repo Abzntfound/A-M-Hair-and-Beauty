@@ -94,22 +94,36 @@ function clearPromoQueryFromUrl() {
     window.history.replaceState({}, "", url);
 }
 
+function isPageReload() {
+    try {
+        const navEntry = performance.getEntriesByType?.("navigation")?.[0];
+        if (navEntry) return navEntry.type === "reload";
+        return performance.navigation?.type === 1;
+    } catch {
+        return false;
+    }
+}
+
 function loadPromo() {
     activePromo = null;
     activePromoShareKey = null;
 
     const params = new URLSearchParams(window.location.search);
-    const promo = findPromo(params.get("promo"));
+    const hasPromoQuery = params.has("promo") || params.has("share");
 
+    // Promo query parameters are valid for one page view only.
+    // If the customer refreshes the page, remove the query and do not
+    // reactivate the offer.
+    if (hasPromoQuery && isPageReload()) {
+        clearPromoQueryFromUrl();
+        return;
+    }
+
+    const promo = findPromo(params.get("promo"));
     if (promo) {
         activePromo = promo;
         activePromoShareKey = params.get("share") || null;
     }
-
-    // A shared promo URL works for this page view only.
-    // Remove promo/share from the address immediately so refreshing
-    // reloads the normal cart with no promo active.
-    clearPromoQueryFromUrl();
 }
 
 function applyPromo(code) {
@@ -117,9 +131,17 @@ function applyPromo(code) {
     activePromo = promo;
     activePromoShareKey = null;
 
-    // Keep manually entered promos in memory only.
-    // This means refreshing the page removes the offer.
-    clearPromoQueryFromUrl();
+    const url = new URL(window.location.href);
+    url.searchParams.delete("promo");
+    url.searchParams.delete("share");
+
+    if (promo) {
+        // Show the promo in the URL for this page view.
+        // A refresh will remove it again in loadPromo().
+        url.searchParams.set("promo", promo.code);
+    }
+
+    window.history.replaceState({}, "", url);
     renderCartPage();
 }
 
@@ -137,16 +159,86 @@ function getPromoShareUrl(code = activePromo?.code) {
     return url.toString();
 }
 
-async function copyPromoShareLink(code = activePromo?.code) {
-    const shareUrl = getPromoShareUrl(code);
-    if (!shareUrl) return false;
-
+async function copyText(text) {
     try {
-        await navigator.clipboard.writeText(shareUrl);
+        await navigator.clipboard.writeText(text);
         return true;
     } catch {
-        window.prompt("Copy this promo link:", shareUrl);
+        window.prompt("Copy this promo link:", text);
         return true;
+    }
+}
+
+async function copyPromoShareLink(code = activePromo?.code, existingUrl = null) {
+    const shareUrl = existingUrl || getPromoShareUrl(code);
+    if (!shareUrl) return false;
+    return copyText(shareUrl);
+}
+
+function getPromoShareMessage() {
+    if (!activePromo) return "";
+
+    if (activePromo.code === "AMHALF") {
+        return "Get 50% off eligible hair oils at A&M Hair & Beauty with code AMHALF.";
+    }
+
+    if (activePromo.code === "IBMCHURCH") {
+        return "Get free shipping at A&M Hair & Beauty with code IBMCHURCH.";
+    }
+
+    return `Use promo code ${activePromo.code} at A&M Hair & Beauty.`;
+}
+
+function openSharePopup(url) {
+    window.open(url, "_blank", "noopener,noreferrer,width=720,height=620");
+}
+
+async function handlePromoShareAction(action, shareUrl, button) {
+    if (!shareUrl || !activePromo) return;
+
+    const message = getPromoShareMessage();
+    const title = `A&M Hair & Beauty — ${activePromo.code}`;
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedMessage = encodeURIComponent(message);
+
+    switch (action) {
+        case "facebook":
+            openSharePopup(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`);
+            break;
+
+        case "whatsapp":
+            openSharePopup(`https://wa.me/?text=${encodeURIComponent(`${message} ${shareUrl}`)}`);
+            break;
+
+        case "x":
+            openSharePopup(`https://twitter.com/intent/tweet?text=${encodedMessage}&url=${encodedUrl}`);
+            break;
+
+        case "email":
+            window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${message}\n\n${shareUrl}`)}`;
+            break;
+
+        case "copy": {
+            const copied = await copyPromoShareLink(activePromo.code, shareUrl);
+            if (copied && button) {
+                const original = button.textContent;
+                button.textContent = "✓ Copied";
+                setTimeout(() => { button.textContent = original; }, 1800);
+            }
+            break;
+        }
+
+        case "native":
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title, text: message, url: shareUrl });
+                } catch (err) {
+                    if (err?.name !== "AbortError") console.warn("Share cancelled or failed:", err);
+                }
+            } else {
+                await copyPromoShareLink(activePromo.code, shareUrl);
+            }
+            break;
     }
 }
 
@@ -158,8 +250,6 @@ function getCartItemTotal(item) {
     const qty = Math.max(1, Number(item.qty) || 1);
     const price = Number(item.price) || 0;
 
-    // The old Buy 1 Get 1 Half Price offer has been removed.
-    // Only AMHALF can reduce oil prices.
     if (activePromo?.type === "oil_half_price" && AMHALF_OIL_IDS.includes(item.id)) {
         return qty * price * 0.5;
     }
@@ -338,7 +428,18 @@ function renderCartPage() {
             ${promoMsg}
 
             ${activePromo ? `
-                <button id="share-promo" type="button">Share ${activePromo.code} link</button>
+                <button id="share-promo" type="button" aria-expanded="false">↗ Share ${activePromo.code}</button>
+                <div id="promo-share-panel" class="promo-share-panel" hidden>
+                    <div class="promo-share-title">Share this offer</div>
+                    <div class="promo-share-grid">
+                        <button type="button" class="promo-share-option facebook" data-share-action="facebook">ⓕ Facebook</button>
+                        <button type="button" class="promo-share-option whatsapp" data-share-action="whatsapp">◉ WhatsApp</button>
+                        <button type="button" class="promo-share-option x-share" data-share-action="x">𝕏 X</button>
+                        <button type="button" class="promo-share-option email-share" data-share-action="email">✉ Email</button>
+                        <button type="button" class="promo-share-option copy-share" data-share-action="copy">🔗 Copy link</button>
+                        <button type="button" class="promo-share-option native-share" data-share-action="native">↗ More</button>
+                    </div>
+                </div>
             ` : ""}
 
             <button class="btn btn-primary checkout-btn" style="width:100%;margin-top:1.2rem;" onclick="proceedToCheckout()">Checkout</button>
@@ -359,11 +460,36 @@ function renderCartPage() {
     }
 
     const sharePromoButton = container.querySelector("#share-promo");
-    if (sharePromoButton) {
-        sharePromoButton.onclick = async () => {
-            const copied = await copyPromoShareLink();
-            if (copied) sharePromoButton.textContent = "Promo link copied ✓";
+    const sharePanel = container.querySelector("#promo-share-panel");
+
+    if (sharePromoButton && sharePanel) {
+        sharePromoButton.onclick = () => {
+            const opening = sharePanel.hidden;
+            sharePanel.hidden = !opening;
+            sharePromoButton.setAttribute("aria-expanded", String(opening));
+
+            if (opening && !sharePanel.dataset.shareUrl) {
+                const shareUrl = getPromoShareUrl();
+                if (shareUrl) sharePanel.dataset.shareUrl = shareUrl;
+            }
         };
+
+        const nativeShareButton = sharePanel.querySelector('[data-share-action="native"]');
+        if (nativeShareButton && !navigator.share) {
+            nativeShareButton.style.display = "none";
+        }
+
+        sharePanel.querySelectorAll("[data-share-action]").forEach(button => {
+            button.onclick = async () => {
+                let shareUrl = sharePanel.dataset.shareUrl;
+                if (!shareUrl) {
+                    shareUrl = getPromoShareUrl();
+                    if (shareUrl) sharePanel.dataset.shareUrl = shareUrl;
+                }
+
+                await handlePromoShareAction(button.dataset.shareAction, shareUrl, button);
+            };
+        });
     }
 
     container.querySelectorAll('[data-action="inc"]').forEach(button => {

@@ -2,32 +2,24 @@
 <html lang="en" dir="ltr">
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2XQVZMYQT0">
-</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2XQVZMYQT0"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-2XQVZMYQT0');
 </script>
-  <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18369486768"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'AW-18369486768');
 </script>
-<!-- Event snippet for Add to cart conversion page
-In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
 <script>
 function gtag_report_conversion(url) {
   var callback = function () {
-    if (typeof(url) != 'undefined') {
-      window.location = url;
-    }
+    if (typeof(url) != 'undefined') window.location = url;
   };
   gtag('event', 'conversion', {
       'send_to': 'AW-18369486768/MYNjCM2-i90cELC_oLdE',
@@ -38,9 +30,7 @@ function gtag_report_conversion(url) {
 </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Cart - A&M Hair & Beauty</title>
-
   <link rel="icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -57,12 +47,7 @@ function gtag_report_conversion(url) {
       max-width: 800px;
     }
 
-    .how-steps {
-      display: flex;
-      gap: 2rem;
-      flex-wrap: wrap;
-    }
-
+    .how-steps { display: flex; gap: 2rem; flex-wrap: wrap; }
     .how-step { flex: 1; min-width: 160px; }
 
     .step-num {
@@ -87,235 +72,205 @@ function gtag_report_conversion(url) {
       color: #555;
     }
 
-    /* ==========================================================
-   PRIVACY & POLICIES
-========================================================== */
+    /* Promo input + Apply button */
+    .promo {
+      display: flex;
+      gap: 10px;
+      margin-top: 1rem;
+      align-items: stretch;
+    }
 
-.privacy-policy-btn {
-    background: none;
-    border: none;
-    padding: 0;
-    color: #d946a6;
-    text-decoration: underline;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-}
+    .promo #promo-input {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 14px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
 
-.privacy-policy-btn:hover {
-    opacity: 0.75;
-}
+    .promo #promo-input:focus {
+      border-color: #d946a6;
+      box-shadow: 0 0 0 3px rgba(217, 70, 166, .12);
+    }
 
-.policies-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    background: rgba(0, 0, 0, 0.7);
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
+    #apply-promo {
+      border: none;
+      border-radius: 12px;
+      padding: 0 20px;
+      background: linear-gradient(135deg, #d946a6, #be185d);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 7px 18px rgba(190, 24, 93, .2);
+      transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+    }
 
-.policies-modal.active {
-    display: flex;
-}
+    #apply-promo:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(190, 24, 93, .28);
+    }
 
-.policies-modal-content {
-    position: relative;
-    width: min(900px, 95vw);
-    height: min(800px, 90vh);
-    background: white;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,.35);
-}
+    #apply-promo:active { transform: translateY(0); }
 
-.policies-modal-content iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
+    /* Share promo link button */
+    #share-promo {
+      width: 100%;
+      margin-top: .75rem;
+      padding: 12px 16px;
+      border: 1.5px solid #d946a6;
+      border-radius: 12px;
+      background: #fff;
+      color: #be185d;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
+    }
 
-.policies-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 2;
+    #share-promo:hover {
+      background: #fdf2f8;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(217, 70, 166, .14);
+    }
 
-    width: 38px;
-    height: 38px;
+    #share-promo:active { transform: translateY(0); }
 
-    border: none;
-    border-radius: 50%;
+    .privacy-policy-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #d946a6;
+      text-decoration: underline;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
 
-    background: white;
-    color: #333;
-
-    font-size: 20px;
-    cursor: pointer;
-
-    box-shadow: 0 2px 10px rgba(0,0,0,.2);
-}
-
-.policies-close:hover {
-    background: #f3f3f3;
-}
-
-@media (max-width: 600px) {
+    .privacy-policy-btn:hover { opacity: 0.75; }
 
     .policies-modal {
-        padding: 10px;
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(0, 0, 0, 0.7);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
+
+    .policies-modal.active { display: flex; }
 
     .policies-modal-content {
-        width: 100%;
-        height: 94vh;
-        border-radius: 14px;
+      position: relative;
+      width: min(900px, 95vw);
+      height: min(800px, 90vh);
+      background: white;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
     }
 
-}
+    .policies-modal-content iframe { width: 100%; height: 100%; border: none; }
+
+    .policies-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: 50%;
+      background: white;
+      color: #333;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,.2);
+    }
+
+    .policies-close:hover { background: #f3f3f3; }
+
+    @media (max-width: 600px) {
+      .promo { gap: 8px; }
+      #apply-promo { padding: 0 15px; }
+      .policies-modal { padding: 10px; }
+      .policies-modal-content { width: 100%; height: 94vh; border-radius: 14px; }
+    }
   </style>
 </head>
 
 <body>
-
 <div id="header-placeholder"></div>
-
 <section class="cart-page">
-
   <div id="cart-content"></div>
-
-  <!-- Stripe info -->
   <div class="how-stripe scroll-reveal" id="how-stripe" style="display:none">
-
     <h3>🔒 Secure Checkout</h3>
-
-<div class="how-steps">
-
-  <div class="how-step">
-    <div class="step-num">1</div>
-    <h4>Review cart</h4>
-    <p>Check items before checkout.</p>
+    <div class="how-steps">
+      <div class="how-step"><div class="step-num">1</div><h4>Review cart</h4><p>Check items before checkout.</p></div>
+      <div class="how-step"><div class="step-num">2</div><h4>Stripe payment</h4><p>Secure payment via Stripe.</p></div>
+      <div class="how-step"><div class="step-num">3</div><h4>Confirmation</h4><p>Email confirmation after purchase.</p></div>
+    </div>
+    <div class="stripe-badge">Secured by Stripe</div>
+    <div style="text-align:center;margin-top:15px;">
+      <button type="button" onclick="openPolicies()" class="privacy-policy-btn">Privacy &amp; Policies</button>
+    </div>
+    <div id="policiesModal" class="policies-modal">
+      <div class="policies-modal-content">
+        <button type="button" class="policies-close" onclick="closePolicies()">✕</button>
+        <iframe src="/cart/policies.html" title="Privacy & Policies"></iframe>
+      </div>
+    </div>
   </div>
-
-  <div class="how-step">
-    <div class="step-num">2</div>
-    <h4>Stripe payment</h4>
-    <p>Secure payment via Stripe.</p>
-  </div>
-
-  <div class="how-step">
-    <div class="step-num">3</div>
-    <h4>Confirmation</h4>
-    <p>Email confirmation after purchase.</p>
-  </div>
-
-</div>
-
-<div class="stripe-badge">
-  Secured by Stripe
-</div>
-
-<!-- Privacy & Policies -->
-<div style="text-align:center;margin-top:15px;">
-  <button
-    type="button"
-    onclick="openPolicies()"
-    class="privacy-policy-btn">
-    Privacy &amp; Policies
-  </button>
-</div>
-
-<!-- Privacy & Policies Modal -->
-<div id="policiesModal" class="policies-modal">
-  <div class="policies-modal-content">
-
-    <button
-      type="button"
-      class="policies-close"
-      onclick="closePolicies()">
-      ✕
-    </button>
-
-    <iframe
-      src="/cart/policies.html"
-      title="Privacy & Policies">
-    </iframe>
-
-  </div>
-</div>
-  </div>
-
 </section>
-
 <div id="footer-placeholder"></div>
-
-<!-- SCRIPTS -->
 <script src="/data.js"></script>
 <script src="/nav.js"></script>
 <script src="/cart.js"></script>
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-
   AM.renderHeader("Cart");
   AM.renderFooter();
-
   renderCartPage();
-
   const howEl = document.getElementById("how-stripe");
-
   function updateStripeBox() {
     const hasItems = getCart().length > 0;
     if (howEl) howEl.style.display = hasItems ? "block" : "none";
   }
-
   updateStripeBox();
-
   window.addEventListener("amCartUpdated", () => {
     renderCartPage();
     updateStripeBox();
   });
-
   AM.initScrollReveal();
-
 });
 </script>
-
 <script>
 function openPolicies() {
     const modal = document.getElementById("policiesModal");
-
     if (!modal) return;
-
     modal.classList.add("active");
     document.body.style.overflow = "hidden";
 }
-
 function closePolicies() {
     const modal = document.getElementById("policiesModal");
-
     if (!modal) return;
-
     modal.classList.remove("active");
     document.body.style.overflow = "";
 }
-
-/* Close when clicking outside the iframe */
 document.getElementById("policiesModal")?.addEventListener("click", function(event) {
-    if (event.target === this) {
-        closePolicies();
-    }
+    if (event.target === this) closePolicies();
 });
-
-/* Close with Escape */
 document.addEventListener("keydown", function(event) {
-    if (event.key === "Escape") {
-        closePolicies();
-    }
+    if (event.key === "Escape") closePolicies();
 });
 </script>
-
 </body>
 </html>

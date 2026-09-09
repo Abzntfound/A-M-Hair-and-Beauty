@@ -1,18 +1,10 @@
-/* ===========================================================
-   A&M Hair & Beauty — cart.js (FIXED + PROMO + CLEAN)
+/* ============================================================
+   A&M Hair & Beauty — cart.js
    ============================================================ */
-
-/* =========================
-   CONFIG
-========================= */
 
 function getConfig() {
     return window.AM_CONFIG || { currencySymbol: "£" };
 }
-
-/* =========================
-   USER
-========================= */
 
 function getCurrentUser() {
     try {
@@ -25,88 +17,22 @@ function getCurrentUser() {
 }
 
 function getUserId() {
-    const user = getCurrentUser();
-    return user?.id || null;
+    return getCurrentUser()?.id || null;
 }
 
-/* =========================
-   CART STORAGE
-========================= */
-
 function safeParse(json, fallback) {
-    try {
-        return JSON.parse(json);
-    } catch {
-        return fallback;
-    }
+    try { return JSON.parse(json); } catch { return fallback; }
 }
 
 function getCartKey() {
     const userId = getUserId();
-    if (userId) return `amCart_${userId}`;
-    return "amCart_guest";
+    return userId ? `amCart_${userId}` : "amCart_guest";
 }
 
 function getCart() {
     const cart = safeParse(localStorage.getItem(getCartKey()), []);
     return Array.isArray(cart) ? cart : [];
 }
-
-function getEligiblePromoUnits(allItems = getCart()) {
-    const eligibleIds = [
-        "rosemary-hair-oil-60ml",
-        "hair-growth-oil-100ml"
-    ];
-    const units = [];
-
-    allItems
-        .filter(item => eligibleIds.includes(item.id))
-        .forEach(item => {
-            const qty = Math.max(1, Number(item.qty) || 1);
-            const price = Number(item.price) || 0;
-            for (let i = 0; i < qty; i++) units.push({ id: item.id, price });
-        });
-
-    return units;
-}
-
-function getDiscountedPromoUnits(allItems = getCart()) {
-    const units = getEligiblePromoUnits(allItems);
-    const discountQty = Math.floor(units.length / 2);
-    if (discountQty <= 0) return [];
-    return [...units].sort((a, b) => a.price - b.price).slice(0, discountQty);
-}
-
-function getCartItemTotal(item, allItems = getCart()) {
-    const qty = Math.max(1, Number(item.qty) || 1);
-    const price = Number(item.price) || 0;
-
-    if (activePromo?.type === "oil_half_price" && AMHALF_OIL_IDS.includes(item.id)) {
-        return qty * price * 0.5;
-    }
-
-    const discountedUnits = getDiscountedPromoUnits(allItems)
-        .filter(unit => unit.id === item.id);
-    const discountedQty = discountedUnits.length;
-    const fullPriceQty = qty - discountedQty;
-    return (fullPriceQty * price) + (discountedQty * price * 0.5);
-}
-
-function getChargedQty(item, allItems = getCart()) {
-    const qty = Math.max(1, Number(item.qty) || 1);
-    const total = getCartItemTotal(item, allItems);
-    const price = Number(item.price) || 0;
-    if (!price) return qty;
-    return total / price;
-}
-
-function saveLocalCart(items) {
-    localStorage.setItem(getCartKey(), JSON.stringify(items));
-}
-
-/* =========================
-   SUPABASE
-========================= */
 
 function getSupabase() {
     return window.supabaseClient || null;
@@ -145,7 +71,9 @@ function makePromoShareKey(code) {
     if (window.crypto?.getRandomValues) {
         window.crypto.getRandomValues(bytes);
     } else {
-        for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+        for (let i = 0; i < bytes.length; i++) {
+            bytes[i] = Math.floor(Math.random() * 256);
+        }
     }
 
     const randomPart = Array.from(bytes)
@@ -160,29 +88,23 @@ function loadPromo() {
     activePromoShareKey = null;
 
     const params = new URLSearchParams(window.location.search);
-    const promoFromUrl = params.get("promo");
-    const shareFromUrl = params.get("share");
-    const promo = findPromo(promoFromUrl);
+    const promo = findPromo(params.get("promo"));
 
     if (promo) {
         activePromo = promo;
-        activePromoShareKey = shareFromUrl || null;
+        activePromoShareKey = params.get("share") || null;
     }
-}
-
-function savePromo() {
-    // Promo state is deliberately URL/in-memory based, not localStorage based.
 }
 
 function applyPromo(code) {
     const promo = findPromo(code);
     activePromo = promo;
     activePromoShareKey = null;
-    savePromo();
 
     const url = new URL(window.location.href);
     if (promo) {
         url.searchParams.set("promo", promo.code);
+        url.searchParams.delete("share");
     } else {
         url.searchParams.delete("promo");
         url.searchParams.delete("share");
@@ -218,8 +140,32 @@ async function copyPromoShareLink(code = activePromo?.code) {
 }
 
 /* =========================
-   SAVE CART
+   CART PRICING
 ========================= */
+
+function getCartItemTotal(item) {
+    const qty = Math.max(1, Number(item.qty) || 1);
+    const price = Number(item.price) || 0;
+
+    // The old Buy 1 Get 1 Half Price offer has been removed.
+    // Only AMHALF can reduce oil prices.
+    if (activePromo?.type === "oil_half_price" && AMHALF_OIL_IDS.includes(item.id)) {
+        return qty * price * 0.5;
+    }
+
+    return qty * price;
+}
+
+function getChargedQty(item) {
+    const qty = Math.max(1, Number(item.qty) || 1);
+    const price = Number(item.price) || 0;
+    if (!price) return qty;
+    return getCartItemTotal(item) / price;
+}
+
+function saveLocalCart(items) {
+    localStorage.setItem(getCartKey(), JSON.stringify(items));
+}
 
 function saveCart(items) {
     saveLocalCart(items);
@@ -248,10 +194,6 @@ async function saveCartToServer(cart) {
     if (error) console.error("Cart save failed:", error);
 }
 
-/* =========================
-   CART ACTIONS
-========================= */
-
 function addToCart(productId, qty = 1) {
     qty = Math.max(1, Number(qty) || 1);
     const product = (window.AM_PRODUCTS || []).find(p => p.id === productId);
@@ -260,8 +202,9 @@ function addToCart(productId, qty = 1) {
     const cart = getCart();
     const existing = cart.find(i => i.id === productId);
 
-    if (existing) existing.qty += qty;
-    else {
+    if (existing) {
+        existing.qty += qty;
+    } else {
         cart.push({
             id: product.id,
             name: product.name,
@@ -293,13 +236,8 @@ function clearCart() {
     saveCart([]);
 }
 
-/* =========================
-   TOTALS
-========================= */
-
 function getCartTotal() {
-    const cart = getCart();
-    return cart.reduce((sum, item) => sum + getCartItemTotal(item, cart), 0);
+    return getCart().reduce((sum, item) => sum + getCartItemTotal(item), 0);
 }
 
 function getShipping() {
@@ -312,11 +250,11 @@ function getOrderTotal() {
 }
 
 /* =========================
-   RENDER CART PAGE
+   RENDER CART
 ========================= */
 
 function renderCartPage() {
-    const container = document.getElementById('cart-content');
+    const container = document.getElementById("cart-content");
     if (!container) return;
 
     const cart = getCart();
@@ -337,25 +275,13 @@ function renderCartPage() {
     const shipping = getShipping();
     const total = getOrderTotal();
 
-    const eligibleIds = ["rosemary-hair-oil-60ml", "hair-growth-oil-100ml"];
-    const eligiblePromoQty = cart
-        .filter(item => eligibleIds.includes(item.id))
-        .reduce((sum, item) => sum + Math.max(1, Number(item.qty) || 1), 0);
-    const halfPriceQty = Math.floor(eligiblePromoQty / 2);
-
-    const buyOneGetOneMsg = activePromo?.type !== "oil_half_price" && halfPriceQty > 0
-        ? `<div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;">
-            ✓ Buy 1 Get 1 Half Price applied — ${halfPriceQty} eligible item${halfPriceQty > 1 ? 's' : ''} at 50% off
-           </div>`
-        : '';
-
     const promoMsg = activePromo
-        ? `<div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;">
+        ? `<div style="color:#16a34a;font-size:0.85rem;margin-top:0.5rem;font-weight:600;">
             ${activePromo.type === "free_shipping"
                 ? `✓ Free shipping applied (${activePromo.code})`
-                : `✓ ${activePromo.code} applied — all eligible oils are 50% off`}
+                : `✓ ${activePromo.code} applied — eligible oils are 50% off`}
            </div>`
-        : '';
+        : "";
 
     container.innerHTML = `
     <div class="cart-layout">
@@ -366,7 +292,7 @@ function renderCartPage() {
                     <img class="cart-item-img" src="${item.image}" alt="${item.name}" onerror="this.src='/assets/placeholder.webp'" />
                     <div class="cart-item-info">
                         <div class="cart-item-name">${item.name}</div>
-                        <div class="cart-item-price">${config.currencySymbol}${getCartItemTotal(item, cart).toFixed(2)}</div>
+                        <div class="cart-item-price">${config.currencySymbol}${getCartItemTotal(item).toFixed(2)}</div>
                     </div>
                     <div class="qty-control">
                         <button class="qty-btn" data-id="${item.id}" data-action="dec">−</button>
@@ -375,28 +301,34 @@ function renderCartPage() {
                     </div>
                     <button class="cart-item-remove" data-id="${item.id}" data-action="remove" title="Remove item">✕</button>
                 </div>
-            `).join('')}
+            `).join("")}
         </div>
 
         <div class="cart-summary">
             <h3>Order Summary</h3>
-            <div class="summary-row"><span>Subtotal</span><span>${config.currencySymbol}${subtotal.toFixed(2)}</span></div>
-            ${buyOneGetOneMsg}
-            <div class="summary-row"><span>Shipping</span><span>${shipping === 0 ? "FREE" : config.currencySymbol + shipping.toFixed(2)}</span></div>
-            <div class="summary-row total"><span>Total</span><span>${config.currencySymbol}${total.toFixed(2)}</span></div>
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>${config.currencySymbol}${subtotal.toFixed(2)}</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span>${shipping === 0 ? "FREE" : config.currencySymbol + shipping.toFixed(2)}</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span>${config.currencySymbol}${total.toFixed(2)}</span>
+            </div>
 
             <div class="promo">
-                <input id="promo-input" placeholder="Promo code" value="${activePromo?.code || ''}" />
-                <button id="apply-promo">Apply</button>
+                <input id="promo-input" placeholder="Promo code" value="${activePromo?.code || ""}" />
+                <button id="apply-promo" type="button">Apply</button>
             </div>
 
             ${promoMsg}
 
             ${activePromo ? `
-                <button id="share-promo" type="button" style="width:100%;margin-top:0.75rem;">
-                    Share ${activePromo.code} link
-                </button>
-            ` : ''}
+                <button id="share-promo" type="button">Share ${activePromo.code} link</button>
+            ` : ""}
 
             <button class="btn btn-primary checkout-btn" style="width:100%;margin-top:1.2rem;" onclick="proceedToCheckout()">Checkout</button>
 
@@ -407,19 +339,19 @@ function renderCartPage() {
         </div>
     </div>`;
 
-    const applyPromoButton = container.querySelector('#apply-promo');
+    const applyPromoButton = container.querySelector("#apply-promo");
     if (applyPromoButton) {
         applyPromoButton.onclick = () => {
-            const input = container.querySelector('#promo-input');
-            applyPromo(input?.value || '');
+            const input = container.querySelector("#promo-input");
+            applyPromo(input?.value || "");
         };
     }
 
-    const sharePromoButton = container.querySelector('#share-promo');
+    const sharePromoButton = container.querySelector("#share-promo");
     if (sharePromoButton) {
         sharePromoButton.onclick = async () => {
             const copied = await copyPromoShareLink();
-            if (copied) sharePromoButton.textContent = 'Promo link copied ✓';
+            if (copied) sharePromoButton.textContent = "Promo link copied ✓";
         };
     }
 
@@ -451,17 +383,13 @@ function renderCartPage() {
     });
 }
 
-/* =========================
-   CHECKOUT
-========================= */
-
 async function proceedToCheckout() {
     const cart = getCart();
     if (!cart.length) return;
 
-    const res = await fetch('/.netlify/functions/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/.netlify/functions/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             cart,
             promo: activePromo
@@ -472,15 +400,12 @@ async function proceedToCheckout() {
 
     const data = await res.json();
     if (!res.ok) {
-        alert("Checkout failed");
+        alert(data?.error || "Checkout failed");
         return;
     }
+
     window.location.href = data.url;
 }
-
-/* =========================
-   ABANDONED CART
-========================= */
 
 async function saveAbandonedCart(cart) {
     const supabase = getSupabase();
@@ -496,10 +421,6 @@ async function saveAbandonedCart(cart) {
 
     if (error) console.error("Abandoned cart error:", error);
 }
-
-/* =========================
-   INIT
-========================= */
 
 (async function init() {
     loadPromo();
@@ -536,15 +457,12 @@ async function saveAbandonedCart(cart) {
     }
 })();
 
-/* =========================
-   EXPORTS
-========================= */
-
 window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.updateQty = updateQty;
 window.clearCart = clearCart;
 window.getCart = getCart;
+window.getCartTotal = getCartTotal;
 window.renderCartPage = renderCartPage;
 window.proceedToCheckout = proceedToCheckout;
 window.applyPromo = applyPromo;

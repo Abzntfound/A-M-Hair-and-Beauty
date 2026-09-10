@@ -1,15 +1,21 @@
 /* A&M Hair & Beauty — feedback.js */
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FEEDBACK_EMAIL = process.env.FEEDBACK_EMAIL || 'adube6113@outlook.com';
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
+const SUPABASE_KEY =
+  process.env.SUPABASE_SECRET_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  '';
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+const FEEDBACK_EMAIL = process.env.FEEDBACK_EMAIL || 'help.amhairandbeauty@gmail.com';
 
 function json(statusCode, body) {
   return {
     statusCode,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'no-store'
+      'Cache-Control': 'no-store',
+      'Access-Control-Allow-Origin': 'https://amhairandbeauty.com',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS'
     },
     body: JSON.stringify(body)
   };
@@ -28,14 +34,37 @@ function escapeHtml(value) {
     .replace(/'/g, '&#039;');
 }
 
+function safeSupabaseError(status, detail) {
+  const text = String(detail || '');
+
+  if (status === 404 || /PGRST205|feedback.*not.*schema cache|relation.*feedback.*does not exist/i.test(text)) {
+    return 'The Supabase feedback table is missing. Run supabase/feedback.sql in the Supabase SQL Editor, then try again.';
+  }
+
+  if (status === 401 || status === 403 || /invalid.*api.?key|permission denied|JWT/i.test(text)) {
+    return 'Supabase rejected the server key. Check SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY in Netlify, then redeploy.';
+  }
+
+  return 'Could not save your feedback to Supabase. Check the Netlify function log for the Supabase error.';
+}
+
 exports.handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
+    return json(204, {});
+  }
+
   if (event.httpMethod !== 'POST') {
     return json(405, { error: 'Method not allowed' });
   }
 
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    console.error('Feedback: Supabase environment variables are missing');
-    return json(500, { error: 'Feedback service is not configured yet.' });
+  if (!SUPABASE_URL) {
+    console.error('Feedback: SUPABASE_URL is missing');
+    return json(500, { error: 'SUPABASE_URL is missing in Netlify environment variables.' });
+  }
+
+  if (!SUPABASE_KEY) {
+    console.error('Feedback: Supabase server key is missing');
+    return json(500, { error: 'Add SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY in Netlify environment variables.' });
   }
 
   try {
@@ -55,14 +84,21 @@ exports.handler = async (event) => {
       return json(400, { error: 'Please enter a valid email address.' });
     }
 
+    const headers = {
+      apikey: SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal'
+    };
+
+    // Legacy service_role keys are JWTs and can also be used as a Bearer token.
+    // New sb_secret_ keys are opaque API keys, so do not send them as JWTs.
+    if (SUPABASE_KEY.startsWith('eyJ')) {
+      headers.Authorization = `Bearer ${SUPABASE_KEY}`;
+    }
+
     const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/feedback`, {
       method: 'POST',
-      headers: {
-        apikey: SUPABASE_SERVICE_ROLE_KEY,
-        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal'
-      },
+      headers,
       body: JSON.stringify({
         name,
         email: email || null,
@@ -76,10 +112,14 @@ exports.handler = async (event) => {
     if (!insertResponse.ok) {
       const detail = await insertResponse.text();
       console.error('Feedback Supabase insert failed:', insertResponse.status, detail);
-      return json(500, { error: 'Could not save your feedback.' });
+      return json(500, {
+        error: safeSupabaseError(insertResponse.status, detail),
+        supabaseStatus: insertResponse.status
+      });
     }
 
     let emailSent = false;
+
     if (RESEND_API_KEY) {
       const resendResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',

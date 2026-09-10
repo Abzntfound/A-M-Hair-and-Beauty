@@ -1,31 +1,27 @@
 <!DOCTYPE html>
-<html lang="en dir="ltr">
+<html lang="en" dir="ltr">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2XQVZMYQT0">
-</script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-2XQVZMYQT0');
-</script>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18369486768"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2XQVZMYQT0"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-2XQVZMYQT0');
+  </script>
 
-  gtag('config', 'AW-18369486768');
-</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18369486768"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-18369486768');
+  </script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Our Story - A&M Hair & Beauty</title>
-  <meta name="description" content="Learn about A&M Hair & Beauty — born from personal experience and a passion for natural hair care.">
+  <meta name="description" content="Discover the story behind A&M Hair & Beauty — natural hair care created with care, quality and intention.">
 
   <link rel="icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -33,333 +29,864 @@
   <link rel="stylesheet" href="/styles.css">
 
   <style>
-    .about-page { padding: 80px 5% 100px; }
+    :root {
+      --about-pink: #d946a6;
+      --about-pink-dark: #be2d8d;
+      --about-blush: #fdf2f8;
+      --about-ink: #151515;
+      --about-muted: #6b6b6b;
+      --about-line: rgba(21, 21, 21, .11);
+    }
 
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
+    html { scroll-behavior: smooth; }
+
+    body {
+      overflow-x: hidden;
+      background: #fff;
+    }
+
+    .about-main {
+      position: relative;
+      overflow: clip;
+      background:
+        radial-gradient(circle at 10% 14%, rgba(217,70,166,.08), transparent 26%),
+        radial-gradient(circle at 89% 34%, rgba(217,70,166,.08), transparent 25%),
+        #fff;
+    }
+
+    .about-kicker {
+      display: inline-flex;
       align-items: center;
-      max-width: 1100px;
-      margin: 0 auto 5rem;
-    }
-
-    .about-img { border-radius: 24px; overflow: hidden; }
-    .about-img img { width: 100%; height: 520px; object-fit: cover; display: block; }
-
-    .about-text p {
-      font-size: 1.05rem;
-      color: #555;
-      line-height: 2;
-      margin-bottom: 1.6rem;
-    }
-
-    .about-text .highlight {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #d946a6;
-    }
-
-    .stats-band {
-      background: linear-gradient(135deg,#d946a6,#ec4899);
-      padding: 60px 5%;
-    }
-
-    .stats-inner {
-      display: flex;
-      justify-content: center;
-      gap: 5rem;
-      flex-wrap: wrap;
-      max-width: 900px;
-      margin: auto;
-      color: white;
-    }
-
-    .stat-num { font-size: 3.5rem; font-weight: 900; display: block; }
-    .stat-label { opacity: 0.85; font-size: 0.9rem; }
-
-    .values-section { padding: 80px 5%; }
-
-    .values-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 2rem;
-      max-width: 1100px;
-      margin: auto;
-    }
-
-    .value-card {
-      background: #fdf2f8;
-      border-radius: 20px;
-      padding: 2rem;
-      transition: 0.3s;
-    }
-
-    .value-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 15px 40px rgba(217,70,166,.18);
-    }
-
-    .value-icon { font-size: 2rem; margin-bottom: 1rem; }
-
-    .promise-section {
-      padding: 80px 5%;
-      background: #fdf2f8;
-      text-align: center;
-    }
-
-    .promise-section h2 {
-      font-size: 2.5rem;
+      gap: .65rem;
+      margin-bottom: 1.2rem;
+      font-size: .76rem;
       font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--about-pink);
     }
 
-    .promise-section p {
-      max-width: 600px;
-      margin: auto;
-      color: #666;
+    .about-kicker::before {
+      content: "";
+      width: 34px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    /* HERO */
+    .about-hero {
+      position: relative;
+      min-height: 92vh;
+      display: grid;
+      place-items: center;
+      padding: 165px 5% 95px;
+      isolation: isolate;
+    }
+
+    .about-hero-copy {
+      width: min(980px, 92vw);
+      text-align: center;
+      position: relative;
+      z-index: 4;
+    }
+
+    .about-breadcrumb {
+      margin-bottom: 1.5rem;
+      color: #7a7a7a;
+      font-size: .86rem;
+      font-weight: 500;
+    }
+
+    .about-breadcrumb a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .about-hero h1 {
+      margin: 0;
+      font-size: clamp(3.8rem, 9vw, 9.2rem);
+      line-height: .86;
+      letter-spacing: -.065em;
+      font-weight: 900;
+      color: var(--about-ink);
+      text-transform: uppercase;
+    }
+
+    .about-hero h1 .accent {
+      color: var(--about-pink);
+      display: inline-block;
+    }
+
+    .about-hero-sub {
+      width: min(610px, 88vw);
+      margin: 2rem auto 0;
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+      line-height: 1.75;
+      color: var(--about-muted);
+    }
+
+    .hero-scroll-cue {
+      display: inline-flex;
+      align-items: center;
+      gap: .8rem;
+      margin-top: 2.4rem;
+      color: #333;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .hero-scroll-cue span {
+      width: 48px;
+      height: 1px;
+      background: var(--about-ink);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-scroll-cue span::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: var(--about-pink);
+      transform: translateX(-100%);
+      animation: cueLine 1.8s ease-in-out infinite;
+    }
+
+    @keyframes cueLine {
+      0% { transform: translateX(-100%); }
+      50%,100% { transform: translateX(100%); }
+    }
+
+    .hero-float {
+      position: absolute;
+      z-index: 2;
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 28px 65px rgba(0,0,0,.14);
+      will-change: transform;
+      transition: box-shadow .35s ease;
+    }
+
+    .hero-float img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.05);
+      transition: transform .8s cubic-bezier(.16,1,.3,1);
+    }
+
+    .hero-float:hover img { transform: scale(1.12); }
+    .hero-float:hover { box-shadow: 0 34px 80px rgba(217,70,166,.19); }
+
+    .hero-float.one {
+      width: clamp(145px, 18vw, 270px);
+      height: clamp(210px, 27vw, 390px);
+      left: -2.8vw;
+      top: 24%;
+      transform: rotate(-7deg);
+    }
+
+    .hero-float.two {
+      width: clamp(120px, 15vw, 215px);
+      height: clamp(170px, 22vw, 315px);
+      right: -2vw;
+      top: 17%;
+      transform: rotate(8deg);
+    }
+
+    .hero-float.three {
+      width: clamp(105px, 13vw, 175px);
+      height: clamp(105px, 13vw, 175px);
+      right: 8vw;
+      bottom: 7%;
+      border-radius: 50%;
+      transform: rotate(-4deg);
+    }
+
+    .hero-orbit {
+      position: absolute;
+      z-index: 1;
+      width: min(70vw, 930px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(217,70,166,.16);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-orbit::before,
+    .hero-orbit::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(217,70,166,.1);
+    }
+
+    .hero-orbit::before { inset: 12%; }
+    .hero-orbit::after { inset: 26%; }
+
+    /* STATEMENT */
+    .statement-section {
+      padding: 95px 5% 130px;
+    }
+
+    .statement-inner {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: .75fr 1.6fr;
+      gap: clamp(2rem, 7vw, 7rem);
+      align-items: start;
+    }
+
+    .statement-number {
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+      color: var(--about-pink);
+      text-transform: uppercase;
+      position: sticky;
+      top: 130px;
+    }
+
+    .statement-copy h2 {
+      margin: 0 0 2rem;
+      max-width: 900px;
+      font-size: clamp(2.4rem, 5.5vw, 5.7rem);
+      line-height: .98;
+      letter-spacing: -.055em;
+      color: var(--about-ink);
+      font-weight: 850;
+    }
+
+    .statement-copy h2 em {
+      color: var(--about-pink);
+      font-style: normal;
+    }
+
+    .statement-copy p {
+      max-width: 700px;
+      margin: 0 0 1.45rem auto;
+      font-size: 1.04rem;
+      line-height: 1.9;
+      color: var(--about-muted);
+    }
+
+    .statement-copy .highlight {
+      color: var(--about-ink);
+      font-size: 1.22rem;
+      font-weight: 700;
+    }
+
+    /* SIDE-BREAKOUT STORY */
+    .story-stage {
+      position: relative;
+      min-height: 940px;
+      padding: 120px 5%;
+      background: #111;
+      color: white;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .story-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(217,70,166,.13), transparent 45%);
+      pointer-events: none;
+    }
+
+    .story-center {
+      width: min(760px, 72vw);
+      text-align: center;
+      z-index: 4;
+      position: relative;
+    }
+
+    .story-center .about-kicker { color: #f3a7d5; }
+
+    .story-center h2 {
+      margin: 0;
+      font-size: clamp(3rem, 7vw, 7.3rem);
+      line-height: .91;
+      letter-spacing: -.06em;
+      text-transform: uppercase;
+    }
+
+    .story-center p {
+      margin: 2rem auto 0;
+      max-width: 570px;
+      color: rgba(255,255,255,.68);
       line-height: 1.8;
     }
 
-    @media (max-width: 768px) {
-      .about-grid { grid-template-columns: 1fr; }
-      .about-img img { height: 320px; }
-      .stats-inner { gap: 2rem; }
-    }
-    .story-wrapper{
-
-    position:relative;
-
-}
-
-.about-gallery{
-    max-width:1100px;
-    margin:0 auto 50px;
-
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:30px;
-}
-
-.about-gallery img{
-
-    width:100%;
-    height:420px;
-
-    object-fit:cover;
-
-    border-radius:24px;
-
-    box-shadow:
-        0 20px 50px rgba(0,0,0,.12);
-
-    transition:.35s;
-}
-
-.about-gallery img:hover{
-
-    transform:translateY(-8px);
-
-    box-shadow:
-        0 30px 60px rgba(217,70,166,.18);
-
-}
-
-@media(max-width:800px){
-
-.about-gallery{
-
-grid-template-columns:1fr;
-
-}
-
-.about-gallery img{
-
-height:320px;
-
-}
-
-}
-
-.about-gallery{
-    max-width:1100px;
-    margin:0 auto 60px;
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:32px;
-    align-items:center;
-}
-
-.about-gallery img{
-    width:100%;
-    height:420px;
-    object-fit:cover;
-    border-radius:24px;
-    display:block;
-    box-shadow:0 15px 45px rgba(0,0,0,.12);
-    transition:.35s ease;
-}
-
-.about-gallery img:hover{
-    transform:translateY(-6px);
-    box-shadow:0 25px 60px rgba(217,70,166,.18);
-}
-
-/* Large tablets */
-@media (max-width:1200px){
-
-    .about-gallery{
-        gap:24px;
-        max-width:95%;
+    .side-card {
+      position: absolute;
+      overflow: hidden;
+      border-radius: 24px;
+      box-shadow: 0 28px 80px rgba(0,0,0,.4);
+      z-index: 2;
+      will-change: transform;
     }
 
-    .about-gallery img{
-        height:380px;
+    .side-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .7s cubic-bezier(.16,1,.3,1);
     }
 
-}
+    .side-card:hover img { transform: scale(1.08); }
 
-/* Tablets */
-@media (max-width:992px){
-
-    .about-gallery{
-        grid-template-columns:1fr;
-        max-width:700px;
+    .side-card.left-top {
+      width: clamp(170px, 22vw, 330px);
+      height: clamp(230px, 31vw, 470px);
+      left: -3.7vw;
+      top: 7%;
+      transform: rotate(-6deg);
     }
 
-    .about-gallery img{
-        height:380px;
+    .side-card.right-top {
+      width: clamp(155px, 20vw, 300px);
+      height: clamp(190px, 25vw, 360px);
+      right: -2.5vw;
+      top: 10%;
+      transform: rotate(7deg);
     }
 
-}
-
-/* Mobile */
-@media (max-width:768px){
-
-    .about-gallery{
-        margin:0 auto 40px;
-        gap:20px;
+    .side-card.left-bottom {
+      width: clamp(140px, 18vw, 255px);
+      height: clamp(150px, 20vw, 280px);
+      left: 5vw;
+      bottom: 8%;
+      transform: rotate(5deg);
     }
 
-    .about-gallery img{
-        height:300px;
-        border-radius:18px;
+    .side-card.right-bottom {
+      width: clamp(180px, 25vw, 370px);
+      height: clamp(210px, 28vw, 410px);
+      right: -4vw;
+      bottom: 4%;
+      transform: rotate(-7deg);
     }
 
-}
-
-/* Small phones */
-@media (max-width:480px){
-
-    .about-gallery{
-        width:100%;
-        gap:16px;
+    /* STATS */
+    .stats-band {
+      background: var(--about-pink);
+      padding: 74px 5%;
+      overflow: hidden;
     }
 
-    .about-gallery img{
-        height:240px;
-        border-radius:16px;
+    .stats-inner {
+      width: min(1120px, 100%);
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      color: white;
     }
 
-}
+    .stat-item {
+      min-height: 155px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 1.25rem 2.5rem;
+      border-left: 1px solid rgba(255,255,255,.3);
+    }
+
+    .stat-item:first-child { border-left: 0; }
+
+    .stat-num {
+      font-size: clamp(2.7rem, 5vw, 5rem);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -.06em;
+    }
+
+    .stat-label {
+      margin-top: .85rem;
+      opacity: .9;
+      font-size: .87rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* VALUES */
+    .values-section {
+      padding: 130px 5%;
+      position: relative;
+    }
+
+    .values-head {
+      width: min(1120px, 100%);
+      margin: 0 auto 4.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 2rem;
+    }
+
+    .values-head h2 {
+      margin: 0;
+      max-width: 780px;
+      font-size: clamp(2.8rem, 6vw, 6.1rem);
+      line-height: .94;
+      letter-spacing: -.06em;
+      font-weight: 900;
+    }
+
+    .values-head p {
+      max-width: 330px;
+      color: var(--about-muted);
+      line-height: 1.7;
+    }
+
+    .values-grid {
+      width: min(1120px, 100%);
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      border-top: 1px solid var(--about-line);
+    }
+
+    .value-card {
+      padding: 3rem 2rem 3.5rem;
+      background: transparent;
+      border-radius: 0;
+      border-bottom: 1px solid var(--about-line);
+      transition: background .35s ease, transform .35s cubic-bezier(.16,1,.3,1);
+      position: relative;
+    }
+
+    .value-card:nth-child(odd) { border-right: 1px solid var(--about-line); }
+
+    .value-card:hover {
+      background: var(--about-blush);
+      transform: translateY(-5px);
+      box-shadow: none;
+    }
+
+    .value-icon {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .value-card h3 {
+      margin: 0 0 .9rem;
+      font-size: clamp(1.4rem, 2.4vw, 2rem);
+      color: var(--about-ink);
+    }
+
+    .value-card p {
+      margin: 0;
+      color: var(--about-muted);
+      line-height: 1.8;
+      max-width: 440px;
+    }
+
+    /* PROMISE */
+    .promise-section {
+      position: relative;
+      overflow: hidden;
+      padding: 120px 5%;
+      background: var(--about-blush);
+      text-align: center;
+      isolation: isolate;
+    }
+
+    .promise-section::before {
+      content: "A&M";
+      position: absolute;
+      z-index: -1;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: min(28vw, 360px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -.08em;
+      color: rgba(217,70,166,.055);
+      white-space: nowrap;
+    }
+
+    .promise-section h2 {
+      margin: 0;
+      font-size: clamp(2.9rem, 6vw, 6rem);
+      line-height: .95;
+      letter-spacing: -.055em;
+      color: var(--about-ink);
+    }
+
+    .promise-section p {
+      max-width: 620px;
+      margin: 1.5rem auto 2.3rem;
+      color: var(--about-muted);
+      line-height: 1.85;
+      font-size: 1.05rem;
+    }
+
+    .promise-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 54px;
+      padding: 0 1.7rem;
+      border-radius: 999px;
+      background: var(--about-ink);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform .3s ease, background .3s ease;
+    }
+
+    .promise-btn:hover {
+      transform: translateY(-3px);
+      background: var(--about-pink);
+    }
+
+    /* REVEAL MOTION */
+    .reveal-up,
+    .reveal-left,
+    .reveal-right,
+    .reveal-scale,
+    .reveal-clip {
+      opacity: 0;
+      transition:
+        opacity .9s ease,
+        transform 1.05s cubic-bezier(.16,1,.3,1),
+        clip-path 1.1s cubic-bezier(.16,1,.3,1);
+    }
+
+    .reveal-up { transform: translateY(48px); }
+    .reveal-left { transform: translateX(-80px) rotate(-3deg); }
+    .reveal-right { transform: translateX(80px) rotate(3deg); }
+    .reveal-scale { transform: scale(.88); }
+    .reveal-clip { clip-path: inset(0 0 100% 0); }
+
+    .is-visible {
+      opacity: 1;
+      transform: translate(0,0) rotate(0) scale(1);
+      clip-path: inset(0 0 0 0);
+    }
+
+    .word-line {
+      display: block;
+      overflow: hidden;
+    }
+
+    .word-line > span {
+      display: block;
+      transform: translateY(112%);
+      animation: heroWord 1s cubic-bezier(.16,1,.3,1) forwards;
+    }
+
+    .word-line:nth-child(2) > span { animation-delay: .12s; }
+
+    @keyframes heroWord {
+      to { transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+      .reveal-up,
+      .reveal-left,
+      .reveal-right,
+      .reveal-scale,
+      .reveal-clip {
+        opacity: 1;
+        transform: none;
+        clip-path: none;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .about-hero { min-height: 820px; }
+      .hero-float.one { left: -7vw; top: 19%; }
+      .hero-float.two { right: -7vw; top: 22%; }
+      .hero-float.three { right: 5vw; bottom: 8%; }
+
+      .statement-inner { grid-template-columns: 1fr; }
+      .statement-number { position: static; }
+      .statement-copy p { margin-left: 0; }
+
+      .story-stage { min-height: 820px; }
+      .story-center { width: min(650px, 75vw); }
+
+      .stats-inner { grid-template-columns: 1fr; }
+      .stat-item {
+        border-left: 0;
+        border-top: 1px solid rgba(255,255,255,.3);
+        align-items: center;
+        text-align: center;
+      }
+      .stat-item:first-child { border-top: 0; }
+
+      .values-head { display: block; }
+      .values-head p { margin-top: 1.4rem; }
+    }
+
+    @media (max-width: 700px) {
+      .about-hero {
+        min-height: 760px;
+        padding-top: 140px;
+      }
+
+      .about-hero-copy { width: 94vw; }
+      .about-hero h1 { font-size: clamp(3.2rem, 17vw, 5.8rem); }
+      .about-hero-sub { width: 78vw; }
+      .hero-orbit { width: 118vw; }
+
+      .hero-float.one {
+        width: 118px;
+        height: 170px;
+        left: -36px;
+        top: 21%;
+        border-radius: 18px;
+      }
+
+      .hero-float.two {
+        width: 105px;
+        height: 150px;
+        right: -30px;
+        top: 20%;
+        border-radius: 18px;
+      }
+
+      .hero-float.three {
+        width: 92px;
+        height: 92px;
+        right: 4vw;
+        bottom: 6%;
+      }
+
+      .statement-section,
+      .values-section { padding: 90px 5%; }
+
+      .story-stage {
+        min-height: 760px;
+        padding-inline: 4%;
+      }
+
+      .story-center { width: 78vw; }
+      .story-center h2 { font-size: clamp(2.7rem, 13vw, 5rem); }
+
+      .side-card.left-top {
+        width: 120px;
+        height: 180px;
+        left: -50px;
+      }
+
+      .side-card.right-top {
+        width: 112px;
+        height: 150px;
+        right: -45px;
+      }
+
+      .side-card.left-bottom {
+        width: 105px;
+        height: 115px;
+        left: -25px;
+      }
+
+      .side-card.right-bottom {
+        width: 125px;
+        height: 155px;
+        right: -50px;
+      }
+
+      .values-grid { grid-template-columns: 1fr; }
+      .value-card:nth-child(odd) { border-right: 0; }
+      .value-card { padding-inline: .5rem; }
+
+      .promise-section { padding: 95px 5%; }
+    }
   </style>
 </head>
+<body>
+  <div id="header-placeholder"></div>
 
-<div id="header-placeholder"></div>
+  <main class="about-main">
+    <section class="about-hero" id="top">
+      <div class="hero-orbit" aria-hidden="true"></div>
 
-<!-- HERO -->
-<section class="page-hero">
-  <div class="breadcrumb scroll-reveal">
-    <a href="/">Home</a> / About
-  </div>
+      <figure class="hero-float one reveal-left" data-parallax="-0.05">
+        <img src="/media1.jpeg" alt="A&M Hair & Beauty story">
+      </figure>
 
-  <h1 class="scroll-reveal">Our Story</h1>
-  <p class="scroll-reveal">Born from personal struggle. Built with love.</p>
-</section>
+      <figure class="hero-float two reveal-right" data-parallax="0.07">
+        <img src="/big hair oil.jpg" alt="A&M hair oil">
+      </figure>
 
-<!-- STORY -->
-<section class="about-gallery scroll-reveal">
+      <figure class="hero-float three reveal-scale" data-parallax="-0.09">
+        <img src="/good bonnet.jpg" alt="A&M satin bonnet">
+      </figure>
 
-    <img src="/media1.jpeg" alt="A&M Hair & Beauty">
+      <div class="about-hero-copy">
+        <div class="about-breadcrumb reveal-up"><a href="/">Home</a> / About</div>
+        <div class="about-kicker reveal-up">Our story</div>
+        <h1 aria-label="Beauty with purpose">
+          <span class="word-line"><span>Beauty with</span></span>
+          <span class="word-line"><span class="accent">purpose.</span></span>
+        </h1>
+        <p class="about-hero-sub reveal-up">Born from personal experience and shaped by a belief that caring for your hair should feel simple, intentional and beautiful.</p>
+        <div class="hero-scroll-cue reveal-up"><span></span> Scroll to discover</div>
+      </div>
+    </section>
 
-</section>
-  <div class="about-grid">
+    <section class="statement-section">
+      <div class="statement-inner">
+        <div class="statement-number reveal-up">01 — Why we began</div>
+        <div class="statement-copy">
+          <h2 class="reveal-up">Hair care should feel like <em>confidence</em>, not complication.</h2>
+          <div id="about-text"></div>
+        </div>
+      </div>
+    </section>
 
-    <div class="about-img scroll-reveal-left">
-      <img src="/big hair oil.jpg" alt="A&M Hair Oil"
-           onerror="this.src='https://via.placeholder.com/600x520/f9a8d4/fff?text=A%26M'">
-    </div>
+    <section class="story-stage" aria-label="A&M products and story">
+      <figure class="side-card left-top reveal-left" data-parallax="-0.08">
+        <img src="/media1.jpeg" alt="A&M Hair & Beauty lifestyle">
+      </figure>
 
-    <div class="about-text scroll-reveal-right" id="about-text"></div>
+      <figure class="side-card right-top reveal-right" data-parallax="0.06">
+        <img src="/small hair oil.jpg" alt="Rosemary hair oil">
+      </figure>
 
-  </div>
-</section>
+      <figure class="side-card left-bottom reveal-left" data-parallax="0.05">
+        <img src="/good bonnet.jpg" alt="Satin bonnet">
+      </figure>
 
-<!-- STATS -->
-<div class="stats-band">
-  <div class="stats-inner" id="stats-inner"></div>
-</div>
+      <figure class="side-card right-bottom reveal-right" data-parallax="-0.07">
+        <img src="/conditioner.jpg" alt="A&M conditioner">
+      </figure>
 
-<!-- VALUES -->
-<section class="values-section">
-  <div class="section-header scroll-reveal">
-    <h2>What We Stand For</h2>
-  </div>
+      <div class="story-center reveal-up">
+        <div class="about-kicker">Created with intention</div>
+        <h2>Real care.<br>Real routine.<br>Real you.</h2>
+        <p>From nourishing oils to everyday essentials, our range is made to help turn ordinary hair-care moments into rituals you look forward to.</p>
+      </div>
+    </section>
 
-  <div class="values-grid" id="values-grid"></div>
-</section>
+    <section class="stats-band" aria-label="A&M Hair & Beauty statistics">
+      <div class="stats-inner" id="stats-inner"></div>
+    </section>
 
-<!-- PROMISE -->
-<section class="promise-section scroll-reveal">
-  <h2>Our Promise 🌿</h2>
-  <p>
-    Every product is made with care, quality, and intention.
-  </p>
+    <section class="values-section">
+      <div class="values-head">
+        <div>
+          <div class="about-kicker reveal-up">02 — What matters</div>
+          <h2 class="reveal-up">The values behind every bottle.</h2>
+        </div>
+        <p class="reveal-up">Thoughtful products, a beautiful experience and care that stays focused on the people using it.</p>
+      </div>
+      <div class="values-grid" id="values-grid"></div>
+    </section>
 
-  <a href="/products/" class="btn btn-primary btn-lg">Shop Products</a>
-</section>
+    <section class="promise-section">
+      <div class="about-kicker reveal-up">03 — Our promise</div>
+      <h2 class="reveal-up">Made with care.<br>Chosen with confidence.</h2>
+      <p class="reveal-up">Every A&M product is selected with care, quality and intention — so your routine can feel simpler and your hair can get the attention it deserves.</p>
+      <a href="/products/" class="promise-btn reveal-up">Explore the collection →</a>
+    </section>
+  </main>
 
-<div id="footer-placeholder"></div>
+  <div id="footer-placeholder"></div>
 
-<!-- SCRIPTS -->
-<script src="/data.js"></script>
-<script src="/nav.js"></script>
-<script src="/cart.js"></script>
+  <script src="/data.js"></script>
+  <script src="/nav.js"></script>
+  <script src="/cart.js"></script>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.AM) {
+        AM.renderHeader("About");
+        AM.renderFooter();
+      }
 
-  AM.renderHeader("About");
-  AM.renderFooter();
+      const about = window.AM_ABOUT || {};
+      const intro = about.intro || "A&M Hair & Beauty began with a simple idea: create hair care that feels personal, dependable and easy to make part of everyday life.";
+      const body = Array.isArray(about.body) ? about.body : [];
+      const tagline = about.tagline || "Natural hair care solutions, made with intention.";
+      const stats = Array.isArray(about.stats) ? about.stats : [];
+      const values = Array.isArray(about.values) ? about.values : [];
 
-  const { intro, body, tagline, stats, values } = AM_ABOUT;
+      document.getElementById("about-text").innerHTML = `
+        <p class="reveal-up">${intro}</p>
+        ${body.map(p => `<p class="reveal-up">${p}</p>`).join("")}
+        <p class="highlight reveal-up">${tagline}</p>
+      `;
 
-  // STORY
-  document.getElementById("about-text").innerHTML = `
-    <p>${intro}</p>
-    ${(body || []).map(p => `<p>${p}</p>`).join("")}
-    <p class="highlight">${tagline}</p>
-  `;
+      document.getElementById("stats-inner").innerHTML = stats.map((s, index) => `
+        <div class="stat-item reveal-up" style="transition-delay:${index * 90}ms">
+          <span class="stat-num">${s.num}</span>
+          <span class="stat-label">${s.label}</span>
+        </div>
+      `).join("");
 
-  // STATS
-  document.getElementById("stats-inner").innerHTML = (stats || []).map(s => `
-    <div class="stat-item scroll-reveal">
-      <span class="stat-num">${s.num}</span>
-      <span class="stat-label">${s.label}</span>
-    </div>
-  `).join("");
+      document.getElementById("values-grid").innerHTML = values.map((v, index) => `
+        <article class="value-card reveal-up" style="transition-delay:${(index % 2) * 90}ms">
+          <div class="value-icon">${v.icon}</div>
+          <h3>${v.title}</h3>
+          <p>${v.body}</p>
+        </article>
+      `).join("");
 
-  // VALUES
-  document.getElementById("values-grid").innerHTML = (values || []).map(v => `
-    <div class="value-card scale-in">
-      <div class="value-icon">${v.icon}</div>
-      <h3>${v.title}</h3>
-      <p>${v.body}</p>
-    </div>
-  `).join("");
+      const revealTargets = document.querySelectorAll(
+        ".reveal-up, .reveal-left, .reveal-right, .reveal-scale, .reveal-clip"
+      );
 
-  AM.initScrollReveal();
-});
-</script>
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("is-visible");
+            obs.unobserve(entry.target);
+          });
+        }, { threshold: .14, rootMargin: "0px 0px -7% 0px" });
 
+        revealTargets.forEach(el => observer.observe(el));
+      } else {
+        revealTargets.forEach(el => el.classList.add("is-visible"));
+      }
+
+      const parallaxItems = [...document.querySelectorAll("[data-parallax]")];
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (!reduceMotion && parallaxItems.length) {
+        let ticking = false;
+
+        const updateParallax = () => {
+          const vh = window.innerHeight;
+          parallaxItems.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            const speed = Number(el.dataset.parallax || 0);
+            const offset = (rect.top + rect.height / 2 - vh / 2) * speed;
+            el.style.translate = `0 ${offset.toFixed(1)}px`;
+          });
+          ticking = false;
+        };
+
+        window.addEventListener("scroll", () => {
+          if (!ticking) {
+            requestAnimationFrame(updateParallax);
+            ticking = true;
+          }
+        }, { passive: true });
+
+        updateParallax();
+      }
+    });
+  </script>
 </body>
 </html>

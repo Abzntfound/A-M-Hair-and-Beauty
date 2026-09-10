@@ -1,5 +1,3 @@
-<!--Stripe Checkout --!>
-
 const Stripe = require('stripe');
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -15,6 +13,7 @@ const PRODUCTS = {
   'pomade': { name: 'Pomade', price: 499 },
   'sisal-soap-bag': { name: 'Sisal Soap Bag', price: 259 },
   'turmeric-soap': { name: 'Turmeric Soap', price: 349 },
+  'silk-and-shine': { name: 'Silk and Shine Bundle', price: 1799 },
   'silk-and-shine-set': { name: 'Silk and Shine Bundle', price: 1799 },
   'wash-set': { name: 'Wash Bundle', price: 1599 },
   'blow-dry-set': { name: 'Blowdryer Bundle', price: 2799 },
@@ -41,17 +40,22 @@ function normalisePromoCode(code) {
 }
 
 function getValidPromo(promo) {
-  const code = normalisePromoCode(promo?.code);
+  if (!promo || typeof promo !== 'object') return null;
+
+  const code = normalisePromoCode(promo.code);
   if (!code) return null;
+
   const definition = PROMO_CODES[code];
   if (!definition) return null;
+
   return { code, ...definition };
 }
 
 function getSafeCart(cart) {
   return cart.map((item) => {
-    const product = PRODUCTS[item.id];
-    if (!product) throw new Error('Unknown product: ' + item.id);
+    const product = PRODUCTS[item?.id];
+    if (!product) throw new Error('Unknown product: ' + String(item?.id || 'missing-id'));
+
     return {
       id: item.id,
       qty: Math.max(1, Math.floor(Number(item.qty) || 1)),
@@ -65,20 +69,43 @@ exports.handler = async (event) => {
     if (event.httpMethod && event.httpMethod !== 'POST') {
       return {
         statusCode: 405,
-        headers: { Allow: 'POST' },
+        headers: {
+          Allow: 'POST',
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ error: 'Method not allowed' }),
       };
     }
 
-    const { cart, promo } = JSON.parse(event.body || '{}');
+    let payload;
+    try {
+      payload = JSON.parse(event.body || '{}');
+    } catch {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Invalid checkout request' }),
+      };
+    }
+
+    const { cart, promo } = payload;
 
     if (!Array.isArray(cart) || cart.length === 0) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'Cart is empty' }) };
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Cart is empty' }),
+      };
+    }
+
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('Stripe is not configured');
     }
 
     const safeCart = getSafeCart(cart);
     const validPromo = getValidPromo(promo);
     const amHalfActive = validPromo?.type === 'oil_half_price';
+
     const line_items = [];
     let merchandiseTotal = 0;
 
@@ -86,7 +113,7 @@ exports.handler = async (event) => {
       const { product, id, qty } = item;
       const isAmHalfOil = amHalfActive && AMHALF_OIL_IDS.includes(id);
       const unitAmount = isAmHalfOil
-        ? Math.round(product.price / 2)
+        ? Math.round(product.price * 0.5)
         : product.price;
 
       line_items.push({
@@ -106,7 +133,11 @@ exports.handler = async (event) => {
     }
 
     let shipping = SHIPPING_FEE;
-    if (validPromo?.type === 'free_shipping' || merchandiseTotal >= FREE_SHIPPING_THRESHOLD) {
+
+    if (
+      validPromo?.type === 'free_shipping' ||
+      merchandiseTotal >= FREE_SHIPPING_THRESHOLD
+    ) {
       shipping = 0;
     }
 
@@ -131,18 +162,23 @@ exports.handler = async (event) => {
       },
       success_url:
         'https://amhairandbeauty.com/success?success=true&session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://amhairandbeauty.com/cart',
+      cancel_url: 'https://amhairandbeauty.com/cart/',
     });
 
     return {
       statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: session.url }),
     };
   } catch (err) {
     console.error('Checkout error:', err);
+
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error: err?.message || 'Checkout failed',
+      }),
     };
   }
 };

@@ -5,7 +5,7 @@
   const isHome = location.pathname === '/' || location.pathname === '/index.html';
   if (!isHome) return;
 
-  // Replace the old Buy One/Get One promotional block with a real product feature. Thanks
+  // Replace the old Buy One/Get One promotional block with a real product feature.
   const oldPromo = document.querySelector('.media3-section');
   if (oldPromo) {
     oldPromo.innerHTML = `
@@ -27,6 +27,10 @@
   }
 
   const css = `
+    .media3-section::before{background:none!important;content:none!important}
+    .media3-section::after{background:none!important;content:none!important}
+    .media3-section{background:linear-gradient(135deg,#fff 0%,#fdf2f8 100%)!important}
+
     .am-feedback-btn{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:1450;border:0;border-radius:999px;padding:14px 19px;background:#151515;color:#fff;font:700 14px/1 Poppins,sans-serif;box-shadow:0 16px 44px rgba(0,0,0,.23);cursor:pointer;display:flex;align-items:center;gap:9px;transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s ease,background .25s ease}
     .am-feedback-btn:hover{transform:translateY(-4px) scale(1.02);background:#d946a6;box-shadow:0 22px 55px rgba(217,70,166,.28)}
     .am-feedback-btn .am-feedback-icon{font-size:17px}

@@ -13,7 +13,7 @@
   // Example:
   // https://am-hair-beauty.onrender.com
   // =========================================
-  const RENDER_URL = 'https://a-m-hair-and-beauty.onrender.com/';
+  const RENDER_URL = 'https://a-m-hair-and-beauty.onrender.com';
 
   // =========================================
   // KEEP MEDIA3 SECTION + VIDEO

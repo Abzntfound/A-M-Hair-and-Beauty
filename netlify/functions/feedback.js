@@ -5,7 +5,7 @@ const SUPABASE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   '';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
-const FEEDBACK_EMAIL = process.env.FEEDBACK_EMAIL || 'help.amhairandbeauty@gmail.com';
+const FEEDBACK_EMAIL = process.env.FEEDBACK_EMAIL || 'adube6113@outlook.com';
 
 function json(statusCode, body) {
   return {
@@ -128,7 +128,7 @@ exports.handler = async (event) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: 'A&M Feedback <help.amhairandbeauty@gmail.com>',
+          from: 'A&M Feedback <adube6113@outlook.com>',
           to: [FEEDBACK_EMAIL],
           subject: `New website feedback from ${name}`,
           html: `

@@ -37,15 +37,15 @@ function escapeHtml(value) {
 function safeSupabaseError(status, detail) {
   const text = String(detail || '');
 
-  if (status === 404 || /PGRST205|feedback.*not.*schema cache|relation.*feedback.*does not exist/i.test(text)) {
-    return 'The Supabase feedback table is missing. Run supabase/feedback.sql in the Supabase SQL Editor, then try again.';
+  if (/PGRST205|not.*schema cache|relation.*feedback.*does not exist/i.test(text)) {
+    return 'Supabase Data API cannot see public.feedback yet. Make sure public is exposed in Project Settings → Data API, then run the feedback grants/reload SQL.';
   }
 
-  if (status === 401 || status === 403 || /invalid.*api.?key|permission denied|JWT/i.test(text)) {
-    return 'Supabase rejected the server key. Check SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY in Netlify, then redeploy.';
+  if (status === 401 || status === 403 || /invalid.*api.?key|permission denied|JWT|42501/i.test(text)) {
+    return 'Supabase rejected access to feedback. Check the server key and run the feedback service_role GRANT statements in the SQL Editor.';
   }
 
-  return 'Could not save your feedback to Supabase. Check the Netlify function log for the Supabase error.';
+  return `Supabase error ${status}. Check the Netlify function log for details.`;
 }
 
 exports.handler = async (event) => {
@@ -87,11 +87,11 @@ exports.handler = async (event) => {
     const headers = {
       apikey: SUPABASE_KEY,
       'Content-Type': 'application/json',
+      'Content-Profile': 'public',
+      'Accept-Profile': 'public',
       Prefer: 'return=minimal'
     };
 
-    // Legacy service_role keys are JWTs and can also be used as a Bearer token.
-    // New sb_secret_ keys are opaque API keys, so do not send them as JWTs.
     if (SUPABASE_KEY.startsWith('eyJ')) {
       headers.Authorization = `Bearer ${SUPABASE_KEY}`;
     }

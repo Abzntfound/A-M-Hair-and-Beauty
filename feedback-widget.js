@@ -5,6 +5,27 @@
   const isHome = location.pathname === '/' || location.pathname === '/index.html';
   if (!isHome) return;
 
+  // Replace the old Buy One/Get One promotional block with a real product feature.
+  const oldPromo = document.querySelector('.media3-section');
+  if (oldPromo) {
+    oldPromo.innerHTML = `
+      <div class="media3-content scroll-reveal-left">
+        <span class="media3-eyebrow">Featured Product</span>
+        <h2>Rosemary Hair Oil 60ml</h2>
+        <p>Nourish your scalp and give your hair the care it deserves with our Rosemary Hair Oil — a simple addition to your regular hair-care routine.</p>
+        <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:1.6rem">
+          <strong style="font-size:1.65rem;color:#151515">£4.99</strong>
+          <span style="padding:.45rem .8rem;border-radius:999px;background:#fdf2f8;color:#d946a6;font-size:.8rem;font-weight:800">A&M HAIR & BEAUTY</span>
+        </div>
+        <a href="/products?id=rosemary-hair-oil-60ml" class="btn btn-primary btn-lg">View Product →</a>
+      </div>
+      <div class="media3-video-wrap scroll-reveal-right" style="background:#fdf2f8;display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;max-width:430px">
+        <a href="/products?id=rosemary-hair-oil-60ml" style="display:block;width:100%;height:100%" aria-label="View Rosemary Hair Oil 60ml">
+          <img src="/small hair oil.jpg" alt="A&M Rosemary Hair Oil 60ml" style="display:block;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.16,1,.3,1)" onmouseover="this.style.transform='scale(1.045)'" onmouseout="this.style.transform='scale(1)'">
+        </a>
+      </div>`;
+  }
+
   const css = `
     .am-feedback-btn{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:1450;border:0;border-radius:999px;padding:14px 19px;background:#151515;color:#fff;font:700 14px/1 Poppins,sans-serif;box-shadow:0 16px 44px rgba(0,0,0,.23);cursor:pointer;display:flex;align-items:center;gap:9px;transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s ease,background .25s ease}
     .am-feedback-btn:hover{transform:translateY(-4px) scale(1.02);background:#d946a6;box-shadow:0 22px 55px rgba(217,70,166,.28)}

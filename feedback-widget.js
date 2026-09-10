@@ -5,7 +5,7 @@
   const isHome = location.pathname === '/' || location.pathname === '/index.html';
   if (!isHome) return;
 
-  // Replace the old Buy One/Get One promotional block with a real product feature.
+  // Replace the old Buy One/Get One promotional block with a real product feature. Thanks
   const oldPromo = document.querySelector('.media3-section');
   if (oldPromo) {
     oldPromo.innerHTML = `

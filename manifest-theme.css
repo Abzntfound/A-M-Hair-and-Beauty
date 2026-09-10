@@ -1,0 +1,38 @@
+/* A&M Hair & Beauty — premium editorial motion theme */
+:root{--am-pink:#d946a6;--am-pink-2:#ec4899;--am-ink:#151515;--am-muted:#6b6b6b;--am-blush:#fdf2f8;--am-line:rgba(21,21,21,.1);--am-ease:cubic-bezier(.16,1,.3,1)}
+body{background:#fff;color:var(--am-ink)}
+main,section{position:relative}
+.page-hero{min-height:52vh;display:grid;place-items:center;align-content:center;overflow:hidden;padding:150px 5% 95px;background:radial-gradient(circle at 15% 20%,rgba(217,70,166,.18),transparent 30%),radial-gradient(circle at 85% 70%,rgba(236,72,153,.14),transparent 32%),linear-gradient(135deg,#fff 0%,#fdf2f8 100%)}
+.page-hero:before,.page-hero:after{content:"";position:absolute;border-radius:999px;filter:blur(2px);pointer-events:none;animation:amFloat 9s ease-in-out infinite}
+.page-hero:before{width:280px;height:280px;left:-130px;top:22%;background:linear-gradient(135deg,rgba(217,70,166,.22),rgba(255,255,255,.5))}
+.page-hero:after{width:220px;height:220px;right:-90px;bottom:-30px;background:linear-gradient(135deg,rgba(236,72,153,.15),rgba(217,70,166,.28));animation-delay:-3s}
+.page-hero>*{position:relative;z-index:2}
+.page-hero h1{font-size:clamp(3rem,8vw,7rem);line-height:.9;letter-spacing:-.065em;max-width:1100px;text-wrap:balance}
+.page-hero p{font-size:clamp(1rem,1.7vw,1.25rem);max-width:680px;line-height:1.8}
+.section{padding:clamp(80px,10vw,140px) 5%}
+.section-header{max-width:1000px;margin-left:auto;margin-right:auto}
+.section-header h2{font-size:clamp(2.4rem,6vw,5.2rem);line-height:.98;letter-spacing:-.055em;text-wrap:balance}
+.section-header p{line-height:1.8}
+.product-card,.review-card,.cart-summary,.cart-item,.orders-card,.tracking-card,.value-card,.team-card{border:1px solid rgba(21,21,21,.07);box-shadow:0 18px 60px rgba(0,0,0,.07);transition:transform .65s var(--am-ease),box-shadow .65s var(--am-ease),border-color .35s ease}
+.product-card:hover,.review-card:hover,.value-card:hover,.team-card:hover{transform:translateY(-10px);box-shadow:0 30px 80px rgba(217,70,166,.15);border-color:rgba(217,70,166,.2)}
+.product-card img,.product-image img,.about-img img,.media3-image img{transition:transform 1s var(--am-ease),filter .6s ease}
+.product-card:hover img,.product-image:hover img,.media3-image:hover img{transform:scale(1.045)}
+.products-grid,.home-products-grid{gap:clamp(1.4rem,2.4vw,2.5rem)}
+.btn{transition:transform .45s var(--am-ease),box-shadow .45s var(--am-ease),background .3s ease}
+.btn:hover{transform:translateY(-3px)}
+.site-header{backdrop-filter:saturate(140%) blur(12px);-webkit-backdrop-filter:saturate(140%) blur(12px)}
+.site-header.scrolled{border-bottom:1px solid rgba(21,21,21,.06)}
+.footer{position:relative;overflow:hidden}
+.footer:before{content:"A&M";position:absolute;right:-.03em;bottom:-.28em;font-size:min(28vw,360px);font-weight:900;letter-spacing:-.09em;color:rgba(255,255,255,.025);pointer-events:none}
+.scroll-reveal,.scroll-reveal-left,.scroll-reveal-right,.scale-in{will-change:transform,opacity}
+.scroll-reveal{transform:translateY(70px) scale(.985)}
+.scroll-reveal-left{transform:translateX(-90px) rotate(-1.5deg)}
+.scroll-reveal-right{transform:translateX(90px) rotate(1.5deg)}
+.scale-in{transform:scale(.88) translateY(25px)}
+.scroll-reveal,.scroll-reveal-left,.scroll-reveal-right,.scale-in{transition:opacity 1s var(--am-ease),transform 1.2s var(--am-ease)}
+.scroll-reveal.revealed,.scroll-reveal-left.revealed,.scroll-reveal-right.revealed,.scale-in.revealed{opacity:1;transform:none}
+img{max-width:100%}
+@keyframes amFloat{0%,100%{transform:translate3d(0,0,0) rotate(0)}50%{transform:translate3d(0,-24px,0) rotate(7deg)}}
+@media(max-width:900px){.page-hero{min-height:44vh;padding-top:130px}.section{padding-left:6%;padding-right:6%}.product-card:hover,.review-card:hover,.value-card:hover,.team-card:hover{transform:translateY(-5px)}}
+@media(max-width:600px){.page-hero{padding:120px 20px 70px}.page-hero h1{font-size:clamp(2.8rem,16vw,4.4rem)}.page-hero:before{width:180px;height:180px;left:-100px}.page-hero:after{width:150px;height:150px;right:-80px}.section{padding:72px 18px}.section-header h2{font-size:clamp(2.25rem,12vw,3.6rem)}.product-card,.review-card,.cart-summary,.cart-item,.orders-card,.tracking-card,.value-card,.team-card{border-radius:20px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.scroll-reveal,.scroll-reveal-left,.scroll-reveal-right,.scale-in{opacity:1!important;transform:none!important}}

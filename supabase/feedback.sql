@@ -1,4 +1,4 @@
--- Run this once in the Supabase SQL Editor for A&M Hair & Beauty.
+-- Run this once in the Supabase SQL Editor for A&M Hair & Beauty
 -- Feedback is written only by the Netlify server function using the service-role key.
 
 create table if not exists public.feedback (

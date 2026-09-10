@@ -524,7 +524,7 @@ async function proceedToCheckout() {
     const cart = getCart();
     if (!cart.length) return;
 
-    const res = await fetch("/.netlify/functions/create-checkout", {
+    const res = await fetch("/netlify/functions/create-checkout.js", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

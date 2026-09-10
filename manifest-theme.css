@@ -1,4 +1,4 @@
-/* A&M Hair & Beauty — premium editorial motion theme */
+/* A&M Hair & Beauty — premium editorial Motion theme */
 :root{--am-pink:#d946a6;--am-pink-2:#ec4899;--am-ink:#151515;--am-muted:#6b6b6b;--am-blush:#fdf2f8;--am-line:rgba(21,21,21,.1);--am-ease:cubic-bezier(.16,1,.3,1)}
 body{background:#fff;color:var(--am-ink)}
 main,section{position:relative}

@@ -130,8 +130,8 @@ exports.handler = async (event) => {
         share_key: String(promo?.shareKey || '').slice(0, 100),
       },
       success_url:
-        'https://amhairandbeauty.com/success/?success=true&session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://amhairandbeauty.com/cart/',
+        'https://amhairandbeauty.com/success?success=true&session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://amhairandbeauty.com/cart',
     });
 
     return {

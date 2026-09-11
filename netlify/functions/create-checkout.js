@@ -64,6 +64,59 @@ function getSafeCart(cart) {
   });
 }
 
+function buildCheckoutLines(safeCart, amHalfActive) {
+  // cart.js calculates AMHALF using the exact 50% value first, then rounds
+  // the final cart total to 2 decimal places. Because Stripe only accepts
+  // whole pennies, we reproduce that same final-total rounding here and
+  // distribute any leftover penny across discounted lines.
+  const pricedLines = safeCart.map((item) => {
+    const isAmHalfOil = amHalfActive && AMHALF_OIL_IDS.includes(item.id);
+    const rawAmount = isAmHalfOil
+      ? item.product.price * item.qty * 0.5
+      : item.product.price * item.qty;
+
+    return {
+      ...item,
+      isAmHalfOil,
+      rawAmount,
+      stripeAmount: Math.floor(rawAmount),
+    };
+  });
+
+  const rawMerchandiseTotal = pricedLines.reduce(
+    (sum, line) => sum + line.rawAmount,
+    0
+  );
+
+  const targetMerchandiseTotal = Math.round(rawMerchandiseTotal);
+  const flooredTotal = pricedLines.reduce(
+    (sum, line) => sum + line.stripeAmount,
+    0
+  );
+
+  let penniesToDistribute = targetMerchandiseTotal - flooredTotal;
+
+  // Only fractional AMHALF lines can need the extra penny.
+  for (const line of pricedLines) {
+    if (penniesToDistribute <= 0) break;
+
+    if (line.isAmHalfOil && !Number.isInteger(line.rawAmount)) {
+      line.stripeAmount += 1;
+      penniesToDistribute -= 1;
+    }
+  }
+
+  if (penniesToDistribute !== 0) {
+    throw new Error('Unable to reconcile checkout total');
+  }
+
+  return {
+    pricedLines,
+    rawMerchandiseTotal,
+    targetMerchandiseTotal,
+  };
+}
+
 exports.handler = async (event) => {
   try {
     if (event.httpMethod && event.httpMethod !== 'POST') {
@@ -106,37 +159,47 @@ exports.handler = async (event) => {
     const validPromo = getValidPromo(promo);
     const amHalfActive = validPromo?.type === 'oil_half_price';
 
-    const line_items = [];
-    let merchandiseTotal = 0;
+    const {
+      pricedLines,
+      rawMerchandiseTotal,
+      targetMerchandiseTotal,
+    } = buildCheckoutLines(safeCart, amHalfActive);
 
-    for (const item of safeCart) {
-      const { product, id, qty } = item;
-      const isAmHalfOil = amHalfActive && AMHALF_OIL_IDS.includes(id);
-      const unitAmount = isAmHalfOil
-        ? Math.round(product.price * 0.5)
-        : product.price;
+    const line_items = pricedLines.map((line) => {
+      const { product, qty, isAmHalfOil, stripeAmount } = line;
 
-      line_items.push({
+      if (isAmHalfOil) {
+        // Keep the full discounted line as quantity 1 so Stripe can represent
+        // totals such as 50% of £4.99 without forcing a per-item half-penny.
+        return {
+          price_data: {
+            currency: 'gbp',
+            product_data: {
+              name: `${product.name} × ${qty} — AMHALF 50% off`,
+            },
+            unit_amount: stripeAmount,
+          },
+          quantity: 1,
+        };
+      }
+
+      return {
         price_data: {
           currency: 'gbp',
-          product_data: {
-            name: isAmHalfOil
-              ? `${product.name} — AMHALF 50% off`
-              : product.name,
-          },
-          unit_amount: unitAmount,
+          product_data: { name: product.name },
+          unit_amount: product.price,
         },
         quantity: qty,
-      });
-
-      merchandiseTotal += unitAmount * qty;
-    }
+      };
+    });
 
     let shipping = SHIPPING_FEE;
 
+    // Use the unrounded merchandise amount here because cart.js checks the
+    // exact discounted cart total before deciding whether shipping is free.
     if (
       validPromo?.type === 'free_shipping' ||
-      merchandiseTotal >= FREE_SHIPPING_THRESHOLD
+      rawMerchandiseTotal >= FREE_SHIPPING_THRESHOLD
     ) {
       shipping = 0;
     }
@@ -159,6 +222,7 @@ exports.handler = async (event) => {
       metadata: {
         promo_code: validPromo?.code || '',
         share_key: String(promo?.shareKey || '').slice(0, 100),
+        merchandise_total_pence: String(targetMerchandiseTotal),
       },
       success_url:
         'https://amhairandbeauty.com/success?success=true&session_id={CHECKOUT_SESSION_ID}',

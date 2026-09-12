@@ -29,7 +29,7 @@ const SPAM_DELAY = 5000;
 
 // ===================== REVIEW AUTOSCROLL =====================
 let reviewAutoScrollFrame = null;
-const REVIEW_SCROLL_SPEED = 0.35; // lower = slower
+const REVIEW_SCROLL_SPEED = 18; // pixels per second
 
 function stopReviewAutoScroll() {
     if (reviewAutoScrollFrame) {
@@ -44,17 +44,17 @@ function startReviewAutoScroll() {
 
     stopReviewAutoScroll();
 
-    // Remove old cloned cards before rebuilding the seamless loop.
+    // Remove old clones before rebuilding the seamless loop.
     container.querySelectorAll('[data-review-clone="true"]').forEach(card => card.remove());
 
     const originalCards = [...container.querySelectorAll(".review-card")];
     if (originalCards.length < 2) return;
 
-    // Continuous scrolling works best without CSS snap forcing cards into place.
-    container.style.scrollSnapType = "none";
-    container.style.scrollBehavior = "auto";
+    // Prevent scroll snapping/smooth-scroll CSS from fighting the continuous motion.
+    container.style.setProperty("scroll-snap-type", "none", "important");
+    container.style.setProperty("scroll-behavior", "auto", "important");
 
-    // Duplicate the reviews so the end flows directly into the beginning.
+    // Duplicate the set so the loop has no visible gap.
     originalCards.forEach(card => {
         const clone = card.cloneNode(true);
         clone.dataset.reviewClone = "true";
@@ -62,21 +62,26 @@ function startReviewAutoScroll() {
         container.appendChild(clone);
     });
 
+    // Always start at the beginning after a refresh/render.
+    container.scrollLeft = 0;
+    let position = 0;
     let lastTime = performance.now();
 
     function tick(now) {
-        if (!document.hidden) {
-            const delta = Math.min(now - lastTime, 40);
-            container.scrollLeft += REVIEW_SCROLL_SPEED * (delta / 16.67);
+        const deltaSeconds = Math.min((now - lastTime) / 1000, 0.05);
+        lastTime = now;
 
-            // The duplicated set makes this reset visually seamless.
+        if (!document.hidden) {
+            position += REVIEW_SCROLL_SPEED * deltaSeconds;
+
             const loopPoint = container.scrollWidth / 2;
-            if (container.scrollLeft >= loopPoint) {
-                container.scrollLeft -= loopPoint;
+            if (loopPoint > 0 && position >= loopPoint) {
+                position -= loopPoint;
             }
+
+            container.scrollLeft = position;
         }
 
-        lastTime = now;
         reviewAutoScrollFrame = requestAnimationFrame(tick);
     }
 
@@ -279,7 +284,9 @@ async function displayReviews() {
         </div>
     `).join("");
 
-    requestAnimationFrame(startReviewAutoScroll);
+    requestAnimationFrame(() => {
+        requestAnimationFrame(startReviewAutoScroll);
+    });
 }
 
 // ===================== STAR RATING =====================

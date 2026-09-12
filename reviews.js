@@ -3,14 +3,6 @@
    ============================================================ */
 
 // ===================== SUPABASE =====================
-// IMPORTANT: don't capture window.supabaseClient into a constant at
-// load time. nav.js now creates that client asynchronously (it may
-// need to fetch the Supabase SDK from CDN first), so if reviews.js
-// grabs window.supabaseClient the instant this script runs, it can
-// easily capture `undefined` and never look again — which is
-// exactly what caused "Cannot read properties of undefined (reading
-// 'channel'/'from')". Instead, every function below asks for the
-// client fresh, and waits for it if it isn't ready yet.
 function waitForSupabaseClient(timeoutMs = 8000) {
     if (window.supabaseClient) return Promise.resolve(window.supabaseClient);
 
@@ -33,11 +25,55 @@ const ADMIN_EMAILS = ["adube6113@outlook.com", "vuyo_ncanywa@yahoo.co.uk"];
 
 // ===================== ANTI-SPAM =====================
 let lastPostTime = 0;
-const SPAM_DELAY = 5000; // 5 seconds
+const SPAM_DELAY = 5000;
+
+// ===================== REVIEW AUTOSCROLL =====================
+let reviewAutoScrollTimer = null;
+let reviewResumeTimer = null;
+
+function stopReviewAutoScroll() {
+    if (reviewAutoScrollTimer) {
+        clearInterval(reviewAutoScrollTimer);
+        reviewAutoScrollTimer = null;
+    }
+}
+
+function startReviewAutoScroll() {
+    const container = document.getElementById("reviews-container");
+    if (!container) return;
+
+    stopReviewAutoScroll();
+
+    const cards = [...container.querySelectorAll(".review-card")];
+    if (cards.length < 2) return;
+
+    reviewAutoScrollTimer = setInterval(() => {
+        if (document.hidden) return;
+
+        const currentLeft = container.scrollLeft;
+        const nextCard = cards.find(card => card.offsetLeft > currentLeft + 20);
+
+        if (nextCard) {
+            container.scrollTo({
+                left: nextCard.offsetLeft,
+                behavior: "smooth"
+            });
+        } else {
+            container.scrollTo({
+                left: 0,
+                behavior: "smooth"
+            });
+        }
+    }, 3000);
+}
+
+function pauseReviewAutoScroll() {
+    stopReviewAutoScroll();
+    clearTimeout(reviewResumeTimer);
+    reviewResumeTimer = setTimeout(startReviewAutoScroll, 5000);
+}
 
 // ===================== USER =====================
-// NOTE: auth.js stores the logged-in user under the "am_user" key
-// (see saveLocalUser() in auth.js).
 function getUser() {
     try {
         return JSON.parse(localStorage.getItem("am_user") || "null");
@@ -166,7 +202,6 @@ async function addReply(id) {
         .from("reviews")
         .update({
             reply,
-            // name lives under user.profile.name, not user.name
             reply_author: user?.profile?.name || "Admin"
         })
         .eq("id", id);
@@ -185,6 +220,8 @@ async function displayReviews() {
     const container = document.getElementById("reviews-container");
     if (!container) return;
 
+    stopReviewAutoScroll();
+
     container.innerHTML = `
         <p style="text-align:center;color:#aaa">Loading reviews...</p>
     `;
@@ -200,7 +237,6 @@ async function displayReviews() {
 
     container.innerHTML = reviews.map(r => `
         <div class="review-card">
-            
             <div class="review-header">
                 <div>
                     <h3>${safe(r.name)}</h3>
@@ -230,12 +266,13 @@ async function displayReviews() {
                     Reply (Admin)
                 </button>
             ` : ""}
-
         </div>
     `).join("");
+
+    requestAnimationFrame(startReviewAutoScroll);
 }
 
-// ===================== STAR RATING (FIXED) =====================
+// ===================== STAR RATING =====================
 function initStars() {
     const starsEl = document.querySelectorAll(".star");
     const input = document.getElementById("review-rating");
@@ -280,7 +317,6 @@ async function handleSubmit(e) {
         review,
         rating: Number(rating),
         date: new Date().toISOString(),
-        // pfp lives under user.profile.pfp, not user.pfp
         pfp: user?.profile?.pfp || ""
     });
 
@@ -329,6 +365,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const openBtn = document.getElementById("leave-review-btn");
     const modal = document.getElementById("review-modal-overlay");
+    const reviewContainer = document.getElementById("reviews-container");
+
+    reviewContainer?.addEventListener("touchstart", pauseReviewAutoScroll, { passive: true });
+    reviewContainer?.addEventListener("pointerdown", pauseReviewAutoScroll);
+    reviewContainer?.addEventListener("wheel", pauseReviewAutoScroll, { passive: true });
 
     openBtn?.addEventListener("click", () => {
         modal?.classList.add("active");
@@ -342,4 +383,3 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
-

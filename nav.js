@@ -8,6 +8,7 @@ const USER_CACHE_KEY = "am_user";
 const SUPABASE_URL = "https://bipejrjipvoqvkwuzftz.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpcGVqcmppcHZvcXZrd3V6ZnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzYzMjMsImV4cCI6MjA5NzIxMjMyM30.Z8V7chc-UOK2UU5dxBydgLbT0u1DUv2_DGtisLmZWq4";
 const AM_COOKIE_DOMAIN = ".amhairandbeauty.com";
+const THEME_KEY = "amTheme";
 
 function loadPremiumTheme(){
   if(document.querySelector('link[data-am-premium-theme]')) return;
@@ -102,21 +103,58 @@ function displayNameFor(user){
   return name?name.split(' ')[0]:(user.email?user.email.split('@')[0]:'Account');
 }
 
-function applyTheme(theme){
-  if(theme==='dark') document.documentElement.setAttribute('data-theme','dark');
-  else document.documentElement.removeAttribute('data-theme');
+// ==========================================================
+// THEME SYNC
+// The auth subdomain writes amTheme to a parent-domain cookie.
+// The shared cookie is checked FIRST so an old localStorage value
+// on the main domain cannot override a setting just changed in auth.
+// ==========================================================
+function normaliseTheme(theme){
+  return theme==='dark'?'dark':'light';
 }
+
+function applyTheme(theme){
+  const selected=normaliseTheme(theme);
+  document.documentElement.setAttribute('data-theme',selected);
+  localStorage.setItem(THEME_KEY,selected);
+  return selected;
+}
+
 function loadTheme(){
-  let theme=null;
+  const sharedTheme=getCookie(THEME_KEY);
+
+  // A setting selected on auth.amhairandbeauty.com wins because the
+  // cookie is shared across .amhairandbeauty.com.
+  if(sharedTheme){
+    applyTheme(sharedTheme);
+    return;
+  }
+
+  const savedLocalTheme=localStorage.getItem(THEME_KEY);
+  if(savedLocalTheme){
+    const selected=applyTheme(savedLocalTheme);
+    am_setCookie(THEME_KEY,selected,365);
+    return;
+  }
+
   const u=getUserData();
   if(u){
     const dark=u.darkMode??u.profile?.darkMode;
-    if(dark!==undefined) theme=dark?'dark':'light';
+    if(dark!==undefined){
+      const selected=applyTheme(dark?'dark':'light');
+      am_setCookie(THEME_KEY,selected,365);
+      return;
+    }
   }
-  if(!theme) theme=localStorage.getItem('amTheme')||getCookie('amTheme')||'light';
-  applyTheme(theme);
+
+  applyTheme('light');
 }
+
 loadTheme();
+
+// Re-read the shared theme if this page is restored from the browser cache.
+window.addEventListener('pageshow',loadTheme);
+window.addEventListener('focus',loadTheme);
 
 async function fetchLiveUser(){
   let client;
@@ -259,10 +297,12 @@ window.AM={
   fetchLiveUser,
   getCookie,
   applyTheme,
+  loadTheme,
   ensureSupabaseClient
 };
 
 document.addEventListener('DOMContentLoaded',()=>{
+  loadTheme();
   initScrollReveal();
   loadHomepageFeedback();
 });

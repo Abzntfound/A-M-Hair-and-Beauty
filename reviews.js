@@ -28,13 +28,13 @@ let lastPostTime = 0;
 const SPAM_DELAY = 5000;
 
 // ===================== REVIEW AUTOSCROLL =====================
-let reviewAutoScrollTimer = null;
-let reviewResumeTimer = null;
+let reviewAutoScrollFrame = null;
+const REVIEW_SCROLL_SPEED = 0.35; // lower = slower
 
 function stopReviewAutoScroll() {
-    if (reviewAutoScrollTimer) {
-        clearInterval(reviewAutoScrollTimer);
-        reviewAutoScrollTimer = null;
+    if (reviewAutoScrollFrame) {
+        cancelAnimationFrame(reviewAutoScrollFrame);
+        reviewAutoScrollFrame = null;
     }
 }
 
@@ -44,33 +44,43 @@ function startReviewAutoScroll() {
 
     stopReviewAutoScroll();
 
-    const cards = [...container.querySelectorAll(".review-card")];
-    if (cards.length < 2) return;
+    // Remove old cloned cards before rebuilding the seamless loop.
+    container.querySelectorAll('[data-review-clone="true"]').forEach(card => card.remove());
 
-    reviewAutoScrollTimer = setInterval(() => {
-        if (document.hidden) return;
+    const originalCards = [...container.querySelectorAll(".review-card")];
+    if (originalCards.length < 2) return;
 
-        const currentLeft = container.scrollLeft;
-        const nextCard = cards.find(card => card.offsetLeft > currentLeft + 20);
+    // Continuous scrolling works best without CSS snap forcing cards into place.
+    container.style.scrollSnapType = "none";
+    container.style.scrollBehavior = "auto";
 
-        if (nextCard) {
-            container.scrollTo({
-                left: nextCard.offsetLeft,
-                behavior: "smooth"
-            });
-        } else {
-            container.scrollTo({
-                left: 0,
-                behavior: "smooth"
-            });
+    // Duplicate the reviews so the end flows directly into the beginning.
+    originalCards.forEach(card => {
+        const clone = card.cloneNode(true);
+        clone.dataset.reviewClone = "true";
+        clone.setAttribute("aria-hidden", "true");
+        container.appendChild(clone);
+    });
+
+    let lastTime = performance.now();
+
+    function tick(now) {
+        if (!document.hidden) {
+            const delta = Math.min(now - lastTime, 40);
+            container.scrollLeft += REVIEW_SCROLL_SPEED * (delta / 16.67);
+
+            // The duplicated set makes this reset visually seamless.
+            const loopPoint = container.scrollWidth / 2;
+            if (container.scrollLeft >= loopPoint) {
+                container.scrollLeft -= loopPoint;
+            }
         }
-    }, 3000);
-}
 
-function pauseReviewAutoScroll() {
-    stopReviewAutoScroll();
-    clearTimeout(reviewResumeTimer);
-    reviewResumeTimer = setTimeout(startReviewAutoScroll, 5000);
+        lastTime = now;
+        reviewAutoScrollFrame = requestAnimationFrame(tick);
+    }
+
+    reviewAutoScrollFrame = requestAnimationFrame(tick);
 }
 
 // ===================== USER =====================
@@ -365,11 +375,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const openBtn = document.getElementById("leave-review-btn");
     const modal = document.getElementById("review-modal-overlay");
-    const reviewContainer = document.getElementById("reviews-container");
-
-    reviewContainer?.addEventListener("touchstart", pauseReviewAutoScroll, { passive: true });
-    reviewContainer?.addEventListener("pointerdown", pauseReviewAutoScroll);
-    reviewContainer?.addEventListener("wheel", pauseReviewAutoScroll, { passive: true });
 
     openBtn?.addEventListener("click", () => {
         modal?.classList.add("active");

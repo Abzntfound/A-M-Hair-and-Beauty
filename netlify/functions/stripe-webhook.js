@@ -14,9 +14,28 @@ function makeOrderNumber() {
   return `AM${Date.now().toString().slice(-8)}`;
 }
 
-function makeLookupCode() {
-  // Customer-facing code. This is NOT the Royal Mail tracking number.
-  return `AM-${crypto.randomBytes(6).toString("hex").toUpperCase()}`;
+function makeTrackingCode() {
+  // Permanent customer-facing A&M code: AM-123456789.
+  // The customer always uses this code on A&M; it maps to the private
+  // Royal Mail tracking reference stored on the same Supabase order row.
+  const bytes = crypto.randomBytes(6);
+  let digits = "";
+  for (const byte of bytes) digits += String(byte % 10);
+  return `AM-${digits.slice(0, 9)}`;
+}
+
+async function createUniqueTrackingCode() {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const code = makeTrackingCode();
+    const { data, error } = await supabase
+      .from("orders")
+      .select("id")
+      .eq("tracking_code", code)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return code;
+  }
+  throw new Error("Unable to generate a unique A&M tracking code");
 }
 
 export const handler = async (event) => {
@@ -52,22 +71,22 @@ export const handler = async (event) => {
 
     const { data: existing, error: existingError } = await supabase
       .from("orders")
-      .select("id, order_number, lookup_code")
+      .select("id, order_number, tracking_code")
       .eq("stripe_session_id", session.id)
       .maybeSingle();
 
     if (existingError) throw existingError;
 
     let orderNumber = existing?.order_number;
-    let lookupCode = existing?.lookup_code;
+    let trackingCode = existing?.tracking_code;
 
     if (!existing) {
       orderNumber = makeOrderNumber();
-      lookupCode = makeLookupCode();
+      trackingCode = await createUniqueTrackingCode();
 
       const { error: insertError } = await supabase.from("orders").insert({
         order_number: orderNumber,
-        lookup_code: lookupCode,
+        tracking_code: trackingCode,
         stripe_session_id: session.id,
         stripe_payment_intent: session.payment_intent || null,
         customer_name: name,
@@ -85,7 +104,7 @@ export const handler = async (event) => {
         from: "A&M Orders <onboarding@resend.dev>",
         to: "adube6113@outlook.com",
         subject: `New Order ${orderNumber}`,
-        html: `<h2>New A&amp;M order</h2><p><strong>Order:</strong> ${orderNumber}</p><p><strong>Customer:</strong> ${name || "Not supplied"}</p><p><strong>Email:</strong> ${email}</p><p><strong>Total:</strong> £${amount.toFixed(2)}</p><p><strong>Customer tracking code:</strong> ${lookupCode}</p><p>Add the Royal Mail tracking reference to the <code>royal_mail_tracking</code> column in Supabase when the parcel is dispatched.</p>`
+        html: `<h2>New A&amp;M order</h2><p><strong>Order:</strong> ${orderNumber}</p><p><strong>Customer:</strong> ${name || "Not supplied"}</p><p><strong>Email:</strong> ${email}</p><p><strong>Total:</strong> £${amount.toFixed(2)}</p><p><strong>A&amp;M tracking code:</strong> ${trackingCode}</p><p>The customer keeps this A&amp;M code permanently. When dispatched, put the real Royal Mail reference in the <code>royal_mail_tracking</code> column on this same order.</p>`
       });
     } catch (emailError) {
       console.error("Admin order email failed:", emailError);
@@ -93,7 +112,6 @@ export const handler = async (event) => {
 
     return { statusCode: 200, body: JSON.stringify({ received: true }) };
   } catch (err) {
-    // Returning 500 lets Stripe retry the webhook instead of silently losing the order.
     console.error("Order webhook failed:", err);
     return { statusCode: 500, body: JSON.stringify({ error: "Order processing failed" }) };
   }

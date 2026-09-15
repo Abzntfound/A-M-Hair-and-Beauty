@@ -10,6 +10,13 @@
   [headers.values]
     Referrer-Policy = "strict-origin-when-cross-origin"
 
+# Avoid serving a stale cached homepage while Google Privacy & Messaging
+# configuration/tag changes are being rolled out.
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
 [[redirects]]
   from = "/*"
   to = "/:splat"

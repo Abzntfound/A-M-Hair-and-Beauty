@@ -8,6 +8,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
     "express": "^5.1.0",
+    "resend": "^6.0.2",
     "stripe": "^18.0.0"
   }
 }

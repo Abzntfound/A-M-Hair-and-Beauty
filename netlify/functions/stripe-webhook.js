@@ -15,10 +15,7 @@ function makeOrderNumber() {
 }
 
 function makeTrackingCode() {
-  // Permanent customer-facing A&M code: AM-123456789
-  // The customer always uses this code on A&M; it maps to the private
-  // Royal Mail tracking reference stored on the same Supabase order row.
-  const bytes = crypto.randomBytes(6);
+  const bytes = crypto.randomBytes(9);
   let digits = "";
   for (const byte of bytes) digits += String(byte % 10);
   return `AM-${digits.slice(0, 9)}`;
@@ -30,7 +27,7 @@ async function createUniqueTrackingCode() {
     const { data, error } = await supabase
       .from("orders")
       .select("id")
-      .eq("tracking_code", code)
+      .eq("lookup_code", code)
       .maybeSingle();
     if (error) throw error;
     if (!data) return code;
@@ -71,14 +68,14 @@ export const handler = async (event) => {
 
     const { data: existing, error: existingError } = await supabase
       .from("orders")
-      .select("id, order_number, tracking_code")
+      .select("id, order_number, lookup_code")
       .eq("stripe_session_id", session.id)
       .maybeSingle();
 
     if (existingError) throw existingError;
 
     let orderNumber = existing?.order_number;
-    let trackingCode = existing?.tracking_code;
+    let trackingCode = existing?.lookup_code;
 
     if (!existing) {
       orderNumber = makeOrderNumber();
@@ -86,13 +83,14 @@ export const handler = async (event) => {
 
       const { error: insertError } = await supabase.from("orders").insert({
         order_number: orderNumber,
-        tracking_code: trackingCode,
+        lookup_code: trackingCode,
         stripe_session_id: session.id,
         stripe_payment_intent: session.payment_intent || null,
         customer_name: name,
         customer_email: email,
         total: amount,
         status: "processing",
+        courier: "Royal Mail",
         royal_mail_tracking: null
       });
 
@@ -104,7 +102,7 @@ export const handler = async (event) => {
         from: "A&M Orders <onboarding@resend.dev>",
         to: "adube6113@outlook.com",
         subject: `New Order ${orderNumber}`,
-        html: `<h2>New A&amp;M order</h2><p><strong>Order:</strong> ${orderNumber}</p><p><strong>Customer:</strong> ${name || "Not supplied"}</p><p><strong>Email:</strong> ${email}</p><p><strong>Total:</strong> £${amount.toFixed(2)}</p><p><strong>A&amp;M tracking code:</strong> ${trackingCode}</p><p>The customer keeps this A&amp;M code permanently. When dispatched, put the real Royal Mail reference in the <code>royal_mail_tracking</code> column on this same order.</p>`
+        html: `<h2>New A&amp;M order</h2><p><strong>Order:</strong> ${orderNumber}</p><p><strong>Customer:</strong> ${name || "Not supplied"}</p><p><strong>Email:</strong> ${email}</p><p><strong>Total:</strong> £${amount.toFixed(2)}</p><p><strong>A&amp;M tracking code:</strong> ${trackingCode}</p><p>The customer keeps this A&amp;M code. When dispatched, add the Royal Mail reference to <code>royal_mail_tracking</code> on this order.</p>`
       });
     } catch (emailError) {
       console.error("Admin order email failed:", emailError);

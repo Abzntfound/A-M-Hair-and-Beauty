@@ -25,44 +25,30 @@ export const handler = async (event) => {
   try {
     const body = JSON.parse(event.body || "{}");
     const email = String(body.email || "").trim().toLowerCase();
-    const lookupCode = String(body.lookupCode || body.orderNumber || "").trim().toUpperCase();
+    const trackingCode = String(body.trackingCode || body.lookupCode || "")
+      .trim()
+      .toUpperCase();
 
-    if (!email || !lookupCode || email.length > 254 || lookupCode.length > 40) {
-      return response(400, { error: "Enter your email and tracking code." });
+    if (!email || !/^AM-\d{9}$/.test(trackingCode) || email.length > 254) {
+      return response(400, { error: "Enter your checkout email and A&M tracking code." });
     }
 
-    // New orders use lookup_code. Keep order_number fallback for older orders.
-    let query = supabase
+    // The customer never needs the Royal Mail reference to search A&M.
+    // Their permanent AM-123456789 code + Stripe checkout email identifies
+    // the order; royal_mail_tracking is simply the carrier reference linked
+    // to that order by the store administrator.
+    const { data: order, error } = await supabase
       .from("orders")
-      .select("order_number,status,royal_mail_tracking")
+      .select("order_number,tracking_code,status,royal_mail_tracking")
       .eq("customer_email", email)
-      .eq("lookup_code", lookupCode);
-
-    let { data: order, error } = await query.maybeSingle();
-
-    if (error && /lookup_code|royal_mail_tracking/i.test(error.message || "")) {
-      // Helpful during the database migration: old schema can still use the
-      // existing order_number + tracking_number fields until columns are added.
-      const legacy = await supabase
-        .from("orders")
-        .select("order_number,status,tracking_number")
-        .eq("customer_email", email)
-        .eq("order_number", lookupCode)
-        .maybeSingle();
-      if (legacy.error) throw legacy.error;
-      order = legacy.data ? {
-        order_number: legacy.data.order_number,
-        status: legacy.data.status,
-        royal_mail_tracking: legacy.data.tracking_number
-      } : null;
-      error = null;
-    }
+      .eq("tracking_code", trackingCode)
+      .maybeSingle();
 
     if (error) throw error;
 
     if (!order) {
       return response(404, {
-        error: "We could not find an order matching those details."
+        error: "We could not find an order matching that email and A&M tracking code."
       });
     }
 
@@ -70,9 +56,9 @@ export const handler = async (event) => {
 
     return response(200, {
       orderNumber: order.order_number,
+      trackingCode: order.tracking_code,
       status: order.status || "processing",
       dispatched: Boolean(royalMailTracking),
-      royalMailTracking: royalMailTracking || null,
       royalMailUrl: royalMailTracking
         ? `https://www.royalmail.com/portal/rm/track?trackNumber=${encodeURIComponent(royalMailTracking)}`
         : null

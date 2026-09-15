@@ -37,4 +37,4 @@
     }
   }
   customElements.define('am-order-tracking',AMOrderTracking);
-})();
+})(); 

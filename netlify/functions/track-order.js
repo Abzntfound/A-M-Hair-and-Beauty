@@ -33,15 +33,11 @@ export const handler = async (event) => {
       return response(400, { error: "Enter your checkout email and A&M tracking code." });
     }
 
-    // The customer never needs the Royal Mail reference to search A&M
-    // Their permanent AM-123456789 code + Stripe checkout email identifies
-    // the order; royal_mail_tracking is simply the carrier reference linked
-    // to that order by the store administrator.
     const { data: order, error } = await supabase
       .from("orders")
-      .select("order_number,tracking_code,status,royal_mail_tracking")
+      .select("order_number,lookup_code,status,courier,royal_mail_tracking")
       .eq("customer_email", email)
-      .eq("tracking_code", trackingCode)
+      .eq("lookup_code", trackingCode)
       .maybeSingle();
 
     if (error) throw error;
@@ -56,8 +52,9 @@ export const handler = async (event) => {
 
     return response(200, {
       orderNumber: order.order_number,
-      trackingCode: order.tracking_code,
+      trackingCode: order.lookup_code,
       status: order.status || "processing",
+      courier: order.courier || "Royal Mail",
       dispatched: Boolean(royalMailTracking),
       royalMailUrl: royalMailTracking
         ? `https://www.royalmail.com/portal/rm/track?trackNumber=${encodeURIComponent(royalMailTracking)}`

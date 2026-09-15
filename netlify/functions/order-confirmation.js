@@ -59,4 +59,4 @@ exports.handler = async (event) => {
     console.error('Order confirmation lookup error:', err);
     return reply(500, { error: 'Unable to load order confirmation' });
   }
-};
+}; 

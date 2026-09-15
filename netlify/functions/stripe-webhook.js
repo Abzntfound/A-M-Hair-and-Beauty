@@ -15,7 +15,7 @@ function makeOrderNumber() {
 }
 
 function makeTrackingCode() {
-  // Permanent customer-facing A&M code: AM-123456789.
+  // Permanent customer-facing A&M code: AM-123456789
   // The customer always uses this code on A&M; it maps to the private
   // Royal Mail tracking reference stored on the same Supabase order row.
   const bytes = crypto.randomBytes(6);

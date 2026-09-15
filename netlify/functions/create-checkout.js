@@ -1,8 +1,11 @@
 const Stripe = require('stripe');
+const { createClient } = require('@supabase/supabase-js');
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const SHIPPING_FEE = 399;
 const FREE_SHIPPING_THRESHOLD = 3000;
+const ADMIN_EMAIL = 'adube6113@outlook.com';
+const ADMIN_TEST_PRODUCT_ID = 'admin-checkout-test';
 
 const PRODUCTS = {
   'hair-growth-oil-100ml': { name: 'Hair Growth Oil', price: 999 },
@@ -23,226 +26,104 @@ const PRODUCTS = {
   'kids-set': { name: 'Kids Set', price: 2499 },
   'premium-hair-collection': { name: 'Premium Hair Collection', price: 3799 },
   'conditioner-150-ml': { name: 'Nourishing Conditioner 150ml', price: 999 },
+  [ADMIN_TEST_PRODUCT_ID]: { name: 'Admin Checkout Test', price: 0, adminOnly: true },
 };
 
-const PROMO_CODES = {
-  IBMCHURCH: { type: 'free_shipping' },
-  AMHALF: { type: 'oil_half_price' },
-};
+const PROMO_CODES = { IBMCHURCH: { type: 'free_shipping' }, AMHALF: { type: 'oil_half_price' } };
+const AMHALF_OIL_IDS = ['rosemary-hair-oil-60ml', 'hair-growth-oil-100ml'];
 
-const AMHALF_OIL_IDS = [
-  'rosemary-hair-oil-60ml',
-  'hair-growth-oil-100ml',
-];
-
-function normalisePromoCode(code) {
-  return String(code || '').trim().toUpperCase();
-}
-
+function normalisePromoCode(code) { return String(code || '').trim().toUpperCase(); }
 function getValidPromo(promo) {
   if (!promo || typeof promo !== 'object') return null;
-
   const code = normalisePromoCode(promo.code);
-  if (!code) return null;
-
   const definition = PROMO_CODES[code];
-  if (!definition) return null;
-
-  return { code, ...definition };
+  return definition ? { code, ...definition } : null;
 }
 
-function getSafeCart(cart) {
+async function getAuthenticatedEmail(event) {
+  const auth = String(event.headers?.authorization || event.headers?.Authorization || '');
+  const token = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
+  if (!token || !process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data?.user?.email) return null;
+  return data.user.email.trim().toLowerCase();
+}
+
+function getSafeCart(cart, isAdmin) {
   return cart.map((item) => {
     const product = PRODUCTS[item?.id];
     if (!product) throw new Error('Unknown product: ' + String(item?.id || 'missing-id'));
-
-    return {
-      id: item.id,
-      qty: Math.max(1, Math.floor(Number(item.qty) || 1)),
-      product,
-    };
+    if (product.adminOnly && !isAdmin) throw new Error('This test product is only available to the admin account.');
+    return { id: item.id, qty: product.adminOnly ? 1 : Math.max(1, Math.floor(Number(item.qty) || 1)), product };
   });
 }
 
 function buildCheckoutLines(safeCart, amHalfActive) {
-  // cart.js calculates AMHALF using the exact 50% value first, then rounds
-  // the final cart total to 2 decimal places. Because Stripe only accepts
-  // whole pennies, we reproduce that same final-total rounding here and
-  // distribute any leftover penny across discounted lines.
   const pricedLines = safeCart.map((item) => {
     const isAmHalfOil = amHalfActive && AMHALF_OIL_IDS.includes(item.id);
-    const rawAmount = isAmHalfOil
-      ? item.product.price * item.qty * 0.5
-      : item.product.price * item.qty;
-
-    return {
-      ...item,
-      isAmHalfOil,
-      rawAmount,
-      stripeAmount: Math.floor(rawAmount),
-    };
+    const rawAmount = isAmHalfOil ? item.product.price * item.qty * 0.5 : item.product.price * item.qty;
+    return { ...item, isAmHalfOil, rawAmount, stripeAmount: Math.floor(rawAmount) };
   });
-
-  const rawMerchandiseTotal = pricedLines.reduce(
-    (sum, line) => sum + line.rawAmount,
-    0
-  );
-
+  const rawMerchandiseTotal = pricedLines.reduce((sum, line) => sum + line.rawAmount, 0);
   const targetMerchandiseTotal = Math.round(rawMerchandiseTotal);
-  const flooredTotal = pricedLines.reduce(
-    (sum, line) => sum + line.stripeAmount,
-    0
-  );
-
+  const flooredTotal = pricedLines.reduce((sum, line) => sum + line.stripeAmount, 0);
   let penniesToDistribute = targetMerchandiseTotal - flooredTotal;
-
-  // Only fractional AMHALF lines can need the extra penny.
   for (const line of pricedLines) {
     if (penniesToDistribute <= 0) break;
-
-    if (line.isAmHalfOil && !Number.isInteger(line.rawAmount)) {
-      line.stripeAmount += 1;
-      penniesToDistribute -= 1;
-    }
+    if (line.isAmHalfOil && !Number.isInteger(line.rawAmount)) { line.stripeAmount += 1; penniesToDistribute -= 1; }
   }
-
-  if (penniesToDistribute !== 0) {
-    throw new Error('Unable to reconcile checkout total');
-  }
-
-  return {
-    pricedLines,
-    rawMerchandiseTotal,
-    targetMerchandiseTotal,
-  };
+  if (penniesToDistribute !== 0) throw new Error('Unable to reconcile checkout total');
+  return { pricedLines, rawMerchandiseTotal, targetMerchandiseTotal };
 }
 
 exports.handler = async (event) => {
   try {
-    if (event.httpMethod && event.httpMethod !== 'POST') {
-      return {
-        statusCode: 405,
-        headers: {
-          Allow: 'POST',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ error: 'Method not allowed' }),
-      };
-    }
-
+    if (event.httpMethod && event.httpMethod !== 'POST') return { statusCode: 405, headers: { Allow: 'POST', 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Method not allowed' }) };
     let payload;
-    try {
-      payload = JSON.parse(event.body || '{}');
-    } catch {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid checkout request' }),
-      };
-    }
-
+    try { payload = JSON.parse(event.body || '{}'); } catch { return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Invalid checkout request' }) }; }
     const { cart, promo } = payload;
+    if (!Array.isArray(cart) || cart.length === 0) return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Cart is empty' }) };
+    if (!process.env.STRIPE_SECRET_KEY) throw new Error('Stripe is not configured');
 
-    if (!Array.isArray(cart) || cart.length === 0) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Cart is empty' }),
-      };
-    }
+    const containsAdminTest = cart.some(item => item?.id === ADMIN_TEST_PRODUCT_ID);
+    const authenticatedEmail = containsAdminTest ? await getAuthenticatedEmail(event) : null;
+    const isAdmin = authenticatedEmail === ADMIN_EMAIL;
+    const safeCart = getSafeCart(cart, isAdmin);
+    if (containsAdminTest && (safeCart.length !== 1 || safeCart[0].id !== ADMIN_TEST_PRODUCT_ID)) throw new Error('The admin test product must be checked out by itself.');
 
-    if (!process.env.STRIPE_SECRET_KEY) {
-      throw new Error('Stripe is not configured');
-    }
-
-    const safeCart = getSafeCart(cart);
     const validPromo = getValidPromo(promo);
     const amHalfActive = validPromo?.type === 'oil_half_price';
-
-    const {
-      pricedLines,
-      rawMerchandiseTotal,
-      targetMerchandiseTotal,
-    } = buildCheckoutLines(safeCart, amHalfActive);
-
+    const { pricedLines, rawMerchandiseTotal, targetMerchandiseTotal } = buildCheckoutLines(safeCart, amHalfActive);
     const line_items = pricedLines.map((line) => {
       const { product, qty, isAmHalfOil, stripeAmount } = line;
-
-      if (isAmHalfOil) {
-        // Keep the full discounted line as quantity 1 so Stripe can represent
-        // totals such as 50% of £4.99 without forcing a per-item half-penny.
-        return {
-          price_data: {
-            currency: 'gbp',
-            product_data: {
-              name: `${product.name} × ${qty} — AMHALF 50% off`,
-            },
-            unit_amount: stripeAmount,
-          },
-          quantity: 1,
-        };
-      }
-
-      return {
-        price_data: {
-          currency: 'gbp',
-          product_data: { name: product.name },
-          unit_amount: product.price,
-        },
-        quantity: qty,
-      };
+      if (isAmHalfOil) return { price_data: { currency: 'gbp', product_data: { name: `${product.name} × ${qty} — AMHALF 50% off` }, unit_amount: stripeAmount }, quantity: 1 };
+      return { price_data: { currency: 'gbp', product_data: { name: product.name }, unit_amount: product.price }, quantity: qty };
     });
 
-    let shipping = SHIPPING_FEE;
-
-    // Use the unrounded merchandise amount here because cart.js checks the
-    // exact discounted cart total before deciding whether shipping is free.
-    if (
-      validPromo?.type === 'free_shipping' ||
-      rawMerchandiseTotal >= FREE_SHIPPING_THRESHOLD
-    ) {
-      shipping = 0;
-    }
-
-    if (shipping > 0) {
-      line_items.push({
-        price_data: {
-          currency: 'gbp',
-          product_data: { name: 'Shipping' },
-          unit_amount: shipping,
-        },
-        quantity: 1,
-      });
-    }
+    let shipping = containsAdminTest ? 0 : SHIPPING_FEE;
+    if (!containsAdminTest && (validPromo?.type === 'free_shipping' || rawMerchandiseTotal >= FREE_SHIPPING_THRESHOLD)) shipping = 0;
+    if (shipping > 0) line_items.push({ price_data: { currency: 'gbp', product_data: { name: 'Shipping' }, unit_amount: shipping }, quantity: 1 });
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
+      payment_method_collection: 'if_required',
       payment_method_types: ['card'],
       line_items,
+      customer_email: containsAdminTest ? ADMIN_EMAIL : undefined,
       metadata: {
         promo_code: validPromo?.code || '',
         share_key: String(promo?.shareKey || '').slice(0, 100),
         merchandise_total_pence: String(targetMerchandiseTotal),
+        admin_test: containsAdminTest ? 'true' : 'false'
       },
-      success_url:
-        'https://amhairandbeauty.com/success?success=true&session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://amhairandbeauty.com/cart/',
+      success_url: 'https://amhairandbeauty.com/success?success=true&session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://amhairandbeauty.com/cart/'
     });
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: session.url }),
-    };
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: session.url }) };
   } catch (err) {
     console.error('Checkout error:', err);
-
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        error: err?.message || 'Checkout failed',
-      }),
-    };
+    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: err?.message || 'Checkout failed' }) };
   }
 };

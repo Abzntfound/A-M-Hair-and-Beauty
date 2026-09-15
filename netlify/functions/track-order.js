@@ -33,7 +33,7 @@ export const handler = async (event) => {
       return response(400, { error: "Enter your checkout email and A&M tracking code." });
     }
 
-    // The customer never needs the Royal Mail reference to search A&M.
+    // The customer never needs the Royal Mail reference to search A&M
     // Their permanent AM-123456789 code + Stripe checkout email identifies
     // the order; royal_mail_tracking is simply the carrier reference linked
     // to that order by the store administrator.

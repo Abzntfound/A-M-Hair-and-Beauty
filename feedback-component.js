@@ -11,27 +11,55 @@
       const root = this.attachShadow({ mode: 'open' });
       root.innerHTML = `
         <style>
-          :host{font-family:Poppins,Arial,sans-serif}
+          :host{
+            font-family:Poppins,Arial,sans-serif;
+            --fb-card:#ffffff;
+            --fb-text:#151515;
+            --fb-muted:#333333;
+            --fb-field:#fafafa;
+            --fb-field-border:#dedede;
+            --fb-close:#f5f5f5;
+            --fb-close-text:#151515;
+            --fb-button:#151515;
+            --fb-button-text:#ffffff;
+            --fb-overlay:rgba(10,10,10,.48);
+            --fb-shadow:rgba(0,0,0,.24);
+            color:var(--fb-text);
+          }
+          :host([data-theme="dark"]){
+            --fb-card:#171717;
+            --fb-text:#f7f7f7;
+            --fb-muted:#d4d4d4;
+            --fb-field:#242424;
+            --fb-field-border:#3b3b3b;
+            --fb-close:#292929;
+            --fb-close-text:#ffffff;
+            --fb-button:#f5f5f5;
+            --fb-button-text:#151515;
+            --fb-overlay:rgba(0,0,0,.65);
+            --fb-shadow:rgba(0,0,0,.55);
+          }
           *{box-sizing:border-box}
-          .btn{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:1450;border:0;border-radius:999px;padding:14px 19px;background:#151515;color:#fff;font:700 14px/1 Poppins,Arial,sans-serif;box-shadow:0 16px 44px rgba(0,0,0,.23);cursor:pointer;display:flex;align-items:center;gap:9px;transition:.25s ease}
-          .btn:hover{transform:translateY(-3px);background:#d946a6}
-          .overlay{position:fixed;inset:0;z-index:2400;background:rgba(10,10,10,.48);backdrop-filter:blur(10px);display:grid;place-items:end;padding:24px;opacity:0;pointer-events:none;transition:opacity .28s ease}
+          .btn{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:1450;border:0;border-radius:999px;padding:14px 19px;background:var(--fb-button);color:var(--fb-button-text);font:700 14px/1 Poppins,Arial,sans-serif;box-shadow:0 16px 44px rgba(0,0,0,.23);cursor:pointer;display:flex;align-items:center;gap:9px;transition:.25s ease}
+          .btn:hover{transform:translateY(-3px);background:#d946a6;color:#fff}
+          .overlay{position:fixed;inset:0;z-index:2400;background:var(--fb-overlay);backdrop-filter:blur(10px);display:grid;place-items:end;padding:24px;opacity:0;pointer-events:none;transition:opacity .28s ease}
           .overlay.open{opacity:1;pointer-events:auto}
-          .card{width:min(470px,100%);background:#fff;color:#151515;border-radius:28px;padding:28px;border:1px solid rgba(21,21,21,.08);box-shadow:0 30px 100px rgba(0,0,0,.24);max-height:min(82vh,720px);overflow:auto;transform:translateY(30px);transition:transform .35s ease}
+          .card{width:min(470px,100%);background:var(--fb-card);color:var(--fb-text);border-radius:28px;padding:28px;border:1px solid var(--fb-field-border);box-shadow:0 30px 100px var(--fb-shadow);max-height:min(82vh,720px);overflow:auto;transform:translateY(30px);transition:transform .35s ease,background-color .2s ease,color .2s ease}
           .overlay.open .card{transform:none}
           .top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:22px}
           .kicker{color:#d946a6;font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
-          h3{font-size:clamp(1.7rem,4vw,2.2rem);line-height:1;letter-spacing:-.04em;margin:0}
-          .close{border:0;background:#f5f5f5;width:38px;height:38px;border-radius:50%;font-size:20px;cursor:pointer}
+          h3{font-size:clamp(1.7rem,4vw,2.2rem);line-height:1;letter-spacing:-.04em;margin:0;color:var(--fb-text)}
+          .close{border:0;background:var(--fb-close);color:var(--fb-close-text);width:38px;height:38px;border-radius:50%;font-size:20px;cursor:pointer}
           .field{margin-top:15px}
-          label{display:block;font-size:13px;font-weight:700;margin-bottom:7px;color:#333}
-          input,textarea{width:100%;border:1px solid #dedede;background:#fafafa;border-radius:15px;padding:13px 14px;font:500 14px/1.5 Poppins,Arial,sans-serif;outline:none}
-          input:focus,textarea:focus{border-color:#d946a6;background:#fff;box-shadow:0 0 0 4px rgba(217,70,166,.1)}
+          label{display:block;font-size:13px;font-weight:700;margin-bottom:7px;color:var(--fb-muted)}
+          input,textarea{width:100%;border:1px solid var(--fb-field-border);background:var(--fb-field);color:var(--fb-text);border-radius:15px;padding:13px 14px;font:500 14px/1.5 Poppins,Arial,sans-serif;outline:none}
+          input::placeholder,textarea::placeholder{color:var(--fb-muted);opacity:.72}
+          input:focus,textarea:focus{border-color:#d946a6;background:var(--fb-card);box-shadow:0 0 0 4px rgba(217,70,166,.1)}
           textarea{min-height:135px;resize:vertical}
           .submit{width:100%;margin-top:18px;border:0;border-radius:999px;padding:14px 18px;background:linear-gradient(135deg,#d946a6,#ec4899);color:#fff;font:800 14px Poppins,Arial,sans-serif;cursor:pointer}
           .submit:disabled{opacity:.6;cursor:wait}
-          .status{min-height:22px;margin-top:11px;font-size:13px;font-weight:600}
-          .success{color:#15803d}.error{color:#b91c1c}
+          .status{min-height:22px;margin-top:11px;font-size:13px;font-weight:600;color:var(--fb-text)}
+          .success{color:#22c55e}.error{color:#ef4444}
           @media(max-width:720px){.btn{right:14px;padding:13px;width:48px;height:48px;justify-content:center}.label{display:none}.overlay{padding:0;place-items:end center}.card{width:100%;border-radius:26px 26px 0 0;padding:24px 20px calc(22px + env(safe-area-inset-bottom));max-height:88vh}}
           @media(prefers-reduced-motion:reduce){.btn,.overlay,.card{transition:none!important}}
         </style>
@@ -46,6 +74,14 @@
             <div class="status" aria-live="polite"></div>
           </form>
         </div>`;
+
+      const syncTheme = () => {
+        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        this.setAttribute('data-theme', theme);
+      };
+      syncTheme();
+      const themeObserver = new MutationObserver(syncTheme);
+      themeObserver.observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
 
       const button = root.querySelector('.btn');
       const overlay = root.querySelector('.overlay');

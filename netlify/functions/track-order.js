@@ -56,4 +56,4 @@ export const handler = async (event) => {
     console.error("Track order error:", err);
     return response(500, { error: "Unable to check your order right now." });
   }
-};
+}; 

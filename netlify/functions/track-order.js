@@ -18,16 +18,12 @@ function response(statusCode, body) {
 }
 
 export const handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return response(405, { error: "Method not allowed" });
-  }
+  if (event.httpMethod !== "POST") return response(405, { error: "Method not allowed" });
 
   try {
     const body = JSON.parse(event.body || "{}");
     const email = String(body.email || "").trim().toLowerCase();
-    const trackingCode = String(body.trackingCode || body.lookupCode || "")
-      .trim()
-      .toUpperCase();
+    const trackingCode = String(body.trackingCode || body.lookupCode || "").trim().toUpperCase();
 
     if (!email || !/^AM-\d{9}$/.test(trackingCode) || email.length > 254) {
       return response(400, { error: "Enter your checkout email and A&M tracking code." });
@@ -41,12 +37,7 @@ export const handler = async (event) => {
       .maybeSingle();
 
     if (error) throw error;
-
-    if (!order) {
-      return response(404, {
-        error: "We could not find an order matching that email and A&M tracking code."
-      });
-    }
+    if (!order) return response(404, { error: "We could not find an order matching that email and A&M tracking code." });
 
     const royalMailTracking = String(order.royal_mail_tracking || "").trim().toUpperCase();
 
@@ -56,8 +47,9 @@ export const handler = async (event) => {
       status: order.status || "processing",
       courier: order.courier || "Royal Mail",
       dispatched: Boolean(royalMailTracking),
+      royalMailTracking: royalMailTracking || null,
       royalMailUrl: royalMailTracking
-        ? `https://www.royalmail.com/portal/rm/track?trackNumber=${encodeURIComponent(royalMailTracking)}`
+        ? `https://www.royalmail.com/track-your-item#/tracking-results/${encodeURIComponent(royalMailTracking)}`
         : null
     });
   } catch (err) {

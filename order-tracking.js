@@ -36,13 +36,13 @@
           <div class="wrap">
             <div class="eyebrow">Order tracking</div>
             <h2>Track your order</h2>
-            <p class="intro">Enter the email used at Stripe checkout and the A&amp;M tracking code created for your order. Your Royal Mail link will appear after your parcel has been dispatched.</p>
+            <p class="intro">Use the A&amp;M tracking code you received with your order, for example AM-123456789. Once your parcel is dispatched, this same A&amp;M code will connect you to your Royal Mail tracking.</p>
             <form class="panel">
               <div class="grid">
                 <div><label for="email">Checkout email</label><input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com"></div>
-                <div><label for="code">A&amp;M tracking code</label><input id="code" name="lookupCode" autocomplete="off" required placeholder="AM-XXXXXXXXXXXX"></div>
+                <div><label for="code">A&amp;M tracking code</label><input id="code" name="trackingCode" autocomplete="off" required maxlength="12" pattern="AM-[0-9]{9}" placeholder="AM-123456789"></div>
               </div>
-              <button type="submit">Check order</button>
+              <button type="submit">Track order</button>
               <div class="result" aria-live="polite"></div>
             </form>
           </div>
@@ -55,6 +55,15 @@
       const form = root.querySelector('form');
       const button = root.querySelector('button');
       const result = root.querySelector('.result');
+      const codeInput = root.querySelector('#code');
+
+      codeInput.addEventListener('input', () => {
+        let value = codeInput.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+        if (value.startsWith('AM') && !value.startsWith('AM-') && value.length > 2) {
+          value = `AM-${value.slice(2).replace(/-/g, '')}`;
+        }
+        codeInput.value = value.slice(0, 12);
+      });
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -69,7 +78,7 @@
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({
               email:form.elements.email.value.trim(),
-              lookupCode:form.elements.lookupCode.value.trim()
+              trackingCode:form.elements.trackingCode.value.trim()
             })
           });
           const data = await response.json().catch(()=>({}));
@@ -77,24 +86,24 @@
 
           result.className = 'result show';
           const heading = document.createElement('strong');
-          heading.textContent = `Order ${data.orderNumber}`;
+          heading.textContent = `A&M tracking: ${data.trackingCode}`;
           const status = document.createElement('p');
           status.textContent = `Status: ${String(data.status || 'processing').replace(/_/g,' ')}`;
           result.append(heading,status);
 
           if (data.dispatched && data.royalMailUrl) {
-            const tracking = document.createElement('p');
-            tracking.textContent = `Royal Mail: ${data.royalMailTracking}`;
+            const ready = document.createElement('p');
+            ready.textContent = 'Your parcel has been dispatched. Continue to Royal Mail for the latest delivery updates.';
             const link = document.createElement('a');
             link.className = 'track';
             link.href = data.royalMailUrl;
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
-            link.textContent = 'Track with Royal Mail →';
-            result.append(tracking,link);
+            link.textContent = 'Track parcel with Royal Mail →';
+            result.append(ready,link);
           } else {
             const waiting = document.createElement('p');
-            waiting.textContent = 'Your order is confirmed. Royal Mail tracking will appear here once it has been dispatched.';
+            waiting.textContent = 'Your order is confirmed. Keep this A&M tracking code — Royal Mail tracking will be linked to it after dispatch.';
             result.append(waiting);
           }
         } catch (err) {
@@ -102,7 +111,7 @@
           result.textContent = err.message || 'Unable to check your order.';
         } finally {
           button.disabled = false;
-          button.textContent = 'Check order';
+          button.textContent = 'Track order';
         }
       });
     }

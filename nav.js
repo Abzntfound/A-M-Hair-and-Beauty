@@ -6,7 +6,7 @@
 const BASE = "https://amhairandbeauty.com";
 const USER_CACHE_KEY = "am_user";
 const SUPABASE_URL = "https://bipejrjipvoqvkwuzftz.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpcGVqcmppcHZvcXZrd3V6ZnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzYzMjMsImV4cCI6MjA5NzIxMjMyM30.Z8V7chc-UOK2UU5dxBydgLbT0u1DUv2_DGtisLmZWq4";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6ImJpcGVqcmppcHZvcXZrd3V6ZnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzYzMjMsImV4cCI6MjA5NzIxMjMyM30.Z8V7chc-UOK2UU5dxBydgLbT0u1DUv2_DGtisLmZWq4";
 const AM_COOKIE_DOMAIN = ".amhairandbeauty.com";
 const THEME_KEY = "amTheme";
 
@@ -35,6 +35,19 @@ function loadHomeOrderTracking(){
   document.body.appendChild(script);
 }
 
+function updateHomepageOilPromotion(){
+  const section=document.querySelector('.media3-section');
+  if(!section)return;
+  const eyebrow=section.querySelector('.media3-eyebrow');
+  const heading=section.querySelector('.media3-content h2');
+  const copy=section.querySelector('.media3-content p');
+  const button=section.querySelector('.media3-content a');
+  if(eyebrow)eyebrow.textContent='A&M Hair Oil Promotion';
+  if(heading)heading.textContent='50% Off Selected Hair Oils';
+  if(copy)copy.innerHTML='Use code <strong>AMHALF</strong> at checkout and enjoy 50% off our eligible hair oils.';
+  if(button){button.textContent='Shop Hair Oils →';button.href='/products/';}
+}
+
 function am_setCookie(name,value,days){const maxAge=days?`; max-age=${days*24*60*60}`:'';document.cookie=`${name}=${encodeURIComponent(value)}; path=/; domain=${AM_COOKIE_DOMAIN}${maxAge}; secure; samesite=lax`;}
 function am_getCookieRaw(name){const eq=name+'=';for(let c of document.cookie.split(';')){c=c.trim();if(c.indexOf(eq)===0)return decodeURIComponent(c.substring(eq.length));}return null;}
 function am_removeCookie(name){document.cookie=`${name}=; path=/; domain=${AM_COOKIE_DOMAIN}; max-age=0; secure; samesite=lax`;}
@@ -53,4 +66,4 @@ function initHeader(){const header=document.getElementById('site-header');const 
 function renderFooter(){const f=window.AM_FOOTER||{columns:[],tagline:''};const cols=(f.columns||[]).map(col=>`<div class="footer-col"><h4>${col.heading}</h4>${(col.links||[]).map(l=>`<a href="${l.href}">${l.label}</a>`).join('')}</div>`).join('');const html=`<footer class="footer"><div class="footer-grid"><div class="footer-brand"><a href="/" class="logo"><img src="/A&M.png" alt="A&M" onerror="this.style.display='none'"><span>A&amp;M Hair &amp; Beauty</span></a><p>${f.tagline||''}</p></div>${cols}</div><div class="footer-bottom"><span>© ${new Date().getFullYear()} A&amp;M Hair &amp; Beauty</span><span>Made with ❤️</span></div></footer>`;const placeholder=document.getElementById('footer-placeholder');if(placeholder)placeholder.outerHTML=html;else document.body.insertAdjacentHTML('beforeend',html);}
 function initScrollReveal(){const targets=document.querySelectorAll('.scroll-reveal,.scroll-reveal-left,.scroll-reveal-right,.scale-in');if(!targets.length)return;if(!('IntersectionObserver'in window)){targets.forEach(el=>el.classList.add('revealed'));return;}const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('revealed');observer.unobserve(e.target);}});},{threshold:.12,rootMargin:'0px 0px -4%'});targets.forEach(el=>observer.observe(el));}
 window.AM={renderHeader,renderFooter,initScrollReveal,getCartCount,updateCartBadge,getUserData,fetchLiveUser,getCookie,applyTheme,loadTheme,ensureSupabaseClient,loadGlobalFeedback,loadHomeOrderTracking,loadGoogleConsentHelper};
-document.addEventListener('DOMContentLoaded',()=>{loadTheme();initScrollReveal();loadGlobalFeedback();loadHomeOrderTracking();});
+document.addEventListener('DOMContentLoaded',()=>{loadTheme();initScrollReveal();loadGlobalFeedback();loadHomeOrderTracking();updateHomepageOilPromotion();});

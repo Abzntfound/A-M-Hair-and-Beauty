@@ -32,6 +32,8 @@ main,section{position:relative}
 .scroll-reveal,.scroll-reveal-left,.scroll-reveal-right,.scale-in{transition:opacity 1s var(--am-ease),transform 1.2s var(--am-ease)}
 .scroll-reveal.revealed,.scroll-reveal-left.revealed,.scroll-reveal-right.revealed,.scale-in.revealed{opacity:1;transform:none}
 img{max-width:100%}
+/* Homepage hair-oil promotion background */
+.media3-section::before{background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.90) 34%,rgba(255,255,255,.38) 68%,rgba(255,255,255,.08) 100%),url('/newoil.jpg') center/cover no-repeat!important}
 @keyframes amFloat{0%,100%{transform:translate3d(0,0,0) rotate(0)}50%{transform:translate3d(0,-24px,0) rotate(7deg)}}
 @media(max-width:900px){.page-hero{min-height:44vh;padding-top:130px}.section{padding-left:6%;padding-right:6%}.product-card:hover,.review-card:hover,.value-card:hover,.team-card:hover{transform:translateY(-5px)}}
 @media(max-width:600px){.page-hero{padding:120px 20px 70px}.page-hero h1{font-size:clamp(2.8rem,16vw,4.4rem)}.page-hero:before{width:180px;height:180px;left:-100px}.page-hero:after{width:150px;height:150px;right:-80px}.section{padding:72px 18px}.section-header h2{font-size:clamp(2.25rem,12vw,3.6rem)}.product-card,.review-card,.cart-summary,.cart-item,.orders-card,.tracking-card,.value-card,.team-card{border-radius:20px}}

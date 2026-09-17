@@ -1,5 +1,5 @@
 /* A&M header ribbon
-   The info strip now sits clearly BELOW the floating header while keeping a shared rounded shell. */
+   The info strip now sits clearly BELOW the floating header while keeping a shared rounded shell */
 .contact-marquee.header-ribbon{
   position:fixed!important;
   top:10px!important;

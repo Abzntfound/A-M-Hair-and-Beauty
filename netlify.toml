@@ -1,23 +1,28 @@
-[functions]
-  directory = "netlify/functions"
-
-# Google Privacy & Messaging needs the page referrer to be available on
-# cross-origin requests. This policy is also the modern browser default,
-# but setting it explicitly prevents a stricter hosting header from blocking
-# the AdSense European regulations message.
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Referrer-Policy = "strict-origin-when-cross-origin"
-
-# Avoid serving a stale cached homepage while Google Privacy & Messaging
-# configuration/tag changes are being rolled out.
-[[headers]]
-  for = "/"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
+# A&M Hair & Beauty — Netlify configuration
+# Local images are served through Netlify Image CDN using clean /cdn/... URLs.
 
 [[redirects]]
-  from = "/*"
-  to = "/:splat"
+  from = "/cdn/*"
+  to = "/.netlify/images?url=/:splat&q=82"
   status = 200
+
+# Cache source image files aggressively; Netlify invalidates image transformations on deploy.
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpeg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

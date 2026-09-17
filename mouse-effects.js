@@ -1,4 +1,4 @@
-/* A&M Hair & Beauty — desktop mouse interactions */
+/* A&M Hair & Beauty — desktop mouse interaction */
 (() => {
   if (window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 

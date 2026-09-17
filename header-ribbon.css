@@ -1,0 +1,76 @@
+/* A&M header ribbon
+   A normal div styled to curl visually around the floating navigation. */
+.contact-marquee.header-ribbon{
+  position:fixed!important;
+  top:10px!important;
+  left:50%!important;
+  width:calc(100% - 24px)!important;
+  max-width:1528px!important;
+  height:116px!important;
+  transform:translateX(-50%)!important;
+  z-index:998!important;
+  overflow:hidden!important;
+  border:1px solid rgba(17,17,17,.09)!important;
+  border-radius:42px!important;
+  background:rgba(243,241,234,.68)!important;
+  box-shadow:0 16px 55px rgba(0,0,0,.07)!important;
+  backdrop-filter:blur(18px) saturate(145%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(145%)!important;
+  padding:74px 18px 0!important;
+  line-height:normal!important;
+}
+
+/* The inner edge creates the curled/notched shape around the pill header. */
+.contact-marquee.header-ribbon::before{
+  content:"";
+  position:absolute;
+  left:14px;
+  right:14px;
+  top:7px;
+  height:70px;
+  border-radius:999px;
+  background:var(--am-bg,#f3f1ea);
+  box-shadow:inset 0 -1px 0 rgba(17,17,17,.06);
+  pointer-events:none;
+}
+
+/* Pure CSS scrolling track — no deprecated <marquee> behaviour. */
+.header-ribbon .marquee-track{
+  width:100%;
+  overflow:hidden;
+  white-space:nowrap;
+  mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);
+}
+.header-ribbon .marquee-content{
+  display:inline-flex!important;
+  align-items:center;
+  gap:18px;
+  min-width:max-content;
+  padding:5px 20px 8px!important;
+  animation:amRibbonScroll 38s linear infinite;
+  font-size:12px!important;
+  color:var(--am-muted,#66645f)!important;
+}
+.header-ribbon:hover .marquee-content{animation-play-state:paused}
+.header-ribbon .marquee-content strong{color:var(--am-ink,#111)!important}
+
+@keyframes amRibbonScroll{
+  from{transform:translateX(0)}
+  to{transform:translateX(-42%)}
+}
+
+/* Header sits inside the ribbon's upper curl. */
+.site-header{z-index:1000!important}
+.site-header.scrolled~.contact-marquee.header-ribbon{top:7px!important}
+
+@media(max-width:900px){
+  .contact-marquee.header-ribbon{top:6px!important;width:calc(100% - 12px)!important;height:108px!important;border-radius:32px!important;padding-top:69px!important}
+  .contact-marquee.header-ribbon::before{left:8px;right:8px;top:5px;height:64px}
+  .header-ribbon .marquee-content{font-size:11px!important}
+}
+@media(max-width:600px){
+  .contact-marquee.header-ribbon{height:102px!important;padding:65px 8px 0!important;border-radius:27px!important}
+  .contact-marquee.header-ribbon::before{height:61px}
+}
+@media(prefers-reduced-motion:reduce){.header-ribbon .marquee-content{animation:none!important}}

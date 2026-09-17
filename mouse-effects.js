@@ -1,4 +1,4 @@
-/* A&M Hair & Beauty — desktop mouse interaction */
+/* A&M Hair & Beauty - desktop mouse interaction */
 (() => {
   /* Header ribbon CSS: kept separate so the curled header treatment is easy to maintain. */
   if (!document.querySelector('link[data-am-header-ribbon]')) {

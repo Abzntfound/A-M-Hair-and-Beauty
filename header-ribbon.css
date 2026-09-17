@@ -1,5 +1,5 @@
 /* A&M header ribbon
-   The information strip is a normal DIV and visually curls around the floating header. */
+   The information strip is a normal DIV and visually curls around the floating header */
 .contact-marquee.header-ribbon{
   position:fixed!important;
   top:10px!important;

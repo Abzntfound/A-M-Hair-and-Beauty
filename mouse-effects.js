@@ -1,7 +1,12 @@
 /* A&M Hair & Beauty — desktop mouse interaction */
 (() => {
+  /* Header ribbon CSS: kept separate so the curled header treatment is easy to maintain. */
+  if (!document.querySelector('link[data-am-header-ribbon]')) {
+    const ribbonCss=document.createElement('link');ribbonCss.rel='stylesheet';ribbonCss.href='/header-ribbon.css';ribbonCss.dataset.amHeaderRibbon='true';document.head.appendChild(ribbonCss);
+  }
+
   /* Header ribbon tweak: replace the old <marquee> with a normal div.
-     All ribbon movement/shape is controlled by manifest-theme.css. */
+     All ribbon movement/shape is controlled by header-ribbon.css. */
   const upgradeHeaderRibbon = () => {
     const shell = document.querySelector('.contact-marquee');
     const legacy = shell?.querySelector('marquee');

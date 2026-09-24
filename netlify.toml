@@ -1,10 +1,64 @@
 # A&M Hair & Beauty — Netlify configuration
 # Local images are served through Netlify Image CDN using clean /cdn/... URLs.
 
+# Common automated probes seen in Netlify traffic. These are not features of this
+# static site, so return the normal 404 page instead of exposing or emulating them.
+[[redirects]]
+  from = "/.env*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.git/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/xmlrpc.php"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/graphql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/actuator/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 [[redirects]]
   from = "/cdn/*"
   to = "/.netlify/images?url=/:splat&q=82"
   status = 200
+
+# Baseline browser security headers for every page.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self)"
+
+# Do not cache accidental/private-looking probe responses.
+[[headers]]
+  for = "/.env*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/.git/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
 
 # Cache source image files aggressively; Netlify invalidates image transformations on deploy.
 [[headers]]

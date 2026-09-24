@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Keep private/internal and non-site endpoints out of crawlers.
+Disallow: /.env
+Disallow: /.env.*
+Disallow: /.git/
+Disallow: /actuator/
+Disallow: /graphql
+Disallow: /xmlrpc.php
+Disallow: /.netlify/
+
+Sitemap: https://amhairandbeauty.com/sitemap.xml

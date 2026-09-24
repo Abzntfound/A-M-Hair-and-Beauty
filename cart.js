@@ -24,7 +24,7 @@ function findPromo(code){const n=normalisePromoCode(code);return PROMO_CODES.fin
 function makePromoShareKey(code){const c=normalisePromoCode(code)||'PROMO',b=new Uint8Array(6);if(window.crypto?.getRandomValues)window.crypto.getRandomValues(b);else for(let i=0;i<b.length;i++)b[i]=Math.floor(Math.random()*256);return `${c}-${Array.from(b).map(v=>v.toString(16).padStart(2,'0')).join('')}`;}
 function clearPromoQueryFromUrl(){const u=new URL(location.href);if(!u.searchParams.has('promo')&&!u.searchParams.has('share'))return;u.searchParams.delete('promo');u.searchParams.delete('share');history.replaceState({},'',u);}
 function isPageReload(){try{const n=performance.getEntriesByType?.('navigation')?.[0];return n?n.type==='reload':performance.navigation?.type===1;}catch{return false;}}
-function loadPromo(){activePromo=null;activePromoShareKey=null;const p=new URLSearchParams(location.search),has=p.has('promo')||p.has('share');if(has&&isPageReload()){clearPromoQueryFromUrl();return;}const promo=findPromo(p.get('promo'));if(promo){activePromo=promo;activePromoShareKey=p.get('share')||null;}}
+function loadPromo(){activePromo=null;activePromoShareKey=null;const p=new URLSearchParams(location.search),has=p.has('promo')||p.has('share');if(has&&isPageReload()&&!p.has('product')){clearPromoQueryFromUrl();return;}const promo=findPromo(p.get('promo'));if(promo){activePromo=promo;activePromoShareKey=p.get('share')||null;}}
 function applyPromo(code){activePromo=findPromo(code);activePromoShareKey=null;const u=new URL(location.href);u.searchParams.delete('promo');u.searchParams.delete('share');if(activePromo)u.searchParams.set('promo',activePromo.code);history.replaceState({},'',u);renderCartPage();}
 function getPromoShareUrl(code=activePromo?.code){const p=findPromo(code);if(!p)return null;const key=makePromoShareKey(p.code),u=new URL(location.href);u.searchParams.delete('promo');u.searchParams.delete('share');u.searchParams.set('promo',p.code);u.searchParams.set('share',key);activePromoShareKey=key;return u.toString();}
 async function copyText(text){try{await navigator.clipboard.writeText(text);return true;}catch{window.prompt('Copy this promo link:',text);return true;}}
@@ -48,19 +48,19 @@ function getOrderTotal(){return getCartTotal()+getShipping();}
 function applyProductQueryPromo(){
   const params=new URLSearchParams(location.search);
   const raw=String(params.get('product')||'').trim().toLowerCase();
-  if(!raw)return;
+  if(!raw)return false;
   let productId=null;
   if(AMHALF_OIL_IDS.includes(raw))productId=raw;
   else if(AMHALF_PRODUCT_QUERY_ALIASES.includes(raw))productId=DEFAULT_AMHALF_PRODUCT_ID;
-  if(!productId)return;
+  if(!productId)return false;
 
-  // Product campaign links automatically use AMHALF, but checkout still validates
-  // the promo and product prices server-side in create-checkout.js.
   activePromo=findPromo('AMHALF');
   activePromoShareKey=null;
 
-  // Keep refreshes/back-forward navigation from repeatedly increasing quantity.
-  const marker=`amProductQuery:${location.pathname}:${raw}`;
+  // Apply only after the signed-in user's server cart has been restored. The marker
+  // includes the current cart owner so guest and account campaigns do not collide.
+  const owner=getUserId()||'guest';
+  const marker=`amProductQuery:${owner}:${raw}`;
   let alreadyProcessed=false;
   try{alreadyProcessed=sessionStorage.getItem(marker)==='1';}catch{}
   if(!alreadyProcessed){
@@ -72,6 +72,7 @@ function applyProductQueryPromo(){
   const u=new URL(location.href);
   u.searchParams.set('promo','AMHALF');
   history.replaceState({},'',u);
+  return true;
 }
 
 async function refreshAdminTestAccess(){try{const s=getSupabase()||await window.AM?.ensureSupabaseClient?.();if(!s){adminTestAllowed=false;return;}const{data}=await s.auth.getUser();adminTestAllowed=String(data?.user?.email||'').toLowerCase()===ADMIN_EMAIL;}catch{adminTestAllowed=false;}}
@@ -84,5 +85,21 @@ c.querySelector('#normal-checkout').onclick=proceedToCheckout;c.querySelector('#
 
 async function proceedToCheckout(){const cart=getCart();if(!cart.length)return;const r=await fetch('/.netlify/functions/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cart,promo:activePromo?{...activePromo,shareKey:activePromoShareKey}:null})});const d=await r.json();if(!r.ok){alert(d?.error||'Checkout failed');return;}location.href=d.url;}
 async function saveAbandonedCart(cart){const s=getSupabase(),id=getUserId();if(!s||!id)return;const{error}=await s.from('abandoned_carts').upsert({user_id:id,cart,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)console.error('Abandoned cart error:',error);}
-(async function init(){loadPromo();applyProductQueryPromo();try{if(!getSupabase()&&window.AM?.ensureSupabaseClient)await window.AM.ensureSupabaseClient();await refreshAdminTestAccess();const s=getSupabase(),id=getUserId();if(s&&id){const{data,error}=await s.from('user_carts').select('cart').eq('user_id',id).maybeSingle();if(error)console.error('Cart loading error:',error);if(data?.cart)localStorage.setItem(`amCart_${id}`,JSON.stringify(data.cart));}}catch(e){console.error('Cart sync failed:',e);}renderCartPage();})();
+(async function init(){
+  loadPromo();
+  try{
+    if(!getSupabase()&&window.AM?.ensureSupabaseClient)await window.AM.ensureSupabaseClient();
+    await refreshAdminTestAccess();
+    const s=getSupabase(),id=getUserId();
+    if(s&&id){
+      const{data,error}=await s.from('user_carts').select('cart').eq('user_id',id).maybeSingle();
+      if(error)console.error('Cart loading error:',error);
+      if(data?.cart)localStorage.setItem(`amCart_${id}`,JSON.stringify(data.cart));
+    }
+  }catch(e){console.error('Cart sync failed:',e);}
+  // Campaign item/promo must be applied after server cart restoration, otherwise a
+  // signed-in user's Supabase cart can overwrite the item that came from the URL.
+  applyProductQueryPromo();
+  renderCartPage();
+})();
 window.addToCart=addToCart;window.removeFromCart=removeFromCart;window.updateQty=updateQty;window.clearCart=clearCart;window.getCart=getCart;window.getCartTotal=getCartTotal;window.renderCartPage=renderCartPage;window.proceedToCheckout=proceedToCheckout;window.applyPromo=applyPromo;window.getPromoShareUrl=getPromoShareUrl;window.copyPromoShareLink=copyPromoShareLink;window.startAdminTestCheckout=startAdminTestCheckout;

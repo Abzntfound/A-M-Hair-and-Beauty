@@ -345,15 +345,15 @@ const AM_PRODUCTS = [
         discontinued: false,
     },
    {
-        id: 'kids-set',
-        name: 'Kids Bundle',
-        subtitle: 'Best kids bundle.',
+        id: 'care-set',
+        name: 'Care Bundle',
+        subtitle: 'Best care bundle.',
         price: 24.99,
         image: '/Bundle10.jpg',
         images: ['/Bundle10.jpg'],
         category: 'bundles',
         badge: 'New!',
-        description: 'This kids set will for sure leave you kids hair shiny and glossy.',
+        description: 'This care set will for sure your hair shiny and glossy.',
         features: [
             '100% natural ingredients',
             'Promotes hair growth and thickness',
@@ -369,7 +369,7 @@ const AM_PRODUCTS = [
    {
         id: 'premium-hair-collection',
         name: 'Premium Hair Collection',
-        subtitle: 'Best kids bundle.',
+        subtitle: 'premium hair bundle.',
         price: 37.99,
         image: '/Bundle11.jpg',
         images: ['/Bundle11.jpg'],

@@ -380,10 +380,6 @@
 </head>
 <body>
 
-<noscript>
-  " Website needs Javascript to run "
-</noscript>
-
 <div id="header-placeholder"></div>
 
 <!-- ===== GRID VIEW ===== -->
@@ -424,7 +420,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const id = new URLSearchParams(location.search).get("id");
+  const params = new URLSearchParams(location.search);
+
+  if (params.get("id") === "kids-set") {
+    params.set("id", "care-set");
+    window.location.replace(`${window.location.pathname}?${params.toString()}`);
+    return;
+  }
+
+  const id = params.get("id");
 
   if (id) {
     // ---- DETAIL VIEW ----
@@ -438,16 +442,6 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("product-detail").innerHTML = "<h2 style='color:#999'>Product not found.</h2>";
       return;
     }
-
-    const params = new URLSearchParams(location.search);
-
-  if (params.get("id") === "kids-set") {
-    params.set("id", "care-set");
-    location.replace(`${location.pathname}?${params.toString()}`);
-    return;
-  }
-
-const id = params.get("id");
 
     document.title = `${product.name} - A&M Hair & Beauty`;
 

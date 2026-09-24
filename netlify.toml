@@ -1,6 +1,40 @@
 # A&M Hair & Beauty — Netlify configuration
 # Local images are served through Netlify Image CDN using clean /cdn/... URLs.
 
+# AMHALF campaign URLs. If a campaign query is opened on the homepage or products
+# page, send the customer to the cart where cart.js applies AMHALF and adds the oil.
+[[redirects]]
+  from = "/"
+  to = "/cart/?product=eligible_products"
+  status = 302
+  force = true
+  [redirects.query]
+    product = "eligible_products"
+
+[[redirects]]
+  from = "/"
+  to = "/cart/?product=elegible_products"
+  status = 302
+  force = true
+  [redirects.query]
+    product = "elegible_products"
+
+[[redirects]]
+  from = "/products/*"
+  to = "/cart/?product=eligible_products"
+  status = 302
+  force = true
+  [redirects.query]
+    product = "eligible_products"
+
+[[redirects]]
+  from = "/products/*"
+  to = "/cart/?product=elegible_products"
+  status = 302
+  force = true
+  [redirects.query]
+    product = "elegible_products"
+
 # Keep old/incorrect cart policy links working and send them to the canonical policy page.
 [[redirects]]
   from = "/cart/policies.html"

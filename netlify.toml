@@ -1,6 +1,13 @@
 # A&M Hair & Beauty — Netlify configuration
 # Local images are served through Netlify Image CDN using clean /cdn/... URLs.
 
+# Keep old/incorrect cart policy links working and send them to the canonical policy page.
+[[redirects]]
+  from = "/cart/policies.html"
+  to = "/policies/"
+  status = 301
+  force = true
+
 # Common automated probes seen in Netlify traffic. These are not features of this
 # static site, so return the normal 404 page instead of exposing or emulating them.
 [[redirects]]

@@ -1,5 +1,5 @@
 /* A&M Hair & Beauty — Google Privacy & Messaging helper. */
-(function(){
+(function(){ 
 'use strict';
 const PUBLISHER_ID='ca-pub-6839198574351209';
 const ADSENSE_SRC='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';

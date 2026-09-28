@@ -24,6 +24,7 @@ function loadHomeOrderTracking(){
   const mount=()=>{
     if(!customElements.get('am-order-tracking'))return;
     const component=document.createElement('am-order-tracking');
+    component.id='track-order';
     legacy.replaceWith(component);
   };
   if(customElements.get('am-order-tracking')){mount();return;}

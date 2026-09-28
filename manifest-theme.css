@@ -37,3 +37,17 @@ input,textarea,select{border-radius:18px!important;border:1px solid var(--am-lin
 @media(max-width:600px){:root{--am-radius:22px}.page-hero{min-height:64vh;padding:135px 18px 58px!important}.page-hero h1{font-size:clamp(3.5rem,18vw,6rem)!important}.page-hero:before{width:82vw;right:-36%;top:2%;opacity:.78}.section{padding:78px 18px!important}.section-header h2,.media3-content h2{font-size:clamp(2.8rem,14vw,4.8rem)!important}.media3-section{margin:16px 10px!important;border-radius:28px!important;padding:32px 22px!important;min-height:68vh!important}.footer{border-radius:30px 30px 0 0}}
 @media(pointer:coarse){.am-cursor,.am-cursor-dot{display:none!important}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.scroll-reveal,.scroll-reveal-left,.scroll-reveal-right,.scale-in{opacity:1!important;transform:none!important}.am-cursor,.am-cursor-dot{display:none!important}}
+
+
+/* Fix navigation active/hover underline alignment */
+nav a { display: inline-block !important; }
+nav a::after {
+  left: 0 !important;
+  width: 100% !important;
+  transform: scaleX(0) !important;
+  transform-origin: center !important;
+}
+nav a:hover::after,
+nav a.active::after {
+  transform: scaleX(1) !important;
+}

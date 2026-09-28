@@ -466,10 +466,11 @@ const AM_ABOUT = {
 
 // ---- NAV ----
 const AM_NAV = [
+    { label: 'Home', href: 'https://amhairandbeauty.com/' },
     { label: 'Products', href: 'https://amhairandbeauty.com/products/' },
     { label: 'About', href: 'https://amhairandbeauty.com/about/' },
     { label: 'Reviews', href: '#reviews' },
-    { label: 'Shop', href: AM_CONFIG.shopUrl },
+    { label: 'Track', href: 'https://amhairandbeauty.com/#track-order' },
 ];
 
 // ---- FOOTER ----

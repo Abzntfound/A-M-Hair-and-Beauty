@@ -470,6 +470,7 @@ const AM_NAV = [
     { label: 'Products', href: 'https://amhairandbeauty.com/products/' },
     { label: 'About', href: 'https://amhairandbeauty.com/about/' },
     { label: 'Reviews', href: '#reviews' },
+    { label: 'Guides', href: 'https://amhairandbeauty.com/guides/' },
     { label: 'Track', href: 'https://amhairandbeauty.com/#track-order' },
 ];
 
@@ -491,7 +492,8 @@ const AM_FOOTER = {
             links: [
                 { label: 'About', href: '/about/' },
                 { label: 'Reviews', href: '#reviews' },
-                { label: 'Contact', href: 'mailto:vuyo_ncaynwa@yahoo.co.uk' },
+                { label: 'Guides', href: '/guides/' },
+                { label: 'Contact', href: 'mailto:help.amhairandbeauty@gmail.com' },
             ],
         },
         {

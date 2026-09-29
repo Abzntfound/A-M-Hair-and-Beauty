@@ -147,6 +147,19 @@
     .cta-band .btn-secondary { border-color: white; color: #d946a6; }
     .cta-band .btn-secondary:hover { background: white; color: #d946a6; }
 
+    /* ---- Hair care guides ---- */
+    .home-guides { padding: 100px 5%; background: #fdf2f8; }
+    .home-guides-inner { max-width: 1200px; margin: 0 auto; }
+    .home-guides-kicker { display:inline-block; color:#d946a6; font-size:.78rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; margin-bottom:.8rem; }
+    .home-guides .section-header p { max-width:720px; line-height:1.8; color:#666; }
+    .home-guides-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.4rem; margin-top:2.5rem; }
+    .home-guide-card { background:#fff; border:1px solid #f0d8e8; border-radius:22px; padding:2rem; min-height:220px; box-shadow:0 10px 30px rgba(0,0,0,.04); }
+    .home-guide-card > span { color:#d946a6; font-weight:800; font-size:.8rem; letter-spacing:.12em; }
+    .home-guide-card h3 { margin:1rem 0 .75rem; font-size:1.35rem; }
+    .home-guide-card p { margin:0; color:#666; line-height:1.8; }
+    .home-guides-actions { text-align:center; margin-top:2.5rem; }
+    @media (max-width: 800px) { .home-guides-grid { grid-template-columns:1fr; } }
+
     /* ---- Reviews section ---- */
     .reviews-section { padding: 100px 5%; background: white; }
     .reviews-section h2 { text-align: center; font-size: 3rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 3rem; }
@@ -615,6 +628,22 @@ Then replace your mobile rules with:
   <div class="home-products-grid" id="featured-products"></div>
   <div style="text-align:center" class="scroll-reveal">
     <a href="/products/" class="btn btn-secondary btn-lg">View All Products →</a>
+  </div>
+</section>
+
+<section class="home-guides" aria-labelledby="home-guides-title">
+  <div class="home-guides-inner">
+    <div class="section-header">
+      <span class="home-guides-kicker">A&amp;M Hair Care Guides</span>
+      <h2 id="home-guides-title">More than a product shelf.</h2>
+      <p>Choosing a product is only one part of a good routine. Our free guides explain practical hair-care habits, how product types fit together, and simple ways to look after your hair between wash days.</p>
+    </div>
+    <div class="home-guides-grid">
+      <article class="home-guide-card"><span>01</span><h3>Build a simple wash-day routine</h3><p>Learn how cleansing, conditioning, detangling and styling can fit into a manageable routine.</p></article>
+      <article class="home-guide-card"><span>02</span><h3>Look after your scalp</h3><p>Learn everyday habits for keeping your routine clean, consistent and easy to manage.</p></article>
+      <article class="home-guide-card"><span>03</span><h3>Choose products by purpose</h3><p>Understand the different jobs of shampoos, conditioners, styling products, oils and accessories.</p></article>
+    </div>
+    <div class="home-guides-actions"><a href="/guides/" class="btn btn-secondary btn-lg">Read the Hair Care Guides →</a></div>
   </div>
 </section>
 

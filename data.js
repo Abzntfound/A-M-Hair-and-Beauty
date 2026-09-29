@@ -448,7 +448,10 @@ const AM_ABOUT = {
     body: [
         'I tried every product on the market.',
         'Nothing worked, so I created my own formulas.',
-        'A&M Hair Beauty was born from that journey.'
+        'A&M Hair Beauty was born from that journey.',
+        'Today, the collection brings together everyday hair-care essentials such as oils, cleansing and conditioning products, styling products and protective accessories.',
+        'We want the shopping experience to be straightforward: clear product information, simple categories and practical guidance so customers can understand what they are buying before they order.',
+        'Our approach is to keep learning from customer feedback and improve the range and the experience around it over time.'
     ],
     tagline: 'We believe healthy hair = confidence 🌿✨',
     stats: [
@@ -458,9 +461,9 @@ const AM_ABOUT = {
     ],
     values: [
         { icon: '🌿', title: 'All Natural', body: 'No harsh chemicals ever.' },
-        { icon: '🧪', title: 'Tested', body: 'Real tested formulas.' },
+        { icon: '🧪', title: 'Product information', body: 'Clear descriptions and listed features help customers compare products.' },
         { icon: '💜', title: 'Community', body: 'Built on customer trust.' },
-        { icon: '♻️', title: 'Sustainable', body: 'Eco-friendly packaging.' },
+        { icon: '♻️', title: 'Thoughtful choices', body: 'We aim to make product and packaging choices with everyday use in mind.' },
     ],
 };
 
